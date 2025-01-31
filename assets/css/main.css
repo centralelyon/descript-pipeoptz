@@ -1,0 +1,53 @@
+
+
+.mainBlock {
+
+}
+
+
+.lightBorder {
+border: solid rgba(65,65,65,0.5) thin;
+}
+
+.buttonImg {
+width:32px;
+display:inline-block;
+
+}
+
+.buttonImg img {
+width:32px;
+display:inline-block;
+padding:1px;
+}
+
+#selectedButton {
+    /*color: #D1D1D1;*/
+    /*background-color: #0a0a0a;*/
+    /*background-color: black;*/
+    /*filter: invert(1);*/
+    /*filter: hue-rotate(180deg);*/
+    z-index: 99;
+    border: solid rgb(223, 38, 38) 2px;
+    padding:0px;
+}
+
+.buttonImg img:hover {
+width:32px;
+display:inline-block;
+opacity:0.6;
+cursor:pointer;
+border: solid rgba(10,10,10,1) 2px;
+padding:0px;
+
+}
+
+#inVis {
+    width: 100%;
+    cursor: crosshair;
+}
+
+
+#marks canvas {
+    border: solid rgba(65,65,65,0.5) thin;
+}
