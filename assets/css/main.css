@@ -1,24 +1,61 @@
-
+body {
+    font-family: Helvetica Neue, sans-serif;
+}
 
 .mainBlock {
 
 }
 
+.catColor {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-left: 3px;
+}
+
+.markFilter {
+    display: inline-block;
+    padding: 5px;
+    margin: 10px;
+}
+
+.markFilter:hover {
+
+    padding: 3px;
+    margin: 10px;
+    border: solid rgba(10, 10, 10, 0.6) 2px;
+    cursor: pointer;
+}
+
+
+.category p {
+    display: inline-block;
+    margin-right: 10px;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.category {
+    display: inline-block;
+    padding: 5px;
+    height: 25px;
+    cursor: pointer;
+}
 
 .lightBorder {
-border: solid rgba(65,65,65,0.5) thin;
+    border: solid rgba(65, 65, 65, 0.5) thin;
 }
 
 .buttonImg {
-width:32px;
-display:inline-block;
-
+    width: 32px;
+    display: inline-block;
 }
 
 .buttonImg img {
-width:32px;
-display:inline-block;
-padding:1px;
+    width: 32px;
+    display: inline-block;
+    padding: 1px;
 }
 
 #selectedButton {
@@ -29,16 +66,22 @@ padding:1px;
     /*filter: hue-rotate(180deg);*/
     z-index: 99;
     border: solid rgb(223, 38, 38) 2px;
-    padding:0px;
+    padding: 3px;
+}
+
+#selectedCat {
+    border: solid rgb(223, 38, 38) 2px;
+    padding: 0px;
+
 }
 
 .buttonImg img:hover {
-width:32px;
-display:inline-block;
-opacity:0.6;
-cursor:pointer;
-border: solid rgba(10,10,10,1) 2px;
-padding:0px;
+    width: 32px;
+    display: inline-block;
+    opacity: 0.6;
+    cursor: pointer;
+    border: solid rgba(10, 10, 10, 1) 2px;
+    padding: 0px;
 
 }
 
@@ -49,5 +92,6 @@ padding:0px;
 
 
 #marks canvas {
-    border: solid rgba(65,65,65,0.5) thin;
+    border: solid rgba(65, 65, 65, 0.5) 2px;
+    margin: 1px;
 }

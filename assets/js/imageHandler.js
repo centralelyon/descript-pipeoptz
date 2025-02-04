@@ -18,38 +18,6 @@ function loadImg(src) {
         currImg = im
 
 
-        const drawImage = () => {
-            cont.drawImage(currImg, 0, 0, rate[0], rate[1]);
-        }
-
-        const drawSelection = (e) => {
-            cont.strokeStyle = "#000";
-            cont.beginPath();
-            cont.rect(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
-            cont.stroke();
-        };
-
-        const clear = () => {
-            cont.strokeStyle = "#fff";
-            cont.clearRect(0, 0, rate[0], rate[1]);
-        };
-
-        const render = (e) => {
-            clear();
-            drawImage();
-
-            if (origin) drawSelection(e);
-        }
-        can.onmousedown = e => {
-            origin = {x: e.offsetX, y: e.offsetY};
-        };
-        can.onmouseup = e => {
-            addRectSample(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
-            origin = null;
-
-            render(e);
-        };
-        can.onmousemove = render;
 
     };
 
@@ -89,7 +57,40 @@ function fixRatio2(im, sv) {
 }
 
 
+function drawSamples(samples) {
 
+    let can = document.getElementById("inVis")
+    let cont = can.getContext('2d');
+
+    // cont.strokeStyle = "#fff";
+    cont.clearRect(0, 0, can.width, can.height);
+    cont.globalAlpha = 0.35
+    cont.drawImage(currImg, 0, 0, can.width, can.height);
+    cont.globalAlpha = 1
+
+    for (let i = 0; i < samples.length; i++) {
+
+        const sample = samples[i];
+
+        cont.drawImage(
+            sample.canvas,
+            sample.x,
+            sample.y,
+            sample.width,
+            sample.height
+        );
+
+    }
+
+}
+
+function resetImg() {
+
+    let can = document.getElementById("inVis")
+    let cont = can.getContext('2d');
+
+    cont.drawImage(currImg, 0, 0, can.width, can.height);
+}
 
 
 
