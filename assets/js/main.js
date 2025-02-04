@@ -217,6 +217,15 @@ function sortMarks(marks, type) {
 
     if (type === "category") {
 
+        let t = Object.groupBy(marks, ({category}) => category.name)
+        let temp = []
+
+        for (const [key, value] of Object.entries(t)) {
+            temp = temp.concat(value)
+        }
+
+        return temp
+
     } else if (type === "size") {
 
         return marks.sort((a, b) => (a.width * a.height) - (b.width * b.height));
