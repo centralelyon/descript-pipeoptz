@@ -1,6 +1,7 @@
 function initSampler() {
 
     switchMode("rect")
+    document.getElementById("jsonLoader").addEventListener("change", importFromJson);
 }
 
 function resetListeners(can) {
@@ -102,6 +103,7 @@ function onMouseUp() {
     mouseDown = 0
     addFreeSample(stroke)
     stroke = []
+    // drawImage()
 
 }
 

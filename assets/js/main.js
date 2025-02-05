@@ -1,8 +1,7 @@
 let currImg;
-let origin = null;
 
 let sampleData = []
-let keymap = {}
+
 let categories = {
     default: {
         name: "default",
@@ -15,6 +14,8 @@ let catColors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949
 
 
 let mouseDown = 0
+let origin = null;
+let keymap = {}
 let strokePoint = [];
 let stroke = [];
 
@@ -107,18 +108,23 @@ function addCategory() {
 
     if (name !== "") {
         document.getElementById("textCat").value = ""
-        let newCat = document.createElement("div");
 
         name = name.replace(/ /g, "_")
         categories[name] = {
             name: name,
             color: catColors[Object.keys(categories).length % catColors.length], //TODO: computational heavy
         }
-        newCat.className = "category";
-        newCat.setAttribute("value", name);
 
-        newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + categories[name].color + "'> </div> <p>" + name + "</p>"
-        document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
+        drawCat(name, categories[name].color, true)
+        /*
+            let newCat = document.createElement("div");
+           newCat.className = "category";
+           newCat.setAttribute("value", name);
+
+           newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + categories[name].color + "'> </div> <p>" + name + "</p>"
+           document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
+
+         */
     }
 }
 
@@ -241,8 +247,131 @@ function updateMarks(type) {
 
     container.innerHTML = "";
 
+    console.log(marks[0].canvas);
+    console.log(marks);
 
     for (let i = 0; i < marks.length; i++) {
         container.appendChild(marks[i].canvas);
     }
+}
+
+
+function updateCategories() {
+    document.querySelector(".category").remove();
+
+    let first = true
+    for (const [key, value] of Object.entries(categories)) {
+        drawCat(key, value.color, first)
+        first = false
+    }
+}
+
+
+function export2json() {
+
+    let tdat = [...sampleData];
+
+    const canvas = document.createElement('canvas');
+
+    canvas.width = currImg.width;
+    canvas.height = currImg.height;
+
+    let t = document.getElementById("inVis")
+    let cont = canvas.getContext("2d")
+
+    cont.drawImage(currImg, 0, 0);
+
+    //todo: FIX WHY USING CURRIMG IS NOT WORKING ?!
+    const tempData = {
+        categories: categories,
+        // background: canvas.toDataURL("image/png"),
+        background: t.toDataURL("image/png"),
+        marks: tdat.map((d) => {
+                d.canvas = d.canvas.toDataURL("image/png")
+                return d
+            }
+        )
+    }
+    download(JSON.stringify(tempData), "descript.json", "text/json");
+}
+
+function importFromJson(e) {
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        let jsonObj = JSON.parse(e.target.result);
+        importData(jsonObj);
+        // console.log(jsonObj)
+    }
+    reader.readAsText(e.target.files[0]);
+}
+
+
+function fakeFile() {
+    document.getElementById("jsonLoader").click()
+}
+
+
+async function importData(data) {
+
+    const tempData = data;
+
+    for (let i = 0; i < tempData["marks"].length; i++) {
+        tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
+    }
+
+    sampleData = tempData["marks"];
+    categories = tempData["categories"];
+
+    // loadImg(tempData.background)
+
+    let im = document.getElementById("tester")
+    im.src = tempData.background
+
+    updateCategories()
+    updateMarks("category")
+}
+
+function drawCat(name, color, selected = false) {
+    let newCat = document.createElement("div");
+    if (selected) {
+        selectedCategory = name
+        let t = document.getElementById("selectedCat")
+        if (t !== null) {
+            t.removeAttribute("id")
+        }
+
+        newCat.setAttribute("id", "selectedCat");
+
+    }
+    newCat.className = "category";
+    newCat.setAttribute("value", name);
+
+    newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + color + "'> </div> <p>" + name + "</p>"
+    document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
+
+}
+
+function download(content, fileName, contentType) {
+    const a = document.createElement("a");
+    const file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(a)
+}
+
+async function convertToCanvas(url) {
+    const can = document.createElement('canvas');
+    const cont = can.getContext('2d');
+    const img = new Image;
+
+    await new Promise(r => img.onload = r, img.src = url);
+
+    can.width = img.naturalWidth;
+    can.height = img.naturalHeight;
+    cont.drawImage(img, 0, 0);
+
+    return can
 }

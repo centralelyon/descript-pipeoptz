@@ -44,6 +44,17 @@
                 <img src="assets/images/buttons/poly.png" class="lightBorder" onclick="switchSampleSelect(this)"
                      style=""/>
             </div>
+            <div>
+                <div class="buttonImg" style="padding: 0;border: none">
+                    <input type="file" name="jsonLoader" id="jsonLoader" style="display: none;"/>
+                    <img src="assets/images/buttons/export.png" class="lightBorder"
+                         style="" onclick="fakeFile()"/>
+                </div>
+                <div class="buttonImg">
+                    <img src="assets/images/buttons/export.png" class="lightBorder" onclick="export2json(this)"
+                         style="transform: scaleX(-1)"/>
+                </div>
+            </div>
         </div>
         <div class="eleven columns lightBorder" style="margin-left:1%">
             <canvas class="" id="inVis"
@@ -87,7 +98,7 @@
 
 
     </div>
-
+    <img id="tester" src=""/>
 </div>
 
 
