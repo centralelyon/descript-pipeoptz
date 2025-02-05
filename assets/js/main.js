@@ -96,9 +96,7 @@ function switchSampleSelect(e, type) {
     document.getElementById("selectedButton").removeAttribute("id")
 
     e.setAttribute("id", "selectedButton")
-
     switchMode(type)
-
 
 }
 
@@ -117,13 +115,12 @@ function addCategory() {
 
         drawCat(name, categories[name].color, true)
         /*
-            let newCat = document.createElement("div");
+           let newCat = document.createElement("div");
            newCat.className = "category";
            newCat.setAttribute("value", name);
 
            newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + categories[name].color + "'> </div> <p>" + name + "</p>"
            document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
-
          */
     }
 }
@@ -192,10 +189,7 @@ docReady(function () {
             // drawSamples([])
             resetImg()
         }
-
     });
-
-
 });
 
 
@@ -242,13 +236,11 @@ function sortMarks(marks, type) {
 function updateMarks(type) {
 
     let container = document.getElementById("marks");
-    let marks = sortMarks([...sampleData], type
-    )
+    let marks = sortMarks([...sampleData], type)
 
     container.innerHTML = "";
-
-
     for (let i = 0; i < marks.length; i++) {
+        marks[i].canvas.style.border = "solid " + marks[i].category.color + " 2px"
         container.appendChild(marks[i].canvas);
     }
 }
@@ -267,7 +259,17 @@ function updateCategories() {
 
 function export2json() {
 
-    let tdat = [...sampleData];
+    // let tdat = [...sampleData]; //TODO: Copy without reference
+
+    // let tdat = sampleData.map(d => window.structuredClone(d))
+
+    let tdat = []
+
+    for (let i = 0; i < sampleData.length; i++) {
+        const tobj = {...sampleData[i]}
+        tobj.canvas = tobj.canvas.toDataURL("image/png")
+
+    }
 
     const canvas = document.createElement('canvas');
 
@@ -284,11 +286,7 @@ function export2json() {
         categories: categories,
         // background: canvas.toDataURL("image/png"),
         background: t.toDataURL("image/png"),
-        marks: tdat.map((d) => {
-                d.canvas = d.canvas.toDataURL("image/png")
-                return d
-            }
-        )
+        marks: tdat
     }
     download(JSON.stringify(tempData), "descript.json", "text/json");
 }
