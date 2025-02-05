@@ -8,6 +8,11 @@ function resetListeners(can) {
     can.onmousemove = null;
     can.onmousedown = null;
     can.onmouseup = null;
+
+
+    can.ontouchmove = null;
+    can.ontouchend = null;
+    can.ontouchstart = null;
 }
 
 function switchMode(type) {
@@ -34,6 +39,11 @@ function switchMode(type) {
 
         can.onmousedown = onMouseDown
         can.onmousemove = onMouseMove
+        can.onmouseup = onMouseUp
+
+
+        can.ontouchstart = onMouseDown
+        can.ontouchmove = onMouseMove
         can.onmouseup = onMouseUp
     }
 
