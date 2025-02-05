@@ -5,14 +5,14 @@ function initSampler() {
 }
 
 function resetListeners(can) {
-    can.onmousemove = null;
-    can.onmousedown = null;
-    can.onmouseup = null;
+    // can.onmousemove = null;
+    // can.onmousedown = null;
+    // can.onmouseup = null;
 
+    can.onpointerdown = null
+    can.onpointermove = null
+    can.onpointerup = null
 
-    can.ontouchmove = null;
-    can.ontouchend = null;
-    can.ontouchstart = null;
 }
 
 function switchMode(type) {
@@ -22,29 +22,31 @@ function switchMode(type) {
         resetListeners(can)
 
 
-        can.onmousedown = e => {
+        can.onpointerdown = e => {
             origin = {x: e.offsetX, y: e.offsetY};
         };
 
-        can.onmouseup = e => {
+        can.onpointerup = e => {
             addRectSample(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
             origin = null;
 
             render(e);
         };
-        can.onmousemove = render;
+        can.onpointermove = render;
     } else if (type === "free") {
 
         resetListeners(can)
 
+/*
         can.onmousedown = onMouseDown
         can.onmousemove = onMouseMove
         can.onmouseup = onMouseUp
+*/
 
+        can.onpointerdown = onMouseDown
+        can.onpointermove = onMouseMove
+        can.onpointerup = onMouseUp
 
-        can.ontouchstart = onMouseDown
-        can.ontouchmove = onMouseMove
-        can.onmouseup = onMouseUp
     }
 
 
