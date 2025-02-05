@@ -247,8 +247,6 @@ function updateMarks(type) {
 
     container.innerHTML = "";
 
-    console.log(marks[0].canvas);
-    console.log(marks);
 
     for (let i = 0; i < marks.length; i++) {
         container.appendChild(marks[i].canvas);
@@ -326,8 +324,8 @@ async function importData(data) {
 
     // loadImg(tempData.background)
 
-    let im = document.getElementById("tester")
-    im.src = tempData.background
+    // let im = document.getElementById("tester")
+    // im.src = tempData.background
 
     updateCategories()
     updateMarks("category")
