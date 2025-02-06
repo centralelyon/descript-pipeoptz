@@ -64,7 +64,10 @@ function drawSamples(samples) {
 
     // cont.strokeStyle = "#fff";
     cont.clearRect(0, 0, can.width, can.height);
-    cont.globalAlpha = 0.35
+    cont.rect(0, 0, can.width, can.height);
+    cont.fillStyle = "#000";
+    cont.fill()
+    cont.globalAlpha = 0.6
     cont.drawImage(currImg, 0, 0, can.width, can.height);
     cont.globalAlpha = 1
 
