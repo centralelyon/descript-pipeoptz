@@ -84,6 +84,7 @@ function drawSamples(samples) {
 
 }
 
+
 function resetImg() {
 
     let can = document.getElementById("inVis")

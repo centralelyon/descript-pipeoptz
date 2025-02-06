@@ -6,6 +6,46 @@ body {
 
 }
 
+
+.modalSideButtons {
+    width: 30px;
+    position: absolute;
+    top: 5px;
+    display: inline-block;
+
+}
+
+.modalSideButtons img {
+    width: 20px;
+    /*height: 24px;*/
+    padding: 5px;
+    display: inline-block;
+}
+
+.modalSideButtons img:hover {
+    border: solid rgba(10, 10, 10, 0.6) thin;
+    cursor: pointer;
+    padding: 4px;
+}
+
+#marks canvas:hover {
+    cursor: pointer;
+}
+
+
+#closeMod:hover {
+    border: solid rgba(10, 10, 10, 0.6) thin;
+    cursor: pointer;
+}
+
+.modal {
+    outline: none;
+    width: 75%;
+    border: solid rgba(10, 10, 10, 0.6) 2px;
+    height: 60%;
+    position: relative;
+}
+
 .catColor {
     width: 10px;
     height: 10px;
@@ -58,12 +98,12 @@ body {
     padding: 1px;
 }
 
+
+#selectModBut {
+    border: solid rgb(223, 38, 38) 2px;
+}
 #selectedButton {
-    /*color: #D1D1D1;*/
-    /*background-color: #0a0a0a;*/
-    /*background-color: black;*/
-    /*filter: invert(1);*/
-    /*filter: hue-rotate(180deg);*/
+
     z-index: 99;
     border: solid rgb(223, 38, 38) 2px;
     padding: 3px;

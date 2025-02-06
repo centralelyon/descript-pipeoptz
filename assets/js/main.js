@@ -19,9 +19,39 @@ let keymap = {}
 let strokePoint = [];
 let stroke = [];
 
+let selectedMark = null
 
-loadImg("assets/images/tempLoad/dearDat.png")
-docReady(initSampler)
+
+docReady(init)
+
+
+async function init() {
+    // loadImg("assets/images/tempLoad/dearDat.png")
+
+    let json = await getData()
+
+    importData(json);
+
+    switchMode("rect")
+    document.getElementById("jsonLoader").addEventListener("change", importFromJson);
+
+}
+
+async function getData() {
+    const url = "assets/images/tempLoad/bluesandblacks.json";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        return error
+    }
+}
+
 
 function getSamplesFromCategory(category) {
     return sampleData.filter(sample => {
@@ -64,7 +94,8 @@ function addRectSample(x, y, width, height) {
         ry: coords[1] / ty,
         rWidth: coords[2] / tx,
         rHeight: coords[3] / ty,
-        category: categories[selectedCategory]
+        category: categories[selectedCategory],
+        data: {}
     }
 
 
@@ -114,14 +145,6 @@ function addCategory() {
         }
 
         drawCat(name, categories[name].color, true)
-        /*
-           let newCat = document.createElement("div");
-           newCat.className = "category";
-           newCat.setAttribute("value", name);
-
-           newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + categories[name].color + "'> </div> <p>" + name + "</p>"
-           document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
-         */
     }
 }
 
@@ -320,7 +343,7 @@ async function importData(data) {
     sampleData = tempData["marks"];
     categories = tempData["categories"];
 
-    // loadImg(tempData.background)
+    loadImg(tempData.background)
 
     // let im = document.getElementById("tester")
     // im.src = tempData.background

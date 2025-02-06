@@ -1,8 +1,4 @@
-function initSampler() {
 
-    switchMode("rect")
-    document.getElementById("jsonLoader").addEventListener("change", importFromJson);
-}
 
 function resetListeners(can) {
     // can.onmousemove = null;
@@ -27,21 +23,24 @@ function switchMode(type) {
         };
 
         can.onpointerup = e => {
-            addRectSample(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
+
+            const torigin = {...origin}
+
             origin = null;
 
             render(e);
+            addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
         };
         can.onpointermove = render;
     } else if (type === "free") {
 
         resetListeners(can)
 
-/*
-        can.onmousedown = onMouseDown
-        can.onmousemove = onMouseMove
-        can.onmouseup = onMouseUp
-*/
+        /*
+                can.onmousedown = onMouseDown
+                can.onmousemove = onMouseMove
+                can.onmouseup = onMouseUp
+        */
 
         can.onpointerdown = onMouseDown
         can.onpointermove = onMouseMove
@@ -107,7 +106,7 @@ function draw(cont, x, y) {
 
 function onMouseDown(e) {
     let xy = getMousePos(e);
-    strokePoint = [xy.mouseX, xy.mouseY];
+    strokePoint = [xy.x, xy.y];
     mouseDown = 1;
 }
 
@@ -125,9 +124,9 @@ function onMouseMove(e) {
         let cont = can.getContext('2d');
 
         let xy = getMousePos(e);
-        draw(cont, xy.mouseX, xy.mouseY);
+        draw(cont, xy.x, xy.y);
         stroke.push([...strokePoint])
-        strokePoint = [xy.mouseX, xy.mouseY];
+        strokePoint = [xy.x, xy.y];
     }
 }
 
@@ -135,11 +134,11 @@ function getMousePos(e) {
     let o = {};
 
     if (e.offsetX) {
-        o.mouseX = e.offsetX
-        o.mouseY = e.offsetY
+        o.x = e.offsetX
+        o.y = e.offsetY
     } else if (e.layerX) {
-        o.mouseX = e.layerX
-        o.mouseY = e.layerY
+        o.x = e.layerX
+        o.y = e.layerY
     }
     return o;
 }
@@ -179,7 +178,8 @@ function addFreeSample(points) {
         ry: corners[0][1] / ty,
         rWidth: tw / tx,
         rHeight: th / ty,
-        category: categories[selectedCategory]
+        category: categories[selectedCategory],
+        data: {}
     }
 
     // console.log(points[0][0] - corners[0][0], points[0][1] - corners[0][1]

@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+    <!--    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">-->
 
     <!--    <script src="https://code.jquery.com/jquery-3.5.1.min.js"-->
     <!--            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>-->
@@ -17,9 +17,11 @@
     <link rel="stylesheet" href="assets/css/skeleton.css">
     <link rel="stylesheet" href="assets/css/main.css">
 
+    <script src="assets/js/utils.js"></script>
     <script src="assets/js/imageHandler.js"></script>
     <script src="assets/js/canvasSampleHandler.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/modalHandler.js"></script>
 
     <link rel="icon" type="image/png" href="assets/images/favicon/favicon.ico">
 
@@ -41,8 +43,7 @@
                      style=""/>
             </div>
             <div class="buttonImg">
-                <img src="assets/images/buttons/poly.png" class="lightBorder" onclick="switchSampleSelect(this)"
-                     style=""/>
+
             </div>
             <div>
                 <div class="buttonImg" style="padding: 0;border: none">
@@ -98,7 +99,27 @@
 
 
     </div>
-    <img id="tester" src=""/>
+    <dialog id="markMod" class="modal">
+        <div id="closeMod" style="width: 20px;height: 20px;float: right;position: relative">
+            <img style="width: inherit" src="assets/images/buttons/cross.png">
+        </div>
+        <div class="modalSideButtons">
+            <img style="width: inherit" src="assets/images/buttons/rule.png" id="selectModBut">
+<!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
+            <img style="width: inherit" src="assets/images/buttons/rotation.png">
+            <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
+            <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
+
+        </div>
+        <div id="modalVal" style="display: inline;position: absolute;left: 35%;font-weight: 700"></div>
+        <div id="modalCore" style="width: 70%">
+            <canvas class="" id="modalCanvas" style="border-right:solid rgba(10, 10, 10, 0.6) thin ">
+
+            </canvas>
+        </div>
+        <div id="markInfos" style="width: 30%">
+        </div>
+    </dialog>
 </div>
 
 
