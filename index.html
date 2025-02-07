@@ -103,10 +103,10 @@
         <div id="closeMod" style="width: 20px;height: 20px;float: right;position: relative">
             <img style="width: inherit" src="assets/images/buttons/cross.png">
         </div>
-        <div class="modalSideButtons">
-            <img style="width: inherit" src="assets/images/buttons/rule.png" id="selectModBut">
+        <div id="modalSideButtons" class="modalSideButtons">
+            <img style="width: inherit" src="assets/images/buttons/rule.png" onclick="switchSelectMod(this,'rule')" id="selectModBut">
 <!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
-            <img style="width: inherit" src="assets/images/buttons/rotation.png">
+            <img style="width: inherit" src="assets/images/buttons/rotation.png" onclick="switchSelectMod(this,'rotation')">
             <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
             <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
 

@@ -10,6 +10,17 @@ let nbClik = 0
 let displayed = false;
 let selectedInfo = 'data0'
 
+let deltaZoom = {x: 0, y: 0};
+
+
+function switchSelectMod(el, type) {
+    document.getElementById("selectModBut").removeAttribute("id")
+    el.setAttribute("id", "selectModBut");
+    clickMod = type
+    clickOrigin = {x: 0, y: 0};
+    nbClik = 0
+
+}
 
 docReady(function () {
     document.getElementById("marks").addEventListener('click', (e) => {
@@ -35,6 +46,12 @@ docReady(function () {
             initCoords.x = can.width / 2 - selectedMark.canvas.width / 2
             initCoords.y = can.height / 2 - selectedMark.canvas.height / 2
             cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+
+            cont.setTransform(1, 0, 0, 1, 0, 0);
+            modalScale = 1
+            modalOrigin.x = 0
+            modalOrigin.y = 0
+
 
             can.addEventListener("mousewheel", zoom, false);
             can.addEventListener("DOMMouseScroll", zoom, false);
@@ -163,8 +180,13 @@ function rule(e) {
 
 function mouseDownModal(e) {
     let xy = getMousePos(e);
-    clickOrigin = {x: xy.x, y: xy.y};
-    nbClik += 1
+    if (clickMod === 'rule') {
+        clickOrigin = {x: xy.x, y: xy.y};
+        nbClik += 1
+    } else if (clickMod === 'rotation') {
+        clickOrigin = {x: xy.x, y: xy.y};
+        nbClik += 1
+    }
 }
 
 function mouseMoveModal(e) {
@@ -194,27 +216,48 @@ function mouseMoveModal(e) {
             cont.stroke()
             cont.closePath();
         }
+    } else if (clickMod === 'rotation') {
+
+        if (nbClik === 1) {
+
+
+            let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
+
+            let val = document.getElementById('modalVal');
+
+            val.innerHTML = angle + " Deg"
+
+
+            // cont.rotate(angle * Math.PI / 180);
+            tiltCan(angle)
+        }
     }
 }
 
 function mouseUpModal(e) {
     let xy = getMousePos(e);
+    if (clickMod === 'rule') {
+        let val = euclidian_dist([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]) / modalScale;
+        nbClik = 0
 
-    let val = euclidian_dist([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]) / modalScale;
-    nbClik = 0
+        let tval = document.getElementById('modalVal');
+        tval.innerHTML = ""
 
-    let tval = document.getElementById('modalVal');
-    tval.innerHTML = ""
+        if (selectedMark["data"]) {
+            selectedMark.data[selectedInfo] = Math.round(val)
 
-    if (selectedMark["data"]) {
-        selectedMark.data[selectedInfo] = Math.round(val)
-
-    } else {
-        // addInfo()
-        selectedMark.data = {data0: Math.round(val)}
+        } else {
+            selectedMark.data = {data0: Math.round(val)}
+        }
+    } else if (clickMod === 'rotation') {
+        let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
+        tiltCan(angle)
+        nbClik = 0
     }
     fillInfos(selectedMark)
     resetCan();
+
+    clickOrigin = {x: 0, y: 0};
 
 }
 
@@ -293,5 +336,26 @@ function shareInfo(key, defaultVal = 0) {
 
         }
     }
+}
 
+
+function tiltCan(angle) {
+    let can = document.getElementById('modalCanvas');
+    let cont = can.getContext('2d');
+    cont.clearRect(0, 0, can.width, can.height);
+
+    cont.save()
+
+    /*    cont.setTransform(modalScale, 0, 0, modalScale, modalOrigin.x + initCoords.x + ((selectedMark.canvas.width / 2) * modalScale), modalOrigin.y + initCoords.y + ((selectedMark.canvas.height / 2) * modalScale));
+        cont.rotate(angle * Math.PI / 180);
+        cont.drawImage(selectedMark.canvas, (-selectedMark.canvas.width / 2), (-selectedMark.canvas.height / 2), selectedMark.canvas.width, selectedMark.canvas.height);*/
+
+
+    // cont.setTransform(modalScale, 0, 0, modalScale, modalOrigin.x + initCoords.x + (selectedMark.canvas.width / 2), modalOrigin.y + initCoords.y + (selectedMark.canvas.height / 2));
+    cont.setTransform(modalScale, 0, 0, modalScale, initCoords.x + modalOrigin.x + ((selectedMark.canvas.width / 2) * modalScale), initCoords.x + modalOrigin.y + ((selectedMark.canvas.height / 2) * modalScale));
+    cont.rotate(angle * Math.PI / 180);
+    cont.drawImage(selectedMark.canvas, (-selectedMark.canvas.width / 2), (-selectedMark.canvas.height / 2), selectedMark.canvas.width, selectedMark.canvas.height);
+
+    cont.restore();
+    cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
 }
