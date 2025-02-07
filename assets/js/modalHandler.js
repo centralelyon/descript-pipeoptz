@@ -8,6 +8,7 @@ let clickOrigin = {x: 0, y: 0};
 
 let nbClik = 0
 let displayed = false;
+let selectedInfo = 'data0'
 
 
 docReady(function () {
@@ -22,6 +23,7 @@ docReady(function () {
             const container = document.getElementById("modalCore");
 
             selectedMark = sampleData.find((d) => d.canvas === el)
+            fillInfos(selectedMark)
 
             let can = document.getElementById('modalCanvas');
             let cont = can.getContext('2d');
@@ -61,6 +63,34 @@ docReady(function () {
             displayed = false;
         }
 
+    });
+
+    document.getElementById("markInfos").addEventListener('click', (e) => {
+        const el = e.target;
+
+        const tid = el.getAttribute('id');
+        if (tid === "modalAddData") {
+            addInfo()
+        } else if (el.matches(".modalInfo")) {
+
+            selectedInfo = el.getAttribute('value');
+            fillInfos(selectedMark)
+
+        } else if (el.matches("p")) {
+            const parent = el.parentNode;
+            const key = parent.getAttribute('value');
+            el.outerHTML = '<input type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML + '" />'
+
+        } else if (el.matches(".modalInfoShare")) {
+            const key = el.getAttribute('value');
+
+            shareInfo(key)
+        } else if (el.matches("span")) {
+            const parent = el.parentNode;
+            const key = parent.getAttribute('value');
+            el.outerHTML = '<input type="text" id="dataInpVal" key="' + key + '" value="' + el.innerHTML + '" />'
+
+        }
     });
 
 });
@@ -177,10 +207,13 @@ function mouseUpModal(e) {
     tval.innerHTML = ""
 
     if (selectedMark["data"]) {
-        selectedMark.data["rule"] = val
+        selectedMark.data[selectedInfo] = Math.round(val)
+
     } else {
-        selectedMark.data = {rule: val}
+        // addInfo()
+        selectedMark.data = {data0: Math.round(val)}
     }
+    fillInfos(selectedMark)
     resetCan();
 
 }
@@ -204,3 +237,61 @@ function deleteMark() {
 
 }
 
+function fillInfos(mark) {
+
+
+    const container = document.getElementById("markInfos");
+    let mess = ""
+
+    if (mark["orientation"]) {
+        mess += "<div class='modalInfo'><p style='display: contents;color:#333;font-weight: 600'>Orientation:</p>" + mark["orientation"] + "deg</div>"
+    }
+
+    if (mark["data"]) {
+        let tsel = false;
+        for (const [key, value] of Object.entries(mark.data)) {
+            if (key === selectedInfo) {
+                tsel = true;
+            }
+            mess += "<div class='modalInfo' value ='" + key + "'  id='" + (tsel ? 'selectedModalInfo' : '') + "'>" +
+                "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <span> " + value + " </span>" +
+                "<div style='display: inline-block;float: right'>" +
+                "<img class='modalInfoShare' value ='" + key + "' src='assets/images/buttons/share.png'>" +
+                "</div>" +
+                "</div>";
+            tsel = false;
+        }
+
+    }
+
+    mess += "<img  id='modalAddData' src='assets/images/buttons/plus.png'>"
+
+    container.innerHTML = mess;
+
+}
+
+function addInfo() {
+    if (selectedMark["data"]) {
+        let index = Object.keys(selectedMark.data).length
+        selectedMark.data["data" + index] = 0
+    } else {
+        selectedMark["data"] = {data0: 0}
+    }
+    fillInfos(selectedMark)
+}
+
+function shareInfo(key, defaultVal = 0) {
+
+    for (let i = 0; i < sampleData.length; i++) {
+        if (sampleData[i]["data"]) {
+            if (!sampleData[i]["data"][key]) {
+                sampleData[i]["data"][key] = defaultVal
+            }
+        } else {
+            sampleData[i]["data"] = {}
+            sampleData[i]["data"][key] = defaultVal
+
+        }
+    }
+
+}

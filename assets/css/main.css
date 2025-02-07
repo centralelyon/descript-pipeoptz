@@ -59,6 +59,13 @@ body {
     margin: 10px;
 }
 
+.modalInfoShare {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}
+
+
 .markFilter:hover {
 
     padding: 3px;
@@ -67,6 +74,35 @@ body {
     cursor: pointer;
 }
 
+.modalInfo {
+    padding: 12px;
+    border-bottom: solid rgba(10, 10, 10, 0.6) thin
+}
+
+.modalInfo:hover {
+    cursor: pointer;
+    border: solid rgba(10, 10, 10, 0.6) thin;
+    padding: 11px;
+}
+#selectedModalInfo {
+    border: solid rgb(223, 38, 38) thin;
+    padding: 11px;
+}
+
+#modalAddData {
+    width: 25px;
+    height: 25px;
+    margin-left: 50%;
+    margin-top: 10px;
+
+}
+
+#modalAddData:hover {
+
+    cursor: pointer;
+    /*width: 27px;*/
+    /*height: 27px;*/
+}
 
 .category p {
     display: inline-block;
@@ -102,6 +138,7 @@ body {
 #selectModBut {
     border: solid rgb(223, 38, 38) 2px;
 }
+
 #selectedButton {
 
     z-index: 99;

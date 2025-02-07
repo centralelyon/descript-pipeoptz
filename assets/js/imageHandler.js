@@ -18,7 +18,6 @@ function loadImg(src) {
         currImg = im
 
 
-
     };
 
 

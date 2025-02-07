@@ -232,6 +232,60 @@ onkeydown = function (e) {
         if (document.activeElement === document.getElementById("textCat")) {
             addCategory()
         }
+
+        if (document.activeElement === document.getElementById("dataInp")) {
+            let tkey = document.getElementById("dataInp").value
+
+            const tsel = document.getElementById("dataInp").getAttribute("key")
+
+            if (tkey === null) {
+                tkey = tsel
+            }
+
+            tkey.replace(/ /g, "_")
+            const tval = selectedMark.data[tsel]
+
+
+            delete selectedMark.data[tsel]
+            selectedMark.data[tkey] = tval
+
+            if (selectedInfo === tsel)
+                selectedInfo = tkey
+
+            fillInfos(selectedMark)
+        }
+
+        if (document.activeElement === document.getElementById("dataInpVal")) {
+            let tval = document.getElementById("dataInpVal").value
+            const tsel = document.getElementById("dataInpVal").getAttribute("key")
+
+            if (tval === null)
+                tval = ""
+
+            tval = tval.replace(/[^0-9]/g, '')
+
+            if (tval !== "") {
+
+                selectedMark.data[tsel] = tval
+                fillInfos(selectedMark)
+            }
+
+
+        }
+    }
+
+    if (keymap[27]) {
+
+        if (document.activeElement === document.getElementById("dataInp")) {
+            e.preventDefault()
+            fillInfos(selectedMark)
+
+        }
+
+        if (document.activeElement === document.getElementById("dataInpVal")) {
+            e.preventDefault()
+            fillInfos(selectedMark)
+        }
     }
 }
 
