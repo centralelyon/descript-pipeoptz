@@ -225,10 +225,11 @@ function mouseMoveModal(e) {
 
             let val = document.getElementById('modalVal');
 
-            val.innerHTML = angle + " Deg"
+            val.innerHTML = Math.round(angle * 100) / 100 + " Deg"
 
 
             // cont.rotate(angle * Math.PI / 180);
+
             tiltCan(angle)
         }
     }
@@ -252,8 +253,20 @@ function mouseUpModal(e) {
     } else if (clickMod === 'rotation') {
         let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
         tiltCan(angle)
-        nbClik = 0
+
+        if (selectedMark["data"]) {
+            selectedMark.data["orientation"] = Math.round(angle * 100) / 100
+        } else {
+            selectedMark.data = {orientation: Math.round(angle * 100) / 100}
+        }
+
+
     }
+
+
+    nbClik = 0
+
+
     fillInfos(selectedMark)
     resetCan();
 
@@ -286,9 +299,9 @@ function fillInfos(mark) {
     const container = document.getElementById("markInfos");
     let mess = ""
 
-    if (mark["orientation"]) {
-        mess += "<div class='modalInfo'><p style='display: contents;color:#333;font-weight: 600'>Orientation:</p>" + mark["orientation"] + "deg</div>"
-    }
+    // if (mark["orientation"]) {
+    //     mess += "<div class='modalInfo'><p style='display: contents;color:#333;font-weight: 600'>Orientation:</p>" + mark["orientation"] + "deg</div>"
+    // }
 
     if (mark["data"]) {
         let tsel = false;
@@ -343,19 +356,55 @@ function tiltCan(angle) {
     let can = document.getElementById('modalCanvas');
     let cont = can.getContext('2d');
     cont.clearRect(0, 0, can.width, can.height);
+    drawGuides()
 
     cont.save()
-
-    /*    cont.setTransform(modalScale, 0, 0, modalScale, modalOrigin.x + initCoords.x + ((selectedMark.canvas.width / 2) * modalScale), modalOrigin.y + initCoords.y + ((selectedMark.canvas.height / 2) * modalScale));
-        cont.rotate(angle * Math.PI / 180);
-        cont.drawImage(selectedMark.canvas, (-selectedMark.canvas.width / 2), (-selectedMark.canvas.height / 2), selectedMark.canvas.width, selectedMark.canvas.height);*/
-
-
-    // cont.setTransform(modalScale, 0, 0, modalScale, modalOrigin.x + initCoords.x + (selectedMark.canvas.width / 2), modalOrigin.y + initCoords.y + (selectedMark.canvas.height / 2));
-    cont.setTransform(modalScale, 0, 0, modalScale, initCoords.x + modalOrigin.x + ((selectedMark.canvas.width / 2) * modalScale), initCoords.x + modalOrigin.y + ((selectedMark.canvas.height / 2) * modalScale));
+    cont.globalAlpha = 0.9
+    cont.translate(initCoords.x + selectedMark.canvas.width / 2, initCoords.y + selectedMark.canvas.height / 2);
     cont.rotate(angle * Math.PI / 180);
-    cont.drawImage(selectedMark.canvas, (-selectedMark.canvas.width / 2), (-selectedMark.canvas.height / 2), selectedMark.canvas.width, selectedMark.canvas.height);
-
+    cont.drawImage(selectedMark.canvas, -selectedMark.canvas.width / 2, -selectedMark.canvas.height / 2, selectedMark.canvas.width, selectedMark.canvas.height);
     cont.restore();
-    cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+
+    // cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+}
+
+
+function drawGuides() {
+    let can = document.getElementById('modalCanvas');
+    let cont = can.getContext('2d');
+
+    let center = {x: can.width / 2, y: can.height / 2};
+    let size = can.width;
+    const x = size / 2
+    const y = -size
+
+    cont.save()
+    cont.strokeStyle = "#333"
+    cont.moveTo(center.x, center.y);
+    cont.lineTo(x, y);
+    cont.stroke()
+
+    const steps = 8
+    const result = []
+
+    const ang = Math.PI * 2 / steps;
+    // result.push({x,y});                      // Add first point
+    for (let rot = 1; rot < steps; rot++) {  // Add remaining points
+
+        let tres = rotatePt({x, y}, center, rot * ang);
+        cont.moveTo(center.x, center.y);
+        cont.lineTo(tres.x, tres.y);
+        cont.stroke()
+    }
+    cont.restore()
+}
+
+function rotatePt(point, center, rotate, result = {}) {
+    const vx = point.x - center.x;
+    const vy = point.y - center.y;
+    const xAx = Math.cos(rotate);
+    const xAy = Math.sin(rotate);
+    result.x = vx * xAx - vy * xAy + center.x;
+    result.y = vx * xAy + vy * xAx + center.y;
+    return result;
 }

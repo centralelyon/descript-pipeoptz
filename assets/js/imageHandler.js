@@ -20,9 +20,7 @@ function loadImg(src) {
 
     };
 
-
     im.src = src
-
 
 }
 

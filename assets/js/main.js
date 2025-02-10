@@ -38,7 +38,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/bluesandblacks.json";
+    const url = "assets/images/tempLoad/stem.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -262,7 +262,7 @@ onkeydown = function (e) {
             if (tval === null)
                 tval = ""
 
-            tval = tval.replace(/[^0-9]/g, '')
+            tval = tval.replace(/[^0-9.-]/g, '')
 
             if (tval !== "") {
 
@@ -345,6 +345,7 @@ function export2json() {
     for (let i = 0; i < sampleData.length; i++) {
         const tobj = {...sampleData[i]}
         tobj.canvas = tobj.canvas.toDataURL("image/png")
+        tdat.push(tobj)
 
     }
 
@@ -354,9 +355,9 @@ function export2json() {
     canvas.height = currImg.height;
 
     let t = document.getElementById("inVis")
-    let cont = canvas.getContext("2d")
+    // let cont = canvas.getContext("2d")
 
-    cont.drawImage(currImg, 0, 0);
+    // cont.drawImage(currImg, 0, 0);
 
     //todo: FIX WHY USING CURRIMG IS NOT WORKING ?!
     const tempData = {

@@ -1,5 +1,3 @@
-
-
 function resetListeners(can) {
     // can.onmousemove = null;
     // can.onmousedown = null;
@@ -122,7 +120,7 @@ function onMouseMove(e) {
     if (mouseDown === 1) {
         let can = document.getElementById("inVis")
         let cont = can.getContext('2d');
-
+        e.preventDefault()
         let xy = getMousePos(e);
         draw(cont, xy.x, xy.y);
         stroke.push([...strokePoint])
