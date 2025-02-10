@@ -6,7 +6,6 @@ function resetListeners(can) {
     can.onpointerdown = null
     can.onpointermove = null
     can.onpointerup = null
-
 }
 
 function switchMode(type) {
@@ -15,9 +14,9 @@ function switchMode(type) {
     if (type === "rect") {
         resetListeners(can)
 
-
         can.onpointerdown = e => {
             origin = {x: e.offsetX, y: e.offsetY};
+
         };
 
         can.onpointerup = e => {
@@ -26,7 +25,9 @@ function switchMode(type) {
 
             origin = null;
 
-            render(e);
+            clear();
+            drawImage();
+
             addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
         };
         can.onpointermove = render;
@@ -55,10 +56,8 @@ function switchMode(type) {
 const drawImage = () => {
     let can = document.getElementById("inVis")
     let cont = can.getContext('2d');
-    let w = can.getBoundingClientRect().width
-    let h = can.getBoundingClientRect().height
 
-    cont.drawImage(currImg, 0, 0, w, h);
+    cont.drawImage(currImg, 0, 0, ...viewDim);
 }
 
 const drawSelection = (e) => {
@@ -83,10 +82,85 @@ const clear = () => {
 };
 
 const render = (e) => {
-    clear();
-    drawImage();
 
-    if (origin) drawSelection(e);
+    if (origin) {
+        clear();
+        drawImage();
+        drawSelection(e);
+    }
+}
+
+function addRectSample(x, y, width, height) {
+
+
+    let coords = curateCoordinates(x, y, width, height);
+
+
+    let can = document.getElementById("inVis")
+    let trec = can.getBoundingClientRect()
+    let tx = trec.width
+    let ty = trec.height
+
+
+    let tcan = document.createElement('canvas');
+    let tcont = tcan.getContext('2d');
+
+
+    tcan.width = coords[2]
+    tcan.height = coords[3]
+
+    tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
+
+
+    let tres = {
+        x: coords[0],
+        y: coords[1],
+        width: coords[2],
+        height: coords[3],
+        type: "rect",
+        canvas: tcan,
+        // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
+        rx: coords[0] / tx,
+        ry: coords[1] / ty,
+        rWidth: coords[2] / tx,
+        rHeight: coords[3] / ty,
+        category: categories[selectedCategory],
+        data: {}
+    }
+
+    let dp = tres
+    tcont.drawImage(currImg,
+        dp.rx * currImg.width,
+        dp.ry * currImg.height,
+        dp.rWidth * currImg.width,
+        dp.rHeight * currImg.height,
+        0,
+        0,
+        dp.width,
+        dp.height);
+
+
+    let marks = document.getElementById("marks")
+
+    marks.append(tcan)
+
+    sampleData.push(tres)
+}
+
+
+function curateCoordinates(x, y, width, height) {
+
+    if (width < 0) {
+        width = Math.abs(width)
+        x = Math.max(x - width, 0)
+    }
+
+    if (height < 0) {
+        height = Math.abs(height)
+        y = Math.max(y - height, 0)
+    }
+
+    return [x, y, width, height]
 }
 
 
@@ -141,7 +215,7 @@ function getMousePos(e) {
     return o;
 }
 
-function addFreeSample(points) {
+async function addFreeSample(points) {
     let corners = getRect(points)
 
     let can = document.getElementById("inVis")
@@ -204,6 +278,7 @@ function addFreeSample(points) {
         th
     )
 
+
     let marks = document.getElementById("marks")
 
     marks.append(tcan)
@@ -219,4 +294,31 @@ function getRect(points) {
         [Math.min(...xs), Math.min(...ys)],
         [Math.max(...xs), Math.max(...ys)],
     ]
+}
+
+function tempTest() {
+    let can = document.getElementById("inVis")
+
+    let cont = sampleData[0].canvas.getContext("2d")
+
+    let dp = sampleData[0]
+    cont.drawImage(currImg,
+        dp.rx * currImg.width,
+        dp.ry * currImg.height,
+        dp.rWidth * currImg.width,
+        dp.rHeight * currImg.height,
+        0,
+        0,
+        dp.width,
+        dp.height);
+
+    /*    tcont.drawImage(currImg,
+            tres.rx * currImg.width,
+            tres.ry * currImg.height,
+            tres.rWidth * currImg.width,
+            tres.rHeight * currImg.height,
+            0,
+            0,
+            tw,
+            th*/
 }

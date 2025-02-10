@@ -19,6 +19,14 @@ function switchSelectMod(el, type) {
     clickMod = type
     clickOrigin = {x: 0, y: 0};
     nbClik = 0
+    let can = document.getElementById("modalCanvas");
+
+    if (type == "rule") {
+        can.style.cursor = "crosshair";
+    } else {
+        can.style.cursor = "resize";
+    }
+
 
 }
 
@@ -191,6 +199,7 @@ function mouseDownModal(e) {
 
 function mouseMoveModal(e) {
     let xy = getMousePos(e);
+    e.preventDefault()
     let can = document.getElementById('modalCanvas');
     let cont = can.getContext('2d');
 

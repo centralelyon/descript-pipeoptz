@@ -6,6 +6,19 @@ body {
 
 }
 
+#markMod {
+    /*touch-action: none;*/
+    user-select: none;
+
+}
+
+canvas {
+    touch-action: none;
+    user-select: none;
+    /*display: none !important;*/
+    /*position: absolute;*/
+
+}
 
 .modalSideButtons {
     width: 30px;
@@ -84,6 +97,7 @@ body {
     border: solid rgba(10, 10, 10, 0.6) thin;
     padding: 11px;
 }
+
 #selectedModalInfo {
     border: solid rgb(223, 38, 38) thin;
     padding: 11px;
@@ -165,6 +179,7 @@ body {
 #inVis {
     width: 100%;
     cursor: crosshair;
+    touch-action: none;
 }
 
 

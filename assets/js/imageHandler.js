@@ -1,22 +1,27 @@
 function loadImg(src) {
 
     let im = new Image();
-
+    im.crossOrigin = "Anonymous";
 
     im.onload = function () {
-
+        currImg = im
+        im.crossOrigin = "anonymous";
         let can = document.getElementById("inVis")
 
         let cont = can.getContext('2d');
 
-        let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
+        // let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
 
-        can.width = rate[0]
-        can.height = rate[1]
+        let t = Math.round((im.height * can.getBoundingClientRect().width) / im.width)
+        viewDim = [can.getBoundingClientRect().width, t]
+        can.width = viewDim[0]
+        can.style.width = viewDim[0] + 'px';
+        can.style.height = viewDim[1] + "px"
+        can.height = viewDim[1]
 
-        cont.drawImage(im, 0, 0, rate[0], rate[1])
-        currImg = im
 
+        // cont.drawImage(im, 0, 0, rate[0], rate[1])
+        cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
     };
 
@@ -90,8 +95,22 @@ function resetImg() {
     let can = document.getElementById("inVis")
     let cont = can.getContext('2d');
 
-    cont.drawImage(currImg, 0, 0, can.width, can.height);
+    cont.drawImage(currImg, 0, 0, ...viewDim);
 }
 
+function importImg(e) {
+    const reader = new FileReader();
 
+    reader.onload = function (e) {
+
+        // currImg = e.target.result;
+
+        purge()
+        loadImg(e.target.result);
+        // console.log(currImg);
+        switchMode("rect")
+
+    }
+    reader.readAsDataURL(e.target.files[0]);
+}
 

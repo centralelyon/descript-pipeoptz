@@ -49,16 +49,25 @@
                 <div class="buttonImg" style="padding: 0;border: none">
                     <input type="file" name="jsonLoader" id="jsonLoader" style="display: none;"/>
                     <img src="assets/images/buttons/export.png" class="lightBorder"
-                         style="" onclick="fakeFile()"/>
+                         style="" onclick="fakeFile('jsonLoader')"/>
                 </div>
                 <div class="buttonImg">
                     <img src="assets/images/buttons/export.png" class="lightBorder" onclick="export2json(this)"
                          style="transform: scaleX(-1)"/>
                 </div>
+                <div class="buttonImg" style="padding: 0;border: none">
+                    <input type="file" name="img" id="imgLoader" style="display: none;"/>
+                    <img src="assets/images/buttons/addimg.png" class="lightBorder"
+                         style="" onclick="fakeFile('imgLoader')"/>
+                </div>
             </div>
         </div>
-        <div class="eleven columns lightBorder" style="margin-left:1%">
-            <canvas class="" id="inVis"
+        <div class="eleven columns " style="margin-left:1%">
+            <div style="">
+                <input id="imgUrl" style="width: 80%" placeholder="enter image url..." type="text" value="">
+                <button onclick="getImgUrl()">Go</button>
+            </div>
+            <canvas class="lightBorder" id="inVis"
                     style="z-index: 99;display: inline-block"></canvas>
         </div>
 
@@ -104,16 +113,18 @@
             <img style="width: inherit" src="assets/images/buttons/cross.png">
         </div>
         <div id="modalSideButtons" class="modalSideButtons">
-            <img style="width: inherit" src="assets/images/buttons/rule.png" onclick="switchSelectMod(this,'rule')" id="selectModBut">
-<!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
-            <img style="width: inherit" src="assets/images/buttons/rotation.png" onclick="switchSelectMod(this,'rotation')">
+            <img style="width: inherit" src="assets/images/buttons/rule.png" onclick="switchSelectMod(this,'rule')"
+                 id="selectModBut">
+            <!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
+            <img style="width: inherit" src="assets/images/buttons/rotation.png"
+                 onclick="switchSelectMod(this,'rotation')">
             <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
             <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
 
         </div>
         <div id="modalVal" style="display: inline;position: absolute;left: 35%;font-weight: 700"></div>
         <div id="modalCore" style="width: 70%;display: inline-block">
-            <canvas class="" id="modalCanvas" style="border-right:solid rgba(10, 10, 10, 0.6) thin ">
+            <canvas class="" id="modalCanvas" style="border-right:solid rgba(10, 10, 10, 0.6) thin;cursor: crosshair ">
 
             </canvas>
         </div>

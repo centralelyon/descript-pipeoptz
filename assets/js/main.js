@@ -1,5 +1,6 @@
 let currImg;
 
+let viewDim = []
 let sampleData = []
 
 let categories = {
@@ -33,12 +34,14 @@ async function init() {
     importData(json);
 
     switchMode("rect")
+
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
+    document.getElementById("imgLoader").addEventListener("change", importImg);
 
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/stem.json";
+    const url = "assets/images/tempLoad/ipad.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -59,68 +62,6 @@ function getSamplesFromCategory(category) {
     })
 }
 
-function addRectSample(x, y, width, height) {
-
-
-    let coords = curateCoordinates(x, y, width, height);
-
-
-    let can = document.getElementById("inVis")
-    let trec = can.getBoundingClientRect()
-    let tx = trec.width
-    let ty = trec.height
-
-
-    let tcan = document.createElement('canvas');
-    let tcont = tcan.getContext('2d');
-
-
-    tcan.width = coords[2]
-    tcan.height = coords[3]
-
-    tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
-    tcont.drawImage(can, ...coords, 0, 0, coords[2], coords[3])
-
-
-    let tres = {
-        x: coords[0],
-        y: coords[1],
-        width: coords[2],
-        height: coords[3],
-        type: "rect",
-        canvas: tcan,
-        // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
-        rx: coords[0] / tx,
-        ry: coords[1] / ty,
-        rWidth: coords[2] / tx,
-        rHeight: coords[3] / ty,
-        category: categories[selectedCategory],
-        data: {}
-    }
-
-
-    let marks = document.getElementById("marks")
-
-    marks.append(tcan)
-
-    sampleData.push(tres)
-}
-
-
-function curateCoordinates(x, y, width, height) {
-
-    if (width < 0) {
-        width = Math.abs(width)
-        x = Math.max(x - width, 0)
-    }
-
-    if (height < 0) {
-        height = Math.abs(height)
-        y = Math.max(y - height, 0)
-    }
-
-    return [x, y, width, height]
-}
 
 
 function switchSampleSelect(e, type) {
@@ -382,8 +323,8 @@ function importFromJson(e) {
 }
 
 
-function fakeFile() {
-    document.getElementById("jsonLoader").click()
+function fakeFile(name) {
+    document.getElementById(name).click()
 }
 
 
@@ -448,4 +389,51 @@ async function convertToCanvas(url) {
     cont.drawImage(img, 0, 0);
 
     return can
+}
+
+//todo:
+document.onpaste = (evt) => {
+    const dT = evt.clipboardData || window.clipboardData;
+    const file = dT.files[0];
+    console.log(file);
+};
+
+function getImgUrl() {
+    let tval = document.getElementById("imgUrl").value;
+
+    purge()
+
+    loadImg(tval)
+}
+
+
+function purge() {
+    currImg = null;
+
+    sampleData = []
+
+    categories = {
+        default: {
+            name: "default",
+            color: "414141FF"
+        }
+    }
+    selectedCategory = "default";
+
+
+    mouseDown = 0
+    origin = null;
+
+    strokePoint = [];
+    stroke = [];
+
+    selectedMark = null
+    updateMarks("category")
+    document.querySelectorAll(".category").forEach((item) => {
+        if (item.getAttribute("value") !== "default") {
+            item.remove()
+        }
+    })
+    updateCategories()
+
 }
