@@ -173,19 +173,7 @@ docReady(function () {
 
     document.getElementById("catContainer").addEventListener('mouseout', (e) => {
 
-        const el = e.target;
-        let parent = null;
-
-        if (el.matches(".category")) {
-            parent = el
-        } else if (el.matches(".category p, .category div")) {
-            parent = el.parentNode;
-        }
-
-        if (parent !== null) {
-            // drawSamples([])
-            resetImg()
-        }
+        resetImg()
     });
 });
 

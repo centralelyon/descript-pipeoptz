@@ -81,6 +81,25 @@ canvas {
     padding: 4px;
 }
 
+
+#marks {
+    /*height: 100%;/*/
+    width: 96.6%;
+    display: flex;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    position: relative;
+    height: 100px
+;
+}
+
+
+#marks canvas {
+    border: solid rgba(65, 65, 65, 0.5) 2px;
+    margin: 1px;
+}
+
 #marks canvas:hover {
     cursor: pointer;
 }
@@ -220,10 +239,4 @@ canvas {
     width: 100%;
     cursor: crosshair;
     touch-action: none;
-}
-
-
-#marks canvas {
-    border: solid rgba(65, 65, 65, 0.5) 2px;
-    margin: 1px;
 }

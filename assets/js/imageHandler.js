@@ -95,6 +95,7 @@ function resetImg() {
     let can = document.getElementById("inVis")
     let cont = can.getContext('2d');
 
+
     cont.drawImage(currImg, 0, 0, ...viewDim);
 }
 
