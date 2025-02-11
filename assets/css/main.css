@@ -84,9 +84,9 @@ canvas {
 
 #marks {
     /*height: 100%;/*/
-    width: 96.6%;
+
     display: flex;
-    overflow-x: scroll;
+    overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     position: relative;
@@ -190,6 +190,8 @@ canvas {
     padding: 5px;
     height: 25px;
     cursor: pointer;
+    width: 100%;
+    text-align: left;
 }
 
 .lightBorder {

@@ -79,10 +79,10 @@ function drawSamples(samples) {
 
         cont.drawImage(
             sample.canvas,
-            sample.x,
-            sample.y,
-            sample.width,
-            sample.height
+            sample.rx * can.width,
+            sample.ry * can.height,
+            sample.rWidth * can.width,
+            sample.rHeight * can.height
         );
 
     }

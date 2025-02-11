@@ -175,6 +175,10 @@ docReady(function () {
 
         resetImg()
     });
+
+    document.getElementById("marks").addEventListener('mouseout', (e) => {
+        resetImg()
+    });
 });
 
 

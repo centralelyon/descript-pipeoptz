@@ -31,7 +31,7 @@
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<div class="container" style="margin-bottom: 5%">
+<div class="container" style="max-width: 1200px;width:90%;margin-bottom: 5%">
 
     <div class="row" style="margin-top: 7%;text-align: center;display:flex">
         <div class="one column"></div>
@@ -71,44 +71,46 @@
                 </div>
             </div>
         </div>
-        <div class="eleven columns " style="margin-left:1%">
+        <div class="ten columns " style="margin-left:1%">
 
             <canvas class="lightBorder" id="inVis"
                     style="z-index: 99;display: inline-block"></canvas>
-            <div style="">
+            <div style="width: 60%;display: inline-block">
+
                 <input id="imgUrl" style="width: 80%" placeholder="enter image url..." type="text" value="">
                 <button onclick="getImgUrl()">Go</button>
+
+            </div>
+            <div style="margin-top: 0;display: inline-block">
+                <!--                    <h4 style="text-align: left;display: inline-block"> Marks ...</h4>-->
+                <p class="markFilter" onclick="updateMarks('category')"> per categories</p>
+                <p class="markFilter" onclick="updateMarks('size')"> per size(px)</p>
             </div>
         </div>
-        <!--        <div class="two columns lightBorder" style="height: 100%;" ></div>-->
+        <div class="two columns" style="height: 100%;margin-left: 10px">
+            <div id="catContainer">
+                <div class="category" value="default" id="selectedCat">
+                    <div class="lightBorder catColor">
+
+                    </div>
+                    <p>Default</p>
+                </div>
+
+                <div id="addCat" style="display: inline-block;margin-left: 2px">
+
+                    <input class="" type="text" placeholder="Name..." id="textCat" style="width:100%">
+                    <img id="plusCat" style="width: 15px;margin-right: 3px ;cursor: pointer"
+                         src="assets/images/buttons/plus.png" onclick="addCategory()"/>
+                </div>
+            </div>
+        </div>
 
     </div>
 
     <div class="row" style="margin-top: 0;text-align: center;display:flex">
-        <div class="twelve columns " style="margin-top: 0;text-align: center;height: 300px">
-            <div>
+        <div class="one column"></div>
+        <div class="ten columns " style="margin: 0;text-align: center;height: 300px">
 
-                <div id="catContainer">
-                    <div class="category" value="default" id="selectedCat">
-                        <div class="lightBorder catColor">
-
-                        </div>
-                        <p>Default</p>
-                    </div>
-
-                    <div id="addCat" style="display: inline-block;margin-left: 20px">
-                        <img id="plusCat" style="width: 15px;margin-right: 3px ;cursor: pointer"
-                             src="assets/images/buttons/plus.png" onclick="addCategory()"/>
-                        <input class="" type="text" placeholder="Name..." id="textCat">
-                    </div>
-                </div>
-
-                <div style="margin-top: 0;">
-<!--                    <h4 style="text-align: left;display: inline-block"> Marks ...</h4>-->
-                    <p class="markFilter" onclick="updateMarks('category')"> per categories</p>
-                    <p class="markFilter" onclick="updateMarks('size')"> per size(px)</p>
-                </div>
-            </div>
 
             <div id="marks" style="margin-top: 0;">
 
