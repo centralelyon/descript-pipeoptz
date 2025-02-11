@@ -53,7 +53,7 @@ function loadExamples() {
 
 function loadEx() {
 
-    document.querySelector(".selectedIm").classList.remove("selectedIm");
+    clearExamples()
     this.classList.add("selectedIm");
 
     purge()
@@ -438,6 +438,7 @@ document.onpaste = (evt) => {
                 loadImg(e.target.result)
                 // console.log(currImg);
                 switchMode("rect")
+                clearExamples()
 
             }
             reader.readAsDataURL(file);
@@ -451,7 +452,7 @@ function getImgUrl() {
     let tval = document.getElementById("imgUrl").value;
 
     purge()
-
+    clearExamples()
     loadImg(tval)
 }
 
@@ -483,5 +484,13 @@ function purge() {
         }
     })
     updateCategories()
+}
+
+function clearExamples() {
+    const el = document.querySelector(".selectedIm")
+
+    if (el !== null) {
+        el.classList.remove("selectedIm");
+    }
 
 }

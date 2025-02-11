@@ -101,6 +101,7 @@ function resetImg() {
 function importImg(e) {
     const reader = new FileReader();
 
+    clearExamples()
     reader.onload = function (e) {
 
         // currImg = e.target.result;
