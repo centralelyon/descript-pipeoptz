@@ -2,9 +2,49 @@ body {
     font-family: Helvetica Neue, sans-serif;
 }
 
-.mainBlock {
+#selFlat div {
+    border: #555555 solid 1px;
+    margin: 1px;
+    filter: saturate(35%) brightness(70%) opacity(70%);
+    border-radius: 3px;
+    height: 65px;
+    width: 80px;
+    display: inline-block;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    position: relative;
+}
+
+#selFlat div:hover {
+    filter: none !important;
+    border: #498db4 solid 1px !important;
 
 }
+
+#selFlatLabel {
+    font-weight: bold;
+    color: #333;
+    text-decoration: underline;
+    margin-bottom: 0;
+}
+
+.selectedIm {
+    border: red solid 1px !important;
+    filter: none !important;
+}
+
+#selFlat {
+    height: 100%;
+    width: 96.6%;
+    display: block;
+    /*overflow-x: scroll;*/
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
 
 #markMod {
     /*touch-action: none;*/

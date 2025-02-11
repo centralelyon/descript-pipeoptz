@@ -90,7 +90,7 @@ const render = (e) => {
     }
 }
 
-function addRectSample(x, y, width, height) {
+async function addRectSample(x, y, width, height) {
 
 
     let coords = curateCoordinates(x, y, width, height);
@@ -129,22 +129,25 @@ function addRectSample(x, y, width, height) {
     }
 
     let dp = tres
+
+
+    sampleData.push(tres)
+
+    let marks = document.getElementById("marks")
+
+    marks.append(tcan)
+
     tcont.drawImage(currImg,
-        dp.rx * currImg.width,
-        dp.ry * currImg.height,
-        dp.rWidth * currImg.width,
-        dp.rHeight * currImg.height,
+        Math.round(dp.rx * currImg.width),
+        Math.round(dp.ry * currImg.height),
+        Math.round(dp.rWidth * currImg.width),
+        Math.round(dp.rHeight * currImg.height),
         0,
         0,
         dp.width,
         dp.height);
 
 
-    let marks = document.getElementById("marks")
-
-    marks.append(tcan)
-
-    sampleData.push(tres)
 }
 
 
@@ -297,7 +300,7 @@ function getRect(points) {
 }
 
 function tempTest() {
-    let can = document.getElementById("inVis")
+
 
     let cont = sampleData[0].canvas.getContext("2d")
 

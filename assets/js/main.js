@@ -22,9 +22,43 @@ let stroke = [];
 
 let selectedMark = null
 
+let examples = [
+    "assets/images/tempExamples/lollipop.png",
+    "assets/images/tempExamples/goodbye.png",
+    "assets/images/tempExamples/buy.png",
+    "assets/images/tempExamples/laugh.png",
+    "assets/images/tempExamples/doors.jpg",
+]
 
 docReady(init)
 
+
+function loadExamples() {
+
+    const container = document.getElementById('selFlat');
+
+    for (let i = 0; i < examples.length; i++) {
+        const el = document.createElement("div");
+        el.style.backgroundImage = "url('" + examples[i] + "')";
+        el.setAttribute('value', i);
+        if (i === 0)
+            el.classList.add("selectedIm");
+
+        el.onclick = loadEx
+        container.appendChild(el);
+
+
+    }
+}
+
+function loadEx() {
+
+    document.querySelector(".selectedIm").classList.remove("selectedIm");
+    this.classList.add("selectedIm");
+
+    purge()
+    loadImg(examples[this.getAttribute("value")])
+}
 
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
@@ -34,7 +68,7 @@ async function init() {
     importData(json);
 
     switchMode("rect")
-
+    loadExamples();
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
 
@@ -61,7 +95,6 @@ function getSamplesFromCategory(category) {
         return sample.category.name === category;
     })
 }
-
 
 
 function switchSampleSelect(e, type) {
@@ -277,10 +310,6 @@ function updateCategories() {
 
 function export2json() {
 
-    // let tdat = [...sampleData]; //TODO: Copy without reference
-
-    // let tdat = sampleData.map(d => window.structuredClone(d))
-
     let tdat = []
 
     for (let i = 0; i < sampleData.length; i++) {
@@ -395,7 +424,27 @@ async function convertToCanvas(url) {
 document.onpaste = (evt) => {
     const dT = evt.clipboardData || window.clipboardData;
     const file = dT.files[0];
-    console.log(file);
+
+    if (file !== undefined) {
+        if (file.type === "image/png" || file.type === "image/jpeg") {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+
+                // currImg = e.target.result;
+
+                purge()
+                // loadImg(file);
+                loadImg(e.target.result)
+                // console.log(currImg);
+                switchMode("rect")
+
+            }
+            reader.readAsDataURL(file);
+        } else {
+            console.log(file);
+        }
+    }
 };
 
 function getImgUrl() {
@@ -419,7 +468,6 @@ function purge() {
         }
     }
     selectedCategory = "default";
-
 
     mouseDown = 0
     origin = null;
