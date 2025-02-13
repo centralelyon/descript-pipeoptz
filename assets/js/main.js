@@ -13,12 +13,13 @@ let selectedCategory = "default";
 //use of Tableau10
 let catColors = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"]
 
-
 let mouseDown = 0
 let origin = null;
 let keymap = {}
 let strokePoint = [];
 let stroke = [];
+
+let opencv = null
 
 let selectedMark = null
 
@@ -46,8 +47,6 @@ function loadExamples() {
 
         el.onclick = loadEx
         container.appendChild(el);
-
-
     }
 }
 
@@ -71,7 +70,6 @@ async function init() {
     loadExamples();
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
-
 }
 
 async function getData() {
