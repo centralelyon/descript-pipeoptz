@@ -43,6 +43,7 @@ docReady(function () {
 
             selectedMark = sampleData.find((d) => d.canvas === el)
             fillInfos(selectedMark)
+            fillCatas(selectedMark)
 
             let can = document.getElementById('modalCanvas');
             let cont = can.getContext('2d');
@@ -118,7 +119,33 @@ docReady(function () {
         }
     });
 
+
+    document.getElementById("markCategories").addEventListener('click', (e) => {
+        const el = e.target;
+
+        const tid = el.getAttribute('id');
+        console.log("in");
+        if (tid === "modalAddCat") {
+            console.log("dqsdq");
+            const val = document.getElementById('catSelect').value;
+
+            addCata(val)
+        } else if (el.matches(".modalCatDel")) {
+            const val = el.getAttribute('value');
+            deleteCat(val)
+
+        }
+
+
+    })
 });
+
+function deleteCat(val) {
+
+    delete selectedMark.categories[val]
+    fillCatas(selectedMark)
+}
+
 
 docReady(function () {
     document.getElementById("closeMod").addEventListener('click', (e) => {
@@ -335,6 +362,47 @@ function fillInfos(mark) {
 
 }
 
+function fillCatas(mark) {
+
+
+    const container = document.getElementById("markCategories");
+    let mess = ""
+
+    // if (mark["orientation"]) {
+    //     mess += "<div class='modalInfo'><p style='display: contents;color:#333;font-weight: 600'>Orientation:</p>" + mark["orientation"] + "deg</div>"
+    // }
+
+
+    if (mark["categories"]) {
+        for (const [key, value] of Object.entries(mark.categories)) {
+
+            mess += "<div class='modalInfo' value ='" + key + "'>" +
+                "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <div class='catColor' style='background: " + value.color + "'></div>" +
+                "<div style='display: inline-block;float: right'>" +
+                "<img class='modalCatDel' value ='" + key + "' src='assets/images/buttons/del.png'>" +
+                "</div>" +
+                "</div>";
+
+
+        }
+
+
+    }
+    let options = ""
+    for (const [key, value] of Object.entries(categories)) {
+        options += "<option>" + key + "</option>";
+    }
+
+
+    mess += "<div style='margin-top:15px;text-align: center'>" +
+        "<select id='catSelect'>" + options + "</select>" +
+        "<img  id='modalAddCat' src='assets/images/buttons/plus.png'>" +
+        "</div>"
+
+    container.innerHTML = mess;
+
+}
+
 function addInfo() {
     if (selectedMark["data"]) {
         let index = Object.keys(selectedMark.data).length
@@ -343,6 +411,11 @@ function addInfo() {
         selectedMark["data"] = {data0: 0}
     }
     fillInfos(selectedMark)
+}
+
+function addCata(val) {
+    selectedMark.categories[val] = categories[val]
+    fillCatas(selectedMark)
 }
 
 function shareInfo(key, defaultVal = 0) {

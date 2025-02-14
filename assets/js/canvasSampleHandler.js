@@ -111,6 +111,9 @@ async function addRectSample(x, y, width, height) {
 
     tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
 
+    let tcat = {}
+
+    tcat[selectedCategory] = categories[selectedCategory]
 
     let tres = {
         x: coords[0],
@@ -124,7 +127,7 @@ async function addRectSample(x, y, width, height) {
         ry: coords[1] / ty,
         rWidth: coords[2] / tx,
         rHeight: coords[3] / ty,
-        category: categories[selectedCategory],
+        categories: tcat,
         data: {}
     }
 
@@ -240,6 +243,13 @@ async function addFreeSample(points) {
     let tw = corners[1][0] - corners[0][0]
     let th = corners[1][1] - corners[0][1]
 
+    let tcat = {}
+
+    tcat[selectedCategory] = categories[selectedCategory]
+
+    const vectors = PCA.getEigenVectors(points)
+
+    const angle = get_orr(vectors[0].vector, vectors[1].vector)
 
     let tres = {
         x: corners[0][0],
@@ -248,13 +258,16 @@ async function addFreeSample(points) {
         height: th,
         type: "free",
         canvas: tcan,
+        perimeter: [...points],
         // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
         rx: corners[0][0] / tx,
         ry: corners[0][1] / ty,
         rWidth: tw / tx,
         rHeight: th / ty,
-        category: categories[selectedCategory],
-        data: {}
+        categories: tcat,
+        data: {
+            orientation: Math.round(angle * 100) / 100
+        }
     }
 
     // console.log(points[0][0] - corners[0][0], points[0][1] - corners[0][1]

@@ -77,13 +77,30 @@ function drawSamples(samples) {
 
         const sample = samples[i];
 
-        cont.drawImage(
-            sample.canvas,
-            sample.rx * can.width,
-            sample.ry * can.height,
-            sample.rWidth * can.width,
-            sample.rHeight * can.height
-        );
+        if (sample["data"]) {
+            if (sample.data["orientation"]) {
+                const tx = sample.rx * can.width
+                const ty = sample.ry * can.height;
+                const tw = sample.rWidth * can.width
+                const th = sample.rHeight * can.height
+
+                cont.save()
+                cont.translate(tx, ty);
+                cont.rotate(sample.orientation * Math.PI / 180);
+
+                cont.drawImage(sample.canvas, -tw/ 2, -th / 2, tw, th);
+                cont.restore();
+            } else {
+                cont.drawImage(
+                    sample.canvas,
+                    sample.rx * can.width,
+                    sample.ry * can.height,
+                    sample.rWidth * can.width,
+                    sample.rHeight * can.height
+                );
+            }
+        }
+
 
     }
 

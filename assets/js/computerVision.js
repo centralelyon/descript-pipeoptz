@@ -104,8 +104,8 @@ function contours2Marks(conts) {
     let tpoints = conts[0].map(d => ([d.x, d.y]))
     const tcorners = getRect(tpoints)
 
-    console.log(tcorners);
-    console.log(tpoints);
+    // console.log(tcorners);
+    // console.log(tpoints);
 
     for (let i = 0; i < conts.length; i++) {
 
@@ -126,6 +126,13 @@ function contours2Marks(conts) {
 
         let tw = corners[1][0] - corners[0][0]
         let th = corners[1][1] - corners[0][1]
+        let tcat = {}
+
+        tcat[selectedCategory] = categories[selectedCategory]
+
+        const vectors = PCA.getEigenVectors(points)
+
+        const angle = get_orr(vectors[0].vector, vectors[1].vector)
 
 
         let tres = {
@@ -134,14 +141,18 @@ function contours2Marks(conts) {
             width: tw,
             height: th,
             type: "contour",
+            // orr: angle,
+            perimeter: [...points],
             canvas: tcan,
             // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
             rx: corners[0][0] / tx,
             ry: corners[0][1] / ty,
             rWidth: tw / tx,
             rHeight: th / ty,
-            category: categories[selectedCategory],
-            data: {}
+            categories: tcat,
+            data: {
+                orientation: Math.round(angle * 100) / 100
+            }
         }
 
 

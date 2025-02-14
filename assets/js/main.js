@@ -6,7 +6,7 @@ let sampleData = []
 let categories = {
     default: {
         name: "default",
-        color: "414141FF"
+        color: "#504545"
     }
 }
 let selectedCategory = "default";
@@ -90,7 +90,12 @@ async function getData() {
 
 function getSamplesFromCategory(category) {
     return sampleData.filter(sample => {
-        return sample.category.name === category;
+        if (sample.categories[category]) {
+            return true;
+        } else {
+            return false
+        }
+
     })
 }
 
@@ -131,6 +136,40 @@ function docReady(fn) {
 }
 
 
+function displayCat(category) {
+    console.log(category);
+    document.getElementById("catMod").style.display = "block";
+
+    fillCatMod(categories[category]);
+
+}
+
+function fillCatMod(category) {
+    let cont = document.getElementById("catModTable");
+
+    cont.innerHTML = "<tr><th>Name</th><td><input type='text' id='modalCatName' placeholder='" + category.name + "' style='width: 100%;margin: 0;height: 30px' value='" + category.name + "'></td></tr>" +
+        "<tr><th>Color</th><td><input type='color' id='modalColor' value='" + category.color + "'> </td></tr>"
+    // "<tr><td></td><td></td></tr>
+
+
+    document.getElementById("modalColor").addEventListener('input', (e) => {
+        const val = document.getElementById("modalColor").value;
+        categories[selectedCategory].color = val;
+        // console.log(val);
+    })
+
+    document.getElementById("modalCatName").addEventListener('input', (e) => {
+        const val = document.getElementById("modalCatName").value.replace(/ /g, "");
+
+        if (val !== "")
+            categories[selectedCategory].name = val;
+        // console.log(val);
+    })
+    // let proto = document.getElementById("catModTable");
+
+}
+
+
 docReady(function () {
     document.getElementById("catContainer").addEventListener('click', (e) => {
 
@@ -141,6 +180,12 @@ docReady(function () {
             parent = el
         } else if (el.matches(".category p, .category div")) {
             parent = el.parentNode;
+        } else if (el.matches(".category img")) {
+            parent = el.parentNode;
+
+            displayCat(parent.getAttribute("value"))
+
+
         }
 
         if (parent !== null) {
@@ -250,6 +295,8 @@ onkeydown = function (e) {
             e.preventDefault()
             fillInfos(selectedMark)
         }
+
+        document.getElementById("catMod").style.display = "none"
     }
 }
 
@@ -281,14 +328,14 @@ function updateMarks(type) {
 
     container.innerHTML = "";
     for (let i = 0; i < marks.length; i++) {
-        marks[i].canvas.style.border = "solid " + marks[i].category.color + " 2px"
+        // marks[i].canvas.style.border = "solid " + marks[i].categories.color + " 2px"
         container.appendChild(marks[i].canvas);
     }
 }
 
 
 function updateCategories() {
-    document.querySelector(".category").remove();
+    // document.querySelector(".category").remove();
 
     let first = true
     for (const [key, value] of Object.entries(categories)) {
@@ -335,6 +382,7 @@ function importFromJson(e) {
 
     reader.onload = function (e) {
         let jsonObj = JSON.parse(e.target.result);
+
         importData(jsonObj);
         // console.log(jsonObj)
     }
@@ -358,13 +406,20 @@ async function importData(data) {
     sampleData = tempData["marks"];
     categories = tempData["categories"];
 
+    document.querySelectorAll(".category").forEach((item) => {
+        // if (item.getAttribute("value") !== "default") {
+        item.remove()
+        // }
+    })
+
     loadImg(tempData.background)
 
     // let im = document.getElementById("tester")
     // im.src = tempData.background
 
+
     updateCategories()
-    updateMarks("category")
+    updateMarks("size")
 }
 
 function drawCat(name, color, selected = false) {
@@ -382,7 +437,7 @@ function drawCat(name, color, selected = false) {
     newCat.className = "category";
     newCat.setAttribute("value", name);
 
-    newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + color + "'> </div> <p>" + name + "</p>"
+    newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + color + "'> </div> <p>" + name + "</p><img src=\"assets/images/buttons/edit.png\" class=\"editCat\">"
     document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
 
 }
@@ -423,7 +478,7 @@ document.onpaste = (evt) => {
 
                 // currImg = e.target.result;
 
-                purge()
+                // purge()
                 // loadImg(file);
                 loadImg(e.target.result)
                 // console.log(currImg);
@@ -455,7 +510,7 @@ function purge() {
     categories = {
         default: {
             name: "default",
-            color: "414141FF"
+            color: "#414141FF"
         }
     }
     selectedCategory = "default";
@@ -467,11 +522,11 @@ function purge() {
     stroke = [];
 
     selectedMark = null
-    updateMarks("category")
+    updateMarks("size")
     document.querySelectorAll(".category").forEach((item) => {
-        if (item.getAttribute("value") !== "default") {
-            item.remove()
-        }
+        // if (item.getAttribute("value") !== "default") {
+        item.remove()
+        // }
     })
     updateCategories()
 }
@@ -484,3 +539,17 @@ function clearExamples() {
     }
 
 }
+
+docReady(function () {
+    document.getElementById("closeCatMod").addEventListener('click', (e) => {
+        const dialog = document.getElementById("catMod");
+        dialog.style.display = "none";
+        document.querySelectorAll(".category").forEach((item) => {
+            // if (item.getAttribute("value") !== "default") {
+            item.remove()
+            // }
+        })
+        updateCategories()
+    })
+})
+

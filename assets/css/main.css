@@ -2,6 +2,16 @@ body {
     font-family: Helvetica Neue, sans-serif;
 }
 
+.editCat {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 2px;
+
+}
+
 #selFlat div {
     border: #555555 solid 1px;
     margin: 1px;
@@ -22,6 +32,20 @@ body {
     filter: none !important;
     border: #498db4 solid 1px !important;
 
+}
+
+#catProto {
+    width: 65%;
+    border-right: #333333 1px solid;
+    display: inline-block;
+
+}
+
+#catData {
+    width: 30%;
+    margin-left: 2%;
+    display: inline-block;
+    position: absolute;
 }
 
 #selFlatLabel {
@@ -90,8 +114,7 @@ canvas {
     overflow-y: hidden;
     white-space: nowrap;
     position: relative;
-    height: 100px
-;
+    height: 100px;
 }
 
 
@@ -106,6 +129,11 @@ canvas {
 
 
 #closeMod:hover {
+    border: solid rgba(10, 10, 10, 0.6) thin;
+    cursor: pointer;
+}
+
+#closeCatMod:hover {
     border: solid rgba(10, 10, 10, 0.6) thin;
     cursor: pointer;
 }
@@ -132,6 +160,12 @@ canvas {
 }
 
 .modalInfoShare {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}
+
+.modalCatDel {
     width: 18px;
     height: 18px;
     display: inline-block;
@@ -169,6 +203,12 @@ canvas {
     margin-top: 10px;
 
 }
+#modalAddCat {
+    width: 25px;
+    height: 25px;
+    margin-left: 20px;
+    cursor: pointer;
+}
 
 #modalAddData:hover {
 
@@ -192,6 +232,11 @@ canvas {
     cursor: pointer;
     width: 100%;
     text-align: left;
+}
+
+.category:hover {
+    border: solid rgba(65, 65, 65, 0.5) thin;
+    padding: 3px;
 }
 
 .lightBorder {
@@ -241,4 +286,22 @@ canvas {
     width: 100%;
     cursor: crosshair;
     touch-action: none;
+}
+
+#markInfos {
+    width: 25%;
+    height: 48%;
+    position: absolute;
+    display: inline-block;
+    overflow-y: auto;
+}
+
+#markCategories {
+    width: 25%;
+    bottom: 0;
+    border-top: #333333 solid 1px;
+    height: 48%;
+    position: absolute;
+    display: inline-block;
+    overflow-y: auto;
 }
