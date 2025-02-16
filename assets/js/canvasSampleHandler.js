@@ -150,7 +150,7 @@ async function addRectSample(x, y, width, height) {
         dp.width,
         dp.height);
 
-
+    fillSvg(sampleData)
 }
 
 
@@ -300,6 +300,7 @@ async function addFreeSample(points) {
     marks.append(tcan)
 
     sampleData.push(tres)
+    fillSvg(sampleData)
 }
 
 function getRect(points) {

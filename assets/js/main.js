@@ -125,15 +125,7 @@ function addCategory() {
     }
 }
 
-function docReady(fn) {
-    // see if DOM is already available
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        // call on next available tick
-        setTimeout(fn, 1);
-    } else {
-        document.addEventListener("DOMContentLoaded", fn);
-    }
-}
+
 
 
 function displayCat(category) {
@@ -420,6 +412,7 @@ async function importData(data) {
 
     updateCategories()
     updateMarks("size")
+
 }
 
 function drawCat(name, color, selected = false) {
@@ -529,6 +522,9 @@ function purge() {
         // }
     })
     updateCategories()
+
+    const svg = d3.select('#svgDisplay');
+    svg.selectAll("image").remove();
 }
 
 function clearExamples() {

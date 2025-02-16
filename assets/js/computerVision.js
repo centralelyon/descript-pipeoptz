@@ -184,6 +184,7 @@ function contours2Marks(conts) {
 
         sampleData.push(tres)
     }
+    fillSvg(sampleData)
 }
 
 function morphCountours(src, counts) {

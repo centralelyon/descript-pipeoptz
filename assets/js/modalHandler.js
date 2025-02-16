@@ -353,7 +353,6 @@ function fillInfos(mark) {
                 "</div>";
             tsel = false;
         }
-
     }
 
     mess += "<img  id='modalAddData' src='assets/images/buttons/plus.png'>"
