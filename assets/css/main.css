@@ -127,6 +127,12 @@ canvas {
     cursor: pointer;
 }
 
+svg image:hover {
+    cursor: pointer;
+    /*transform: scale(1.05);*/
+    border: #498db4 solid 1px;
+
+}
 
 #closeMod:hover {
     border: solid rgba(10, 10, 10, 0.6) thin;
@@ -203,6 +209,7 @@ canvas {
     margin-top: 10px;
 
 }
+
 #modalAddCat {
     width: 25px;
     height: 25px;

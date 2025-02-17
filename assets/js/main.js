@@ -126,8 +126,6 @@ function addCategory() {
 }
 
 
-
-
 function displayCat(category) {
     console.log(category);
     document.getElementById("catMod").style.display = "block";
@@ -289,6 +287,19 @@ onkeydown = function (e) {
         }
 
         document.getElementById("catMod").style.display = "none"
+    }
+
+    if (keymap[46]) {
+
+        for (let i = 0; i < seldots.length; i++) {
+
+            let id = sampleData.indexOf(seldots[i])
+            sampleData.splice(id, 1)
+        }
+
+        seldots = undefined;
+
+        updateChart(curr_mod)
     }
 }
 
@@ -549,3 +560,16 @@ docReady(function () {
     })
 })
 
+function tempEdit() {
+
+    for (let i = 0; i < sampleData.length; i++) {
+        sampleData[i]["categories"] = {}
+
+        sampleData[i]["categories"][sampleData[i].category.name] = sampleData[i].category
+
+        delete sampleData[i].category
+
+    }
+
+
+}

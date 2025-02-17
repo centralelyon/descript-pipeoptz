@@ -155,6 +155,7 @@ function contours2Marks(conts) {
             }
         }
 
+        tcont.strokeStyle   = "rgba(255,255,255,0)"
 
         tcont.beginPath();
         tcont.moveTo(points[0][0] - corners[0][0], points[0][1] - corners[0][1]);

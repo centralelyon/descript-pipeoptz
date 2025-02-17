@@ -124,9 +124,8 @@ docReady(function () {
         const el = e.target;
 
         const tid = el.getAttribute('id');
-        console.log("in");
+
         if (tid === "modalAddCat") {
-            console.log("dqsdq");
             const val = document.getElementById('catSelect').value;
 
             addCata(val)
@@ -322,6 +321,7 @@ function resetCan() {
 function deleteMark() {
     const i = sampleData.findIndex(d => d === selectedMark);
     sampleData.splice(i, 1);
+    fillSvg(sampleData)
 
     const dialog = document.getElementById("markMod");
     dialog.close()
