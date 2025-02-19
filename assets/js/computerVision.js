@@ -155,7 +155,7 @@ function contours2Marks(conts) {
             }
         }
 
-        tcont.strokeStyle   = "rgba(255,255,255,0)"
+        tcont.strokeStyle = "rgba(255,255,255,0)"
 
         tcont.beginPath();
         tcont.moveTo(points[0][0] - corners[0][0], points[0][1] - corners[0][1]);
@@ -198,4 +198,83 @@ function morphCountours(src, counts) {
 async function onOpenCvReady(e) {
     opencv = await cv
     // console.log(t);
+}
+
+function testClean() {
+    let src = opencv.imread('modalCanvas');
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let ksize = new opencv.Size(5, 5);
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
+
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+    opencv.adaptiveThreshold(src, src, 120, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 13, 12);
+    let contours = new opencv.MatVector();
+    let hierarchy = new opencv.Mat();
+
+
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    for (let i = 0; i < contours.size(); ++i) {
+
+        let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+            Math.round(Math.random() * 255));
+
+        if (hierarchy.intPtr(0, i)[0] < 1) {
+            opencv.drawContours(temp, contours, i, color, 1, opencv.LINE_8, hierarchy, 100);
+        }
+    }
+
+    opencv.imshow('modalCanvas', temp);
+
+
+    src.delete();
+    dst.delete();
+    temp.delete();
+
+    contours.delete();
+    hierarchy.delete();
+
+}
+
+function removeColor(r, g, b, range = 15) {
+    let lower = [inBound(b - range), inBound(g - range), inBound(r - range), 0];
+    let higher = [inBound(b + range), inBound(g + range), inBound(r + range), 255];
+    let src = opencv.imread('inVis');
+    let dst = new opencv.Mat();
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
+    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+    opencv.inRange(src, low, high, temp);
+
+    opencv.bitwise_not(temp, temp)
+    opencv.bitwise_and(src, src, dst, mask = temp)
+
+    // opencv.imshow('modalCanvas', src);
+    opencv.imshow('inVis', dst);
+
+
+    src.delete();
+    dst.delete();
+    low.delete();
+    high.delete();
+}
+
+function inBound(pixel) {
+    return Math.max(Math.min(pixel, 255), 0)
+}
+
+function getnDominant(n = 5) {
+    let src = opencv.imread('modalCanvas');
+    let criteria = (opencv.TERM_CRITERIA_EPS + opencv.TERM_CRITERIA_MAX_ITER, n, 1.0)
+    opencv.KMEANS_RANDOM_CENTERS
+    var labels = new opencv.Mat();
+    var centers = new opencv.Mat();
+
+    let t = opencv.kmeans(src, n, labels, criteria, n, centers)
+
+    console.log(t);
 }

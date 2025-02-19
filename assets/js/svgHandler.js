@@ -51,50 +51,20 @@ function fillSvg(marks) {
         .attr("height", (d) => d.rHeight * h)
         .on("mouseenter", (e) => {
             if (over_on)
-                drawSamples([e.originalTarget.__data__])
+                drawSamples([e.target.__data__])
         })
         .on("mouseout", (e) => {
             if (over_on)
                 drawImage()
+            d3.selectAll("image").style("opacity", 1)
         })
         .on("click", (e) => {
 
 
-            const dialog = document.getElementById("markMod");
-            dialog.showModal();
-            const container = document.getElementById("modalCore");
+            d3.selectAll("image").style("opacity", 1)
 
-            // const el = d3.select(e.explicitOriginalTarget)
-            const el = e.explicitOriginalTarget
-
-            selectedMark = sampleData.find((d) => d === el.__data__)
-
-            fillInfos(selectedMark)
-            fillCatas(selectedMark)
-
-            let can = document.getElementById('modalCanvas');
-            let cont = can.getContext('2d');
-
-            // can.width = cont.width;
-            can.width = container.clientWidth * 0.9
-            can.height = dialog.clientHeight * 0.9
-
-            initCoords.x = can.width / 2 - selectedMark.canvas.width / 2
-            initCoords.y = can.height / 2 - selectedMark.canvas.height / 2
-            cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
-
-            cont.setTransform(1, 0, 0, 1, 0, 0);
-            modalScale = 1
-            modalOrigin.x = 0
-            modalOrigin.y = 0
-
-
-            can.addEventListener("mousewheel", zoom, false);
-            can.addEventListener("DOMMouseScroll", zoom, false);
-            can.addEventListener("pointerdown", mouseDownModal, false);
-            can.addEventListener("pointermove", mouseMoveModal, false);
-            can.addEventListener("pointerup", mouseUpModal, false);
-
+            const el = e.target
+            loadModal(sampleData.find((d) => d === el.__data__))
         })
     // .attr('transform', (d) => `translate(${d.rx * w -(d.rWidth*w)/2},${d.ry * y-(d.rHeight*y)/2}) rotate(${d.data.orientation})` )
 
@@ -707,7 +677,6 @@ function getDomainFromName(data, type) {
 
 function getDataFromName(d, type) {
     if (type === "Area") {
-
         return d.width * d.height
     } else if (type === "Aspect ratio") {
         return d.width / d.height
@@ -718,13 +687,31 @@ function getDataFromName(d, type) {
     }
 }
 
-function updateChart(type) {
-    fillSvg(sampleData)
-    /*    if(type === "grid") {
-            sortGrid()
-        }else if(type === "area") {
-            displayScat()
-        } else {
+function updateChart(type, data) {
+    // fillSvg(sampleData)
 
-        }*/
+    const svg = d3.select('#svgDisplay')
+    svg.selectAll("image").filter((d =>
+        data.includes(d))
+    ).remove()
+    if (type === "grid") {
+        sortGrid()
+    } else if (type === "area") {
+        displayScat()
+    } else {
+
+    }
+
+    svg.select("#lasso").remove()
+}
+
+function rotaTest() {
+    let imgs = d3.selectAll("image")
+    imgs.style("transform-box", "fill-box")
+    imgs.style("transform-origin", "center")
+    imgs.transition().duration(500).style("transform", (d) => {
+        let t = parseFloat(d.data.orientation) //-90
+        console.log(t);
+        return "rotate(" + t + "deg)"
+    })
 }

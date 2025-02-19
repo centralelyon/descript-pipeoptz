@@ -73,7 +73,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/ipad.json";
+    const url = "assets/images/tempLoad/stems.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -155,8 +155,16 @@ function fillCatMod(category) {
             categories[selectedCategory].name = val;
         // console.log(val);
     })
-    // let proto = document.getElementById("catModTable");
 
+    if (categories[selectedCategory].prototype) {
+
+        let proto = document.getElementById("catProtoCanvas");
+
+        let proto_cont = proto.getContext("2d")
+
+        proto_cont.drawImage(categories[selectedCategory].prototype, 0, 0, proto.width, proto.height)
+
+    }
 }
 
 
@@ -172,16 +180,27 @@ docReady(function () {
             parent = el.parentNode;
         } else if (el.matches(".category img")) {
             parent = el.parentNode;
-
             displayCat(parent.getAttribute("value"))
-
 
         }
 
         if (parent !== null) {
+
             document.getElementById("selectedCat").removeAttribute("id")
             parent.setAttribute("id", "selectedCat");
             selectedCategory = parent.getAttribute("value");
+
+
+            if (seldots !== undefined) {
+                for (let i = 0; i < seldots.length; i++) {
+                    seldots[i].categories[selectedCategory] = categories[selectedCategory]
+                }
+
+                seldots = undefined;
+                d3.select("#lasso").remove();
+                drawImage()
+
+            }
         }
 
     });
@@ -199,9 +218,11 @@ docReady(function () {
         }
 
         if (parent !== null) {
-            drawSamples(getSamplesFromCategory(parent.getAttribute("value")));
+            let samples = getSamplesFromCategory(parent.getAttribute("value"))
+            if (samples !== []) {
+                drawSamples(samples);
+            }
         }
-
     });
 
     document.getElementById("catContainer").addEventListener('mouseout', (e) => {
@@ -286,7 +307,15 @@ onkeydown = function (e) {
             fillInfos(selectedMark)
         }
 
+        if (document.activeElement === document.getElementById("markMod")) {
+            selectedMark = undefined
+        }
+
         document.getElementById("catMod").style.display = "none"
+
+        seldots = undefined;
+        d3.select("#lasso").remove();
+        drawImage()
     }
 
     if (keymap[46]) {
@@ -296,10 +325,19 @@ onkeydown = function (e) {
             let id = sampleData.indexOf(seldots[i])
             sampleData.splice(id, 1)
         }
-
+        updateChart(curr_mod, seldots)
         seldots = undefined;
 
-        updateChart(curr_mod)
+
+    }
+
+    if (keymap[37]) {
+        if (selectedMark)
+            switchMark("prev")
+    }
+    if (keymap[39]) {
+        if (selectedMark)
+            switchMark("next")
     }
 }
 
@@ -563,13 +601,16 @@ docReady(function () {
 function tempEdit() {
 
     for (let i = 0; i < sampleData.length; i++) {
-        sampleData[i]["categories"] = {}
+        // sampleData[i]["data"] = {}
 
-        sampleData[i]["categories"][sampleData[i].category.name] = sampleData[i].category
+        sampleData[i]["data"]["stem"] = sampleData[i]["data"]["stem "]
 
-        delete sampleData[i].category
+        delete sampleData[i]["data"]["stem "]
 
     }
 
 
 }
+
+
+let t = [27, 73, 69, 28, 43, 30, 38, 27, 0, 42, 41, 26, 27, 19, 50, 62, 56, 61, 58, 46, 65, 60, 55, 58, 56, 0, 34, 19, 19, 16, 43, 42, 19, 18, 48, 45, 46, 73, 49, 62, 17, 49, 64, 16, 30, 13, 14, 20, 53, 58, 17, 53, 52, 22, 47, 44, 22, 24, 29, 36, 18, 42, 24, 0, 22, 45, 18, 47]

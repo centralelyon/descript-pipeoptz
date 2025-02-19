@@ -11,7 +11,7 @@ let displayed = false;
 let selectedInfo = 'data0'
 
 let deltaZoom = {x: 0, y: 0};
-
+let tempcat
 
 function switchSelectMod(el, type) {
     document.getElementById("selectModBut").removeAttribute("id")
@@ -26,70 +26,43 @@ function switchSelectMod(el, type) {
     } else {
         can.style.cursor = "resize";
     }
+}
 
 
+function loadModal(data) {
+    const dialog = document.getElementById("markMod");
+    dialog.showModal();
+    const container = document.getElementById("modalCore");
+
+    selectedMark = sampleData.find((d) => d === data)
+    fillInfos(selectedMark)
+    fillCatas(selectedMark)
+
+    let can = document.getElementById('modalCanvas');
+    let cont = can.getContext('2d');
+
+    // can.width = cont.width;
+    can.width = container.clientWidth * 0.9
+    can.height = dialog.clientHeight * 0.9
+
+    initCoords.x = can.width / 2 - selectedMark.canvas.width / 2
+    initCoords.y = can.height / 2 - selectedMark.canvas.height / 2
+    cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+
+    cont.setTransform(1, 0, 0, 1, 0, 0);
+    modalScale = 1
+    modalOrigin.x = 0
+    modalOrigin.y = 0
+
+
+    can.addEventListener("mousewheel", zoom, false);
+    can.addEventListener("DOMMouseScroll", zoom, false);
+    can.addEventListener("pointerdown", mouseDownModal, false);
+    can.addEventListener("pointermove", mouseMoveModal, false);
+    can.addEventListener("pointerup", mouseUpModal, false);
 }
 
 docReady(function () {
-    document.getElementById("marks").addEventListener('click', (e) => {
-
-        const el = e.target;
-        let parent = null;
-
-        if (el.matches("canvas")) {
-            const dialog = document.getElementById("markMod");
-            dialog.showModal();
-            const container = document.getElementById("modalCore");
-
-            selectedMark = sampleData.find((d) => d.canvas === el)
-            fillInfos(selectedMark)
-            fillCatas(selectedMark)
-
-            let can = document.getElementById('modalCanvas');
-            let cont = can.getContext('2d');
-
-            // can.width = cont.width;
-            can.width = container.clientWidth * 0.9
-            can.height = dialog.clientHeight * 0.9
-
-            initCoords.x = can.width / 2 - selectedMark.canvas.width / 2
-            initCoords.y = can.height / 2 - selectedMark.canvas.height / 2
-            cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
-
-            cont.setTransform(1, 0, 0, 1, 0, 0);
-            modalScale = 1
-            modalOrigin.x = 0
-            modalOrigin.y = 0
-
-
-            can.addEventListener("mousewheel", zoom, false);
-            can.addEventListener("DOMMouseScroll", zoom, false);
-            can.addEventListener("pointerdown", mouseDownModal, false);
-            can.addEventListener("pointermove", mouseMoveModal, false);
-            can.addEventListener("pointerup", mouseUpModal, false);
-        }
-    });
-
-    document.getElementById("marks").addEventListener('mouseover', (e) => {
-        const el = e.target;
-
-        const sample = sampleData.find((d) => d.canvas === el)
-        if (el.matches("canvas")) {
-            drawSamples([sample])
-            displayed = true
-        }
-
-
-    });
-
-    document.getElementById("marks").addEventListener('mouseleave', (e) => {
-        const el = e.target;
-        if (displayed) {
-            render();
-            displayed = false;
-        }
-
-    });
 
     document.getElementById("markInfos").addEventListener('click', (e) => {
         const el = e.target;
@@ -105,7 +78,7 @@ docReady(function () {
         } else if (el.matches("p")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
-            el.outerHTML = '<input type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML + '" />'
+            el.outerHTML = '<input type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
 
         } else if (el.matches(".modalInfoShare")) {
             const key = el.getAttribute('value');
@@ -114,7 +87,7 @@ docReady(function () {
         } else if (el.matches("span")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
-            el.outerHTML = '<input type="text" id="dataInpVal" key="' + key + '" value="' + el.innerHTML + '" />'
+            el.outerHTML = '<input type="text" id="dataInpVal" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "_") + '" />'
 
         }
     });
@@ -130,9 +103,14 @@ docReady(function () {
 
             addCata(val)
         } else if (el.matches(".modalCatDel")) {
-            const val = el.getAttribute('value');
-            deleteCat(val)
-
+            if (el.getAttribute("type") === "del") {
+                const val = el.getAttribute('value');
+                deleteCat(val)
+            }
+            if (el.getAttribute("type") === "sel") {
+                clickMod = 'proto'
+                tempcat = el.getAttribute('value');
+            }
         }
 
 
@@ -150,6 +128,7 @@ docReady(function () {
     document.getElementById("closeMod").addEventListener('click', (e) => {
         const dialog = document.getElementById("markMod");
         dialog.close();
+        selectedMark = undefined
     })
 })
 
@@ -174,8 +153,6 @@ function zoom(e) {
     cont.clearRect(0, 0, can.width, can.height);
     cont.setTransform(modalScale, 0, 0, modalScale, modalOrigin.x, modalOrigin.y);
     cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
-
-
 }
 
 
@@ -201,15 +178,12 @@ function resetZoom() {
 function rotation(e) {
     let x = e.offsetX;
     let y = e.offsetY;
-
-
 }
 
 
 function rule(e) {
     let x = e.offsetX;
     let y = e.offsetY;
-
 }
 
 function mouseDownModal(e) {
@@ -220,6 +194,10 @@ function mouseDownModal(e) {
     } else if (clickMod === 'rotation') {
         clickOrigin = {x: xy.x, y: xy.y};
         nbClik += 1
+    } else if (clickMod === 'proto') {
+        xy = toWorld(xy, modalOrigin, modalScale)
+        strokePoint = [xy.x, xy.y];
+        mouseDown = 1;
     }
 }
 
@@ -267,6 +245,26 @@ function mouseMoveModal(e) {
 
             tiltCan(angle)
         }
+    } else if (clickMod === 'proto') {
+        if (mouseDown === 1) {
+            let can = document.getElementById("modalCanvas")
+            let cont = can.getContext('2d');
+            e.preventDefault()
+            let xy = getMousePos(e);
+
+            // let tor = toWorld(clickOrigin, modalOrigin, modalScale)
+            xy = toWorld(xy, modalOrigin, modalScale)
+
+            cont.beginPath();
+            cont.strokeStyle = "#333"
+            cont.moveTo(...strokePoint);
+            cont.lineTo(xy.x, xy.y);
+            cont.stroke()
+            cont.closePath();
+
+            stroke.push([...strokePoint])
+            strokePoint = [xy.x, xy.y];
+        }
     }
 }
 
@@ -296,6 +294,72 @@ function mouseUpModal(e) {
         }
 
 
+    } else if (clickMod === 'proto') {
+        mouseDown = 0
+        // addFreeSample(stroke)
+        let can = document.createElement('canvas');
+        let cont = can.getContext('2d');
+
+        // let pts = stroke.map((d => toWorld({x: d[0], y: d[1]}, modalOrigin, modalScale)))
+        // pts = pts.map((d) => [d.x, d.y]);
+        let pts = stroke
+        let corners = getRect(pts)
+
+
+        let tw = corners[1][0] - corners[0][0]
+        let th = corners[1][1] - corners[0][1]
+
+        can.width = tw
+        can.height = th
+
+        let tcan = document.getElementById('modalCanvas');
+        // let tcont = tcan.getContext('2d');
+
+        cont.beginPath();
+        cont.moveTo(pts[0][0] - corners[0][0], pts[0][1] - corners[0][1]);
+        for (let i = 1; i < stroke.length; i++) {
+            cont.lineTo(pts[i][0] - corners[0][0], pts[i][1] - corners[0][1]);
+        }
+        // tcont.stroke()
+        cont.closePath();
+        cont.clip()
+        console.log(corners);
+
+        console.log(tcan,
+            corners[0][0],
+            corners[0][1],
+            tw,
+            th,
+            0,
+            0,
+            tw,
+            th
+        )
+
+        cont.drawImage(tcan,
+            corners[0][0],
+            corners[0][1],
+            tw,
+            th,
+            0,
+            0,
+            tw,
+            th
+        )
+
+        categories[tempcat]["prototype"] = can
+
+
+        const temp_can = document.getElementById("modalCanvas")
+        const temp_cont = temp_can.getContext('2d');
+
+        document.getElementById("catMod").append(can)
+        temp_cont.drawImage(can, 0, 0, tw, th, 0, 0, tw, th)
+
+        // xy = toWorld(xy, modalOrigin, modalScale)
+        stroke = []
+        tempcat = ""
+        clickMod = "rule"
     }
 
 
@@ -378,7 +442,9 @@ function fillCatas(mark) {
             mess += "<div class='modalInfo' value ='" + key + "'>" +
                 "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <div class='catColor' style='background: " + value.color + "'></div>" +
                 "<div style='display: inline-block;float: right'>" +
-                "<img class='modalCatDel' value ='" + key + "' src='assets/images/buttons/del.png'>" +
+                "<img class='modalCatDel' type='sel' value ='" + key + "' src='assets/images/buttons/lasso.png'>" +
+                "<img class='modalCatDel' type='del' value ='" + key + "' src='assets/images/buttons/del.png'>" +
+
                 "</div>" +
                 "</div>";
 
@@ -488,4 +554,34 @@ function rotatePt(point, center, rotate, result = {}) {
     result.x = vx * xAx - vy * xAy + center.x;
     result.y = vx * xAy + vy * xAx + center.y;
     return result;
+}
+
+function getModalNext() {
+    const id = sampleData.indexOf(selectedMark)
+
+    if (id < sampleData.length - 1) {
+        return id + 1
+    }
+    return id
+}
+
+function getModalPrev() {
+    const id = sampleData.indexOf(selectedMark)
+
+    if (id > 1) {
+        return id - 1
+    }
+    return id
+}
+
+function switchMark(type) {
+
+    if (type === "next") {
+        const id = getModalNext()
+        loadModal(sampleData[id])
+    } else if (type === "prev") {
+        const id = getModalPrev()
+        loadModal(sampleData[id])
+    }
+
 }
