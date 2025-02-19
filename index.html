@@ -23,6 +23,7 @@
     <script src="assets/js/computerVision.js"></script>
     <script src="assets/js/modalHandler.js"></script>
     <script src="assets/js/svgHandler.js"></script>
+    <script src="assets/js/collageHandler.js"></script>
     <script src="assets/js/main.js"></script>
 
 
@@ -31,7 +32,7 @@
     <script async src="assets/js/pca.js" type="text/javascript"></script>
     <!--    <script async src="https://cdn.jsdelivr.net/npm/pca-js@1.0.0/pca.min.js" type="text/javascript"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" type="text/javascript"></script>
-<!--    <script src=" https://cdn.jsdelivr.net/npm/d3-lasso@0.0.5/build/d3-lasso.min.js "></script>-->
+    <!--    <script src=" https://cdn.jsdelivr.net/npm/d3-lasso@0.0.5/build/d3-lasso.min.js "></script>-->
 
     <!--    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>-->
     <!-- Load the coco-ssd model. -->
@@ -145,29 +146,34 @@
 
     <div class="row" style="margin-top: 0;text-align: center;display:flex">
         <div class="one column"></div>
-        <div class="ten columns " style="margin: 0;text-align: center;height: 300px">
+        <div class="ten columns " style="margin: 0;text-align: center;">
 
 
             <div id="marksDisplay" style="margin-top: 0;width: 100%">
                 <div>
                     <div class="buttonImg">
-                        <img src="assets/images/buttons/reset.png" class="lightBorder" onclick="switchSvg(sampleData,'default')"
+                        <img src="assets/images/buttons/reset.png" class="lightBorder"
+                             onclick="switchSvg(sampleData,'default')"
                              style=""/>
                     </div>
                     <div class="buttonImg">
-                        <img src="assets/images/buttons/grid.png" class="lightBorder" onclick="switchSvg(sampleData,'grid')"
+                        <img src="assets/images/buttons/grid.png" class="lightBorder"
+                             onclick="switchSvg(sampleData,'grid')"
                              style=""/>
                     </div>
                     <div class="buttonImg">
-                        <img src="assets/images/buttons/chart.png" class="lightBorder" onclick="switchSvg(sampleData,'scatter')"
+                        <img src="assets/images/buttons/chart.png" class="lightBorder"
+                             onclick="switchSvg(sampleData,'scatter')"
                              style=""/>
                     </div>
                     <div class="buttonImg">
-                        <img src="assets/images/buttons/cat.png" class="lightBorder" onclick="switchSvg(sampleData,'default')"
+                        <img src="assets/images/buttons/cat.png" class="lightBorder"
+                             onclick="switchSvg(sampleData,'default')"
                              style=""/>
                     </div>
 
-                    <div id="secondControl" style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
+                    <div id="secondControl"
+                         style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
                 </div>
                 <svg style="width: 100%; height: 98%" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
                      id="svgDisplay">
@@ -177,8 +183,29 @@
             </div>
         </div>
 
-
     </div>
+    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
+    <div class="row" style="margin-top: 0;text-align: center">
+
+        <div class="eight columns " style=" height: 300px">
+            <svg viewBox="0 0 300 300" id="collageSvg" width="300" height="300">
+
+            </svg>
+        </div>
+
+        <div id="collageData" class="four columns"
+             style="display: inline-block">
+
+
+            <div id="collageInput">
+                <select id="collageSel">
+
+                </select>
+                <input type="number" id="dataVal" disabled>
+            </div>
+        </div>
+    </div>
+
 
     <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
 
