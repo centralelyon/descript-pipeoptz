@@ -23,6 +23,7 @@ let opencv = null
 
 let selectedMark = null
 
+let dataEncoding = {}
 let examples = [
     "assets/images/tempExamples/lollipop.png",
     "assets/images/tempExamples/goodbye.png",
@@ -158,13 +159,15 @@ function fillCatMod(category) {
         // console.log(val);
     })
 
-    if (categories[selectedCategory].prototype) {
+
+    if (category.prototype) {
 
         let proto = document.getElementById("catProtoCanvas");
-
         let proto_cont = proto.getContext("2d")
 
-        proto_cont.drawImage(categories[selectedCategory].prototype, 0, 0, proto.width, proto.height)
+        proto_cont.clearRect(0, 0, proto.width, proto.height)
+
+        proto_cont.drawImage(category.prototype.canvas, 0, 0, proto.width, proto.height)
 
     }
 }
@@ -199,6 +202,7 @@ docReady(function () {
                 }
 
                 seldots = undefined;
+                over_on = true
                 d3.select("#lasso").remove();
                 drawImage()
 
@@ -316,6 +320,7 @@ onkeydown = function (e) {
         document.getElementById("catMod").style.display = "none"
 
         seldots = undefined;
+        over_on = true
         d3.select("#lasso").remove();
         drawImage()
     }
@@ -329,6 +334,7 @@ onkeydown = function (e) {
         }
         updateChart(curr_mod, seldots)
         seldots = undefined;
+        over_on = true
 
 
     }
@@ -613,6 +619,3 @@ function tempEdit() {
 
 
 }
-
-
-let t = [27, 73, 69, 28, 43, 30, 38, 27, 0, 42, 41, 26, 27, 19, 50, 62, 56, 61, 58, 46, 65, 60, 55, 58, 56, 0, 34, 19, 19, 16, 43, 42, 19, 18, 48, 45, 46, 73, 49, 62, 17, 49, 64, 16, 30, 13, 14, 20, 53, 58, 17, 53, 52, 22, 47, 44, 22, 24, 29, 36, 18, 42, 24, 0, 22, 45, 18, 47]

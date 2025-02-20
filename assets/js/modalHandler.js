@@ -12,6 +12,7 @@ let selectedInfo = 'data0'
 
 let deltaZoom = {x: 0, y: 0};
 let tempcat
+let tempDat
 
 function switchSelectMod(el, type) {
     document.getElementById("selectModBut").removeAttribute("id")
@@ -81,9 +82,14 @@ docReady(function () {
             el.outerHTML = '<input type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
 
         } else if (el.matches(".modalInfoShare")) {
+            let type = el.getAttribute('type')
             const key = el.getAttribute('value');
-
-            shareInfo(key)
+            if (type === 'share') {
+                shareInfo(key)
+            } else if (type === 'data') {
+                tempDat = key
+                clickMod = 'data'
+            }
         } else if (el.matches("span")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
@@ -198,6 +204,10 @@ function mouseDownModal(e) {
         xy = toWorld(xy, modalOrigin, modalScale)
         strokePoint = [xy.x, xy.y];
         mouseDown = 1;
+    } else if (clickMod === 'data') {
+        xy = toWorld(xy, modalOrigin, modalScale)
+        strokePoint = [xy.x, xy.y];
+        mouseDown = 1;
     }
 }
 
@@ -249,6 +259,28 @@ function mouseMoveModal(e) {
         if (mouseDown === 1) {
             let can = document.getElementById("modalCanvas")
             let cont = can.getContext('2d');
+
+            e.preventDefault()
+            let xy = getMousePos(e);
+
+            // let tor = toWorld(clickOrigin, modalOrigin, modalScale)
+            xy = toWorld(xy, modalOrigin, modalScale)
+
+            cont.beginPath();
+            cont.strokeStyle = "#333"
+            cont.moveTo(...strokePoint);
+            cont.lineTo(xy.x, xy.y);
+            cont.stroke()
+            cont.closePath();
+
+            stroke.push([...strokePoint])
+            strokePoint = [xy.x, xy.y];
+        }
+    } else if (clickMod === 'data') {
+        if (mouseDown === 1) {
+            let can = document.getElementById("modalCanvas")
+            let cont = can.getContext('2d');
+
             e.preventDefault()
             let xy = getMousePos(e);
 
@@ -299,10 +331,12 @@ function mouseUpModal(e) {
         // addFreeSample(stroke)
         let can = document.createElement('canvas');
         let cont = can.getContext('2d');
-
-        // let pts = stroke.map((d => toWorld({x: d[0], y: d[1]}, modalOrigin, modalScale)))
-        // pts = pts.map((d) => [d.x, d.y]);
-        let pts = stroke
+        let tstroke = [...stroke].map((d) => {
+            return [...d]
+        });
+        let pts = stroke.map((d => toScreen({x: d[0], y: d[1]}, modalOrigin, modalScale)))
+        pts = pts.map((d) => [d.x, d.y]);
+        // let pts = stroke
         let corners = getRect(pts)
 
 
@@ -317,24 +351,15 @@ function mouseUpModal(e) {
 
         cont.beginPath();
         cont.moveTo(pts[0][0] - corners[0][0], pts[0][1] - corners[0][1]);
-        for (let i = 1; i < stroke.length; i++) {
+
+        for (let i = 1; i < pts.length; i++) {
             cont.lineTo(pts[i][0] - corners[0][0], pts[i][1] - corners[0][1]);
         }
         // tcont.stroke()
         cont.closePath();
         cont.clip()
-        console.log(corners);
 
-        console.log(tcan,
-            corners[0][0],
-            corners[0][1],
-            tw,
-            th,
-            0,
-            0,
-            tw,
-            th
-        )
+        resetCan();
 
         cont.drawImage(tcan,
             corners[0][0],
@@ -347,18 +372,73 @@ function mouseUpModal(e) {
             th
         )
 
-        categories[tempcat]["prototype"] = can
 
-
-        const temp_can = document.getElementById("modalCanvas")
-        const temp_cont = temp_can.getContext('2d');
-
-        document.getElementById("catMod").append(can)
-        temp_cont.drawImage(can, 0, 0, tw, th, 0, 0, tw, th)
+        categories[tempcat]["prototype"] = {
+            canvas: can,
+            contour: tstroke,
+            corners: getRect(tstroke)
+        }
 
         // xy = toWorld(xy, modalOrigin, modalScale)
         stroke = []
         tempcat = ""
+        clickMod = "rule"
+
+    } else if (clickMod === 'data') {
+        mouseDown = 0
+        // addFreeSample(stroke)
+        let can = document.createElement('canvas');
+        let cont = can.getContext('2d');
+
+        let tstroke = [...stroke].map((d) => {
+            return [...d]
+        });
+        let pts = stroke.map((d => toScreen({x: d[0], y: d[1]}, modalOrigin, modalScale)))
+        pts = pts.map((d) => [d.x, d.y]);
+        // let pts = stroke
+        let corners = getRect(pts)
+
+
+        let tw = corners[1][0] - corners[0][0]
+        let th = corners[1][1] - corners[0][1]
+
+        can.width = tw
+        can.height = th
+
+        let tcan = document.getElementById('modalCanvas');
+        // let tcont = tcan.getContext('2d');
+
+        cont.beginPath();
+        cont.moveTo(pts[0][0] - corners[0][0], pts[0][1] - corners[0][1]);
+
+        for (let i = 1; i < pts.length; i++) {
+            cont.lineTo(pts[i][0] - corners[0][0], pts[i][1] - corners[0][1]);
+        }
+        // tcont.stroke()
+        cont.closePath();
+        cont.clip()
+
+        resetCan();
+
+        cont.drawImage(tcan,
+            corners[0][0],
+            corners[0][1],
+            tw,
+            th,
+            0,
+            0,
+            tw,
+            th
+        )
+        dataEncoding[tempDat] = {
+            canvas: can,
+            contour: tstroke,
+            corners: getRect(tstroke),
+            value: selectedMark.data[tempDat],
+        }
+        // xy = toWorld(xy, modalOrigin, modalScale)
+        stroke = []
+        tempDat = ""
         clickMod = "rule"
     }
 
@@ -368,7 +448,6 @@ function mouseUpModal(e) {
 
     fillInfos(selectedMark)
     resetCan();
-
     clickOrigin = {x: 0, y: 0};
 
 }
@@ -412,7 +491,8 @@ function fillInfos(mark) {
             mess += "<div class='modalInfo' value ='" + key + "'  id='" + (tsel ? 'selectedModalInfo' : '') + "'>" +
                 "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <span> " + value + " </span>" +
                 "<div style='display: inline-block;float: right'>" +
-                "<img class='modalInfoShare' value ='" + key + "' src='assets/images/buttons/share.png'>" +
+                "<img class='modalInfoShare' type='data' style='margin-right: 5px' value ='" + key + "' src='assets/images/buttons/lasso.png'>" +
+                "<img class='modalInfoShare' type='share' value ='" + key + "' src='assets/images/buttons/share.png'>" +
                 "</div>" +
                 "</div>";
             tsel = false;

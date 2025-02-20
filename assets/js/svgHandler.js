@@ -37,7 +37,11 @@ function fillSvg(marks) {
     lineGenerator = d3.line();
 
     svg.attr('viewBox', '0 0 ' + w + ' ' + h);
-
+    svg.on("pointerup", (e) => {
+        drawImage()
+        d3.selectAll("image").style("opacity", 1)
+        // console.log("saucisse");
+    })
 
     svg.selectAll("dot")
         .data(marks)
@@ -54,12 +58,13 @@ function fillSvg(marks) {
                 drawSamples([e.target.__data__])
         })
         .on("mouseout", (e) => {
-            if (over_on)
+            if (over_on) {
                 drawImage()
-            d3.selectAll("image").style("opacity", 1)
+                d3.selectAll("image").style("opacity", 1)
+            }
         })
-        .on("click", (e) => {
 
+        .on("click", (e) => {
 
             d3.selectAll("image").style("opacity", 1)
 
@@ -375,7 +380,7 @@ function dragStart() {
     offset = undefined
     const svg = d3.select('#svgDisplay');
     over_on = false
-    svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
+    // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
     // svg.selectAll("images").attr("fill", "steelblue");
     // svg.style("background-color", "rgba(0,0,0,0.65)");
     d3.select("#lasso").remove();
@@ -419,6 +424,7 @@ function dragMove(event) {
     const pt = fixBounds([mouseX, mouseY])
     coords.push(pt);
 
+    svg.selectAll("image").style("opacity", 0.3);
     drawPath();
     svg.selectAll("image").each((d, i, e) => {
 
@@ -430,9 +436,7 @@ function dragMove(event) {
         ];
 
         if (pointInPolygon(point, coords)) {
-
             elem.style("opacity", 1)
-
         }
     })
 }
@@ -479,15 +483,14 @@ function dragEnd() {
         }
 
 
-        svg.selectAll("image").style("opacity", 1);
         // if (rectInPolygon(rect, coords))
         //     selectedDots.push(d);
 
-        seldots = [...selectedDots]
 
     });
-
-    over_on = true
+    seldots = [...selectedDots]
+    svg.selectAll("image").style("opacity", 1);
+    // over_on = true
 
     drawSamples(selectedDots);
     // d3.select("#lasso").remove();

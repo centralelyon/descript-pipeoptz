@@ -24,7 +24,6 @@ function loadImg(src) {
         cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
         fillSvg(sampleData)
-
     };
 
     im.src = src
