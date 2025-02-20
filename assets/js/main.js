@@ -30,6 +30,8 @@ let examples = [
     "assets/images/tempExamples/laugh.png",
     "assets/images/tempExamples/doors.jpg",
 ]
+const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_",],
+"https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_"]
 
 docReady(init)
 
