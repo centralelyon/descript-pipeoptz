@@ -151,16 +151,39 @@ function editPalette(e) {
     );
 
 
-    can.onpointerdown = onMouseDown
+    can.onpointerdown = onMouseDownPalette
     can.onpointermove = onMouseMovePalette
     can.onpointerup = onMouseUpPalette
+
     // can.onwheel = paletteZoom
+
+    paletteTempCan = document.createElement("canvas");
+    paletteTempCan.width = can.width;
+    paletteTempCan.height = can.height;
+
+    let tcon = paletteTempCan.getContext('2d')
+
+    tcon.drawImage(can, 0, 0)
 
     can.addEventListener("mousewheel", paletteZoom, false);
     can.addEventListener("DOMMouseScroll", paletteZoom, false);
     // can.addEventListener("mousewheel", zoom, false);
     // can.addEventListener("DOMMouseScroll", zoom, false);
 
+}
+
+function displayCircle(xy) {
+
+
+    let can = document.getElementById('paletteEdit');
+    let cont = can.getContext('2d');
+    cont.save()
+    cont.beginPath();
+    cont.lineWidth = 1
+    cont.arc(xy.x, xy.y, stWidth, 0, 2 * Math.PI);
+    cont.stroke();
+    cont.closePath();
+    cont.restore()
 }
 
 
@@ -171,14 +194,10 @@ function paletteResetZoom() {
     paletteScale = 1
     paletteOrigin.x = 0
     paletteOrigin.y = 0
-
-    paletteTempCan = document.createElement("canvas");
-    paletteTempCan.width = can.width;
-    paletteTempCan.height = can.height;
-
-    let pcont = paletteTempCan.getContext("2d");
-
-    pcont.drawImage(can, 0, 0)
+    //
+    // paletteTempCan = document.createElement("canvas");
+    // paletteTempCan.width = can.width;
+    // paletteTempCan.height = can.height;
 
 
     cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
@@ -192,12 +211,16 @@ function onMouseUpPalette() {
     stroke = []
     // drawImage()
 
+
 }
 
-function drawPalette(cont, x, y, w, type) {
+function drawPalette(cont, x, y, w, type, can) {
     cont.save()
     if (type === "erase")
         cont.globalCompositeOperation = 'destination-out';
+
+    cont.lineCap = 'round';
+    cont.lineJoin = 'round';
     cont.beginPath();
     cont.strokeStyle = "#333"
     cont.lineWidth = w
@@ -206,18 +229,40 @@ function drawPalette(cont, x, y, w, type) {
     cont.stroke()
     cont.closePath();
     cont.restore()
+
+    let tcon = can.getContext('2d')
+    tcon.clearRect(0, 0, 900, 900);
+    tcon.drawImage(cont.canvas, 0, 0)
 }
 
+function onMouseDownPalette(e) {
+    let xy = getMousePos(e);
+    xy = toWorld(xy, paletteOrigin, paletteScale)
+    strokePoint = [xy.x, xy.y];
+    mouseDown = 1;
+}
+
+
 function onMouseMovePalette(e) {
+    let xy = getMousePos(e);
+
+    xy = toWorld(xy, paletteOrigin, paletteScale)
+    let can = document.getElementById("paletteEdit")
     if (mouseDown === 1) {
-        let can = document.getElementById("paletteEdit")
-        let cont = can.getContext('2d');
+
+        // let cont = can.getContext('2d');
         e.preventDefault()
-        let xy = getMousePos(e);
-        drawPalette(cont, xy.x, xy.y, stWidth, mode);
+
+        let cont = paletteTempCan.getContext('2d')
+        drawPalette(cont, xy.x, xy.y, stWidth, mode, can);
         stroke.push([...strokePoint])
         strokePoint = [xy.x, xy.y];
     }
+    let tcon = can.getContext('2d')
+    tcon.clearRect(0, 0, 900, 900);
+    tcon.drawImage(paletteTempCan, 0, 0)
+    displayCircle(xy)
+
 }
 
 
@@ -266,13 +311,13 @@ function paletteZoom(e) {
     let can = document.getElementById('paletteEdit');
     let cont = can.getContext('2d');
 
-    paletteTempCan = document.createElement("canvas");
-    paletteTempCan.width = can.width;
-    paletteTempCan.height = can.height;
+    // paletteTempCan = document.createElement("canvas");
+    // paletteTempCan.width = can.width;
+    // paletteTempCan.height = can.height;
 
-    let pcont = paletteTempCan.getContext("2d");
-
-    pcont.drawImage(can, 0, 0,can.width,can.height,0,0,0,0)
+    // let pcont = paletteTempCan.getContext("2d");
+    //
+    // pcont.drawImage(can, 0, 0, can.width, can.height, 0, 0, 0, 0)
     e.preventDefault();
     let zoomStep = 1.1
 
@@ -297,4 +342,102 @@ function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scale
     paletteScale *= scaleBy;
     paletteOrigin.x = x - (x - paletteOrigin.x) * scaleBy;
     paletteOrigin.y = y - (y - paletteOrigin.y) * scaleBy;
+}
+
+
+function savePalette() {
+
+
+}
+
+
+function getBBox() {
+    let src = opencv.imread(paletteTempCan);
+
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
+    let ksize = new opencv.Size(5, 5);
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+
+    opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
+
+    let contours = new opencv.MatVector();
+    let hierarchy = new opencv.Mat();
+
+    let contours2 = new opencv.MatVector();
+    let hierarchy2 = new opencv.Mat();
+
+// You can try more different parameters
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+
+    for (let i = 0; i < contours.size(); ++i) {
+
+        // let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+        //     Math.round(Math.random() * 255));
+
+        let color = new opencv.Scalar(255, 255, 255);
+
+        opencv.drawContours(temp, contours, i, color, 14, opencv.LINE_8, hierarchy, 100);
+    }
+    opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
+    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    const points = []
+    for (let i = 0; i < contours2.size(); ++i) {
+        hierarchy2
+        if (hierarchy2.intPtr(0, i)[3] > 0) {
+            console.log(hierarchy2.intPtr(0, i)[3])
+            let tt = opencv.contourArea(contours.get(i), false)
+            // console.log(tt)
+            if (tt > 1) {
+                const ci = contours2.get(i)
+                let temp = []
+
+                for (let j = 0; j < ci.data32S.length; j += 2) {
+                    let p = {}
+                    p.x = ci.data32S[j]
+                    p.y = ci.data32S[j + 1]
+                    temp.push(p)
+                }
+                points.push([...temp])
+
+
+                // let color = new opencv.Scalar(255, 255, 255);
+                let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+                    Math.round(Math.random() * 255));
+                opencv.drawContours(dst, contours2, i, color, 1, opencv.LINE_8, hierarchy2, 100);
+            }
+
+        }
+
+    }
+
+    opencv.imshow('paletteEdit', dst);
+
+    src.delete();
+    dst.delete();
+    temp.delete();
+
+    contours.delete();
+    hierarchy.delete();
+    contours2.delete();
+    hierarchy2.delete();
+
+    let corners = [[undefined,undefined], [undefined,undefined]]
+
+    for (let i = 0; i < points.length; i++) {
+        const tpoints = points[i].map(d => ([d.x, d.y]))
+        const tcorners = getRect(tpoints)
+        
+        for (let j = 0; j < corners.length; j++) {
+            for (let k = 0; k < corners; k++) {
+                
+            }
+        }
+        
+    }
+
 }
