@@ -571,8 +571,8 @@ function sortGrid(e) {
         indices.sort(function (a, b) {
 
             if (tdat[a].data && tdat[b].data) {
-                let aData = tdat[a].data[type]
-                let bData = tdat[b].data[type]
+                let aData = tdat[a].data[type].value
+                let bData = tdat[b].data[type].value
 
                 if (aData === undefined && bData) return 1;
                 if (aData && bData === undefined) return -1;
@@ -686,7 +686,7 @@ function getDataFromName(d, type) {
     } else if (type === "n Categories") {
         return Object.keys(d.categories).length
     } else {
-        return d.data[type] ? d.data[type] : 0
+        return d.data[type] ? d.data[type].value : 0
     }
 }
 
@@ -713,8 +713,9 @@ function rotaTest() {
     imgs.style("transform-box", "fill-box")
     imgs.style("transform-origin", "center")
     imgs.transition().duration(500).style("transform", (d) => {
-        let t = parseFloat(d.data.orientation) //-90
+        let t = parseFloat(d.data.orientation.value) //-90
         console.log(t);
         return "rotate(" + t + "deg)"
     })
 }
+

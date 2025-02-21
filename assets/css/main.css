@@ -12,6 +12,43 @@ body {
 
 }
 
+.paletteMark {
+    display: inline-block;
+    width: fit-content;
+}
+
+.paletteMark canvas {
+    border: #555555 solid 1px;
+    margin: 1px;
+    border-radius: 3px;
+    height: 60px;
+    cursor: pointer;
+}
+.paletteNumber {
+    margin-bottom: 0;
+}
+.paletteMarks {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    display: flex;
+}
+.paletteMark canvas:hover {
+    filter: saturate(35%) brightness(70%) opacity(70%);
+    background-color: rgba(85, 85, 85, 0.38);
+}
+
+
+.paletteMarks h4 {
+    width: fit-content;
+    display: inline-block;
+    margin-right: 1%;
+    transform: translate(0, 50%);
+    justify-content: center;
+    align-items: center;
+}
+
 #selFlat div {
     border: #555555 solid 1px;
     margin: 1px;

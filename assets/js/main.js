@@ -31,9 +31,10 @@ let examples = [
     "assets/images/tempExamples/laugh.png",
     "assets/images/tempExamples/doors.jpg",
 ]
-const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_",],
-"https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_"]
+const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_", "_Front.jpg"],
+    ["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_", "+front.jpg"]]
 
+// https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_19%2Bfront.jpg
 docReady(init)
 
 
@@ -41,15 +42,39 @@ function loadExamples() {
 
     const container = document.getElementById('selFlat');
 
-    for (let i = 0; i < examples.length; i++) {
+    for (let i = 0; i < 1; i++) {
         const el = document.createElement("div");
         el.style.backgroundImage = "url('" + examples[i] + "')";
         el.setAttribute('value', i);
+        el.setAttribute('type', "data");
+
         if (i === 0)
             el.classList.add("selectedIm");
 
         el.onclick = loadEx
         container.appendChild(el);
+    }
+    for (let i = 1; i < 10; i++) {
+        let num = i
+
+        if (num < 10) {
+            num = "0" + num
+        }
+
+        for (let j = 0; j < url_templates.length; j++) {
+            const t = encodeURI(url_templates[j][0] + num + url_templates[j][1]);
+            // (url_templates[j][0] , num , url_templates[j][1])
+            const el = document.createElement("div");
+            el.style.backgroundImage = "url('" + t + "')";
+            el.setAttribute('value', num);
+            el.setAttribute('template', j);
+            el.setAttribute('type', "url");
+
+            el.onclick = loadEx
+            container.appendChild(el);
+        }
+
+
     }
 }
 
@@ -57,9 +82,16 @@ function loadEx() {
 
     clearExamples()
     this.classList.add("selectedIm");
-
+    const type = this.getAttribute("type")
     purge()
-    loadImg(examples[this.getAttribute("value")])
+    if (type === "data")
+        loadImg(examples[this.getAttribute("value")])
+    if (type === "url") {
+        let i = this.getAttribute("value")
+        let j = this.getAttribute("template")
+
+        loadImg(encodeURI(url_templates[j][0] + i + url_templates[j][1]))
+    }
 }
 
 async function init() {
@@ -76,7 +108,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/stems.json";
+    const url = "assets/images/tempLoad/anxiety.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -279,6 +311,7 @@ onkeydown = function (e) {
                 selectedInfo = tkey
 
             fillInfos(selectedMark)
+            fillPalette()
         }
 
         if (document.activeElement === document.getElementById("dataInpVal")) {
@@ -292,8 +325,9 @@ onkeydown = function (e) {
 
             if (tval !== "") {
 
-                selectedMark.data[tsel] = tval
+                selectedMark.data[tsel].value = parseFloat(tval)
                 fillInfos(selectedMark)
+                fillPalette()
             }
 
 
@@ -401,8 +435,14 @@ function export2json() {
     for (let i = 0; i < sampleData.length; i++) {
         const tobj = {...sampleData[i]}
         tobj.canvas = tobj.canvas.toDataURL("image/png")
-        tdat.push(tobj)
+        if (tobj.data) {
 
+            for (const [key, value] of Object.entries(tobj.data)) {
+                if (value?.proto?.canvas)
+                    value.proto.canvas = value.proto.canvas.toDataURL("image/png")
+            }
+        }
+        tdat.push(tobj)
     }
 
     const canvas = document.createElement('canvas');
@@ -450,6 +490,13 @@ async function importData(data) {
 
     for (let i = 0; i < tempData["marks"].length; i++) {
         tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
+        if (tempData["marks"][i].data) {
+            for (const [key, value] of Object.entries(tempData["marks"][i].data)) {
+                if (value.proto) {
+                    value.proto.canvas = await convertToCanvas(value.proto.canvas)
+                }
+            }
+        }
     }
 
     sampleData = tempData["marks"];
@@ -469,6 +516,7 @@ async function importData(data) {
 
     updateCategories()
     updateMarks("size")
+    fillPalette()
 
 }
 
@@ -606,16 +654,6 @@ docReady(function () {
     })
 })
 
-function tempEdit() {
-
-    for (let i = 0; i < sampleData.length; i++) {
-        // sampleData[i]["data"] = {}
-
-        sampleData[i]["data"]["stem"] = sampleData[i]["data"]["stem "]
-
-        delete sampleData[i]["data"]["stem "]
-
-    }
 
 
-}
+

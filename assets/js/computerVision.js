@@ -151,7 +151,7 @@ function contours2Marks(conts) {
             rHeight: th / ty,
             categories: tcat,
             data: {
-                orientation: Math.round(angle * 100) / 100
+                orientation: {value: Math.round(angle * 100) / 100}
             }
         }
 
@@ -277,4 +277,100 @@ function getnDominant(n = 5) {
     let t = opencv.kmeans(src, n, labels, criteria, n, centers)
 
     console.log(t);
+}
+
+//Use of  Brensenham line Algo
+function getPixelsOnLine(ctx, startX, startY, endX, endY) {
+    const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const data = imageData.data;
+    const pixelCols = [];
+
+    const getPixel = (x, y) => {
+        if (x < 0 || x >= imageData.width || y < 0 || y >= imageData.height) {
+            return "rgba(0,0,0,0)";
+        }
+        let ind = (x + y * imageData.width) * 4;
+        return [data[ind++], data[ind++], data[ind++], data[ind++] / 255];
+    }
+
+    var x = Math.floor(startX);
+    var y = Math.floor(startY);
+    const xx = Math.floor(endX);
+    const yy = Math.floor(endY);
+    const dx = Math.abs(xx - x);
+    const sx = x < xx ? 1 : -1;
+    const dy = -Math.abs(yy - y);
+    const sy = y < yy ? 1 : -1;
+    var err = dx + dy;
+    var e2;
+    var end = false;
+    while (!end) {
+        pixelCols.push(getPixel(x, y));
+        if ((x === xx && y === yy)) {
+            end = true;
+        } else {
+            e2 = 2 * err;
+            if (e2 >= dy) {
+                err += dy;
+                x += sx;
+            }
+            if (e2 <= dx) {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
+    return pixelCols;
+}
+
+function testCount() {
+    let can = marks["anxiety"][6].proto.canvas
+
+    let cont = can.getContext("2d")
+
+    let pixels = getPixelsOnLine(cont, 0, can.height, can.width, 0)
+
+
+    let colors = []
+    let range = 20
+
+    let taboo = [[0, 0, 0, 0], [250, 250, 250, 1]]
+
+    for (let i = 0; i < pixels.length; i++) {
+
+        if (!taboo.includes(pixels[i])) {
+            if (colors.length > 0) {
+                for (let j = 0; j < colors.length; j++) {
+
+                    if (!pixelInRange(pixels[i], colors[j], 20)) {
+                        colors.push(pixels[i]);
+                    }
+                }
+            } else {
+
+                colors.push(pixels[i])
+            }
+        }
+
+    }
+
+
+    console.log(colors);
+
+}
+
+// c1 in c2+range
+function pixelInRange(c1, c2, range) {
+
+    let res = [false, false, false]
+    //skip alpha stuff
+    for (let i = 0; i < c1.length - 1; i++) {
+        if (c1[i] > c2[i] - range && c1[i] < c2[i] + range) {
+            res[i] = true;
+        } else {
+            return false;
+        }
+
+    }
+    return true
 }

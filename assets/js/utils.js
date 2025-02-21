@@ -38,3 +38,16 @@ function docReady(fn) {
 function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
 }
+
+
+function tempEdit() {
+
+    for (let i = 0; i < sampleData.length; i++) {
+        // sampleData[i]["data"] = {}
+
+        sampleData[i]["data"]["stem"] = {value: sampleData[i]["data"]["stem"]}
+
+        // delete sampleData[i]["data"]["stem "]
+
+    }
+}

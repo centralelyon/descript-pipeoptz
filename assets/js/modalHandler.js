@@ -93,7 +93,7 @@ docReady(function () {
         } else if (el.matches("span")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
-            el.outerHTML = '<input type="text" id="dataInpVal" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "_") + '" />'
+            el.outerHTML = '<input type="number" id="dataInpVal" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
 
         }
     });
@@ -310,19 +310,24 @@ function mouseUpModal(e) {
         tval.innerHTML = ""
 
         if (selectedMark["data"]) {
-            selectedMark.data[selectedInfo] = Math.round(val)
+
+            selectedMark.data[selectedInfo].value = Math.round(val)
 
         } else {
-            selectedMark.data = {data0: Math.round(val)}
+            selectedMark.data = {data0: {value: Math.round(val)}}
         }
     } else if (clickMod === 'rotation') {
         let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
         tiltCan(angle)
 
         if (selectedMark["data"]) {
-            selectedMark.data["orientation"] = Math.round(angle * 100) / 100
+            if (selectedMark.data["orientation"]) {
+                selectedMark.data["orientation"].value = Math.round(angle * 100) / 100
+            } else {
+                selectedMark.data["orientation"] = {value: Math.round(angle * 100) / 100}
+            }
         } else {
-            selectedMark.data = {orientation: Math.round(angle * 100) / 100}
+            selectedMark.data = {orientation: {value: Math.round(angle * 100) / 100}}
         }
 
 
@@ -430,6 +435,12 @@ function mouseUpModal(e) {
             tw,
             th
         )
+
+        selectedMark.data[tempDat].proto = {
+            canvas: can,
+            contour: tstroke,
+            corners: getRect(tstroke)
+        }
         dataEncoding[tempDat] = {
             canvas: can,
             contour: tstroke,
@@ -440,6 +451,7 @@ function mouseUpModal(e) {
         stroke = []
         tempDat = ""
         clickMod = "rule"
+        fillPalette()
     }
 
 
@@ -489,7 +501,7 @@ function fillInfos(mark) {
                 tsel = true;
             }
             mess += "<div class='modalInfo' value ='" + key + "'  id='" + (tsel ? 'selectedModalInfo' : '') + "'>" +
-                "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <span> " + value + " </span>" +
+                "<p style='display: contents;color:#333;font-weight: 600'>" + key + " </p> : <span> " + value.value + " </span>" +
                 "<div style='display: inline-block;float: right'>" +
                 "<img class='modalInfoShare' type='data' style='margin-right: 5px' value ='" + key + "' src='assets/images/buttons/lasso.png'>" +
                 "<img class='modalInfoShare' type='share' value ='" + key + "' src='assets/images/buttons/share.png'>" +
@@ -551,9 +563,9 @@ function fillCatas(mark) {
 function addInfo() {
     if (selectedMark["data"]) {
         let index = Object.keys(selectedMark.data).length
-        selectedMark.data["data" + index] = 0
+        selectedMark.data["data" + index] = {value: 0}
     } else {
-        selectedMark["data"] = {data0: 0}
+        selectedMark["data"] = {data0: {value: 0}}
     }
     fillInfos(selectedMark)
 }
@@ -568,12 +580,11 @@ function shareInfo(key, defaultVal = 0) {
     for (let i = 0; i < sampleData.length; i++) {
         if (sampleData[i]["data"]) {
             if (!sampleData[i]["data"][key]) {
-                sampleData[i]["data"][key] = defaultVal
+                sampleData[i]["data"][key] = {value: defaultVal}
             }
         } else {
             sampleData[i]["data"] = {}
-            sampleData[i]["data"][key] = defaultVal
-
+            sampleData[i]["data"][key] = {value: defaultVal}
         }
     }
 }

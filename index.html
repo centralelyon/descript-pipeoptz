@@ -139,7 +139,6 @@
             </div>
         </div>
 
-
     </div>
 
     <!--–––––––––––––––––––––– SVG Stuff –––––––––––––––––––––––––––– -->
@@ -184,28 +183,70 @@
         </div>
 
     </div>
-    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
+    <!--    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
+        <div class="row" style="margin-top: 0;text-align: center">
+
+            <div class="eight columns " style=" height: 300px">
+                <svg viewBox="0 0 300 300" id="collageSvg" width="300" height="300">
+
+                </svg>
+            </div>
+
+            <div id="collageData" class="four columns"
+                 style="display: inline-block">
+
+
+                <div id="collageInput">
+                    <select id="collageSel">
+
+                    </select>
+                    <input type="number" id="dataVal" disabled>
+                </div>
+            </div>
+        </div>-->
+
+    <h3 style="width: 100%;text-align:center;display: inline-block">Palette</h3>
     <div class="row" style="margin-top: 0;text-align: center">
 
-        <div class="eight columns " style=" height: 300px">
-            <svg viewBox="0 0 300 300" id="collageSvg" width="300" height="300">
-
-            </svg>
+        <div class="twelve columns " style=" height: 300px" id="paletteCont">
         </div>
 
-        <div id="collageData" class="four columns"
-             style="display: inline-block">
+    </div>
 
 
-            <div id="collageInput">
-                <select id="collageSel">
+    <div class="">
+        <div style="height: 350px;display: inline-block">
+            <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
+        </div>
+        <div style="display: inline-block;width: 40px" id="editControl">
+            <div class="buttonImg">
+                <img src="assets/images/buttons/left.png" class="lightBorder" style="transform: scaleX(-1)"/>
+            </div>
+            <div class="buttonImg">
+                <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestNext()" style=""/>
+            </div>
+            <div class="buttonImg">
+                <img src="assets/images/buttons/black.png" class="lightBorder" style=""/>
+            </div>
+            <div class="buttonImg">
+                <img src="assets/images/buttons/magic.png" class="lightBorder" style=""/>
+            </div>
+            <div class="buttonImg">
 
-                </select>
-                <input type="number" id="dataVal" disabled>
+                <img onclick="switchmod('erase')"  src="assets/images/buttons/eraser.png" class="lightBorder" style=""/>
+            </div>
+            <div class="buttonImg">
+                <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" class="lightBorder" style=""/>
+            </div>
+            <div class="buttonImg">
+                <input type="range" min="1" max="10" style="width: 42px" value="1" id="strokewidth">
+
+            </div>
+            <div class="buttonImg">
+                <input type="color" value="#000000" id="strokecolor">
             </div>
         </div>
     </div>
-
 
     <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
 
