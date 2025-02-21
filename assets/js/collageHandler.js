@@ -127,7 +127,7 @@ function editPalette(e) {
     let cont = can.getContext("2d")
 
     let trec = can.getBoundingClientRect() //TODO: THIS DOES NOT GIVE CORRECT VALUES ?!
-    console.log(trec.width);
+
     can.width = trec.width;
     can.height = trec.height;
     // console.log(trec);
@@ -265,20 +265,22 @@ function onMouseMovePalette(e) {
 
 }
 
-
-function getClosestNext() {
+function getClosestPrev() {
     let ind = selectedPalette[1]
     let keys = Object.keys(marks[selectedPalette[0]])
 
     let bg
 
-    for (let i = ind; i < keys.length; i++) {
+    for (let i = ind; i > 0; i--) {
         if (marks[selectedPalette[0]][keys[i]].type !== "fake") {
             bg = marks[selectedPalette[0]][keys[i]]
             break
         }
     }
+    loadbg(bg)
+}
 
+function loadbg(bg) {
     if (bg) {
 
         let can = document.getElementById("paletteEdit")
@@ -299,7 +301,33 @@ function getClosestNext() {
             tw,
             th
         );
+
+        paletteTempCan = document.createElement("canvas");
+        paletteTempCan.width = can.width;
+        paletteTempCan.height = can.height;
+
+        let pcont = paletteTempCan.getContext("2d");
+
+        pcont.drawImage(can, 0, 0, can.width, can.height)
     }
+
+}
+
+
+function getClosestNext() {
+    let ind = selectedPalette[1]
+    let keys = Object.keys(marks[selectedPalette[0]])
+
+    let bg
+
+    for (let i = ind; i < keys.length; i++) {
+        if (marks[selectedPalette[0]][keys[i]].type !== "fake") {
+            bg = marks[selectedPalette[0]][keys[i]]
+            break
+        }
+    }
+
+    loadbg(bg)
 }
 
 function switchmod(val) {
@@ -346,7 +374,26 @@ function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scale
 
 
 function savePalette() {
+    const corn = getBBox()
 
+    const resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
+
+    resCan.width = corn[1][0] - corn[0][0]
+    resCan.height = corn[1][1] - corn[0][1]
+
+    const resCont = resCan.getContext('2d')
+
+    resCont.drawImage(paletteTempCan,
+        corn[0][0],
+        corn[0][1],
+        resCan.width,
+        resCan.height,
+        0,
+        0,
+        resCan.width,
+        resCan.height,
+    )
+    marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn;
 
 }
 
@@ -415,8 +462,6 @@ function getBBox() {
 
     }
 
-    opencv.imshow('paletteEdit', dst);
-
     src.delete();
     dst.delete();
     temp.delete();
@@ -426,18 +471,81 @@ function getBBox() {
     contours2.delete();
     hierarchy2.delete();
 
-    let corners = [[undefined,undefined], [undefined,undefined]]
-
+    // If there is multiple contours we mix to make the biggest BBox
+    let corners = [[undefined, undefined], [undefined, undefined]]
     for (let i = 0; i < points.length; i++) {
         const tpoints = points[i].map(d => ([d.x, d.y]))
         const tcorners = getRect(tpoints)
-        
+
         for (let j = 0; j < corners.length; j++) {
-            for (let k = 0; k < corners; k++) {
-                
+            for (let k = 0; k < corners.length; k++) {
+
+                if (corners[j][k] === undefined) {
+                    corners[j][k] = tcorners[j][k]
+                } else if (j === 0) {
+                    if (corners[j][k] > tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                    if (corners[j][k] > tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                } else if (j === 1) {
+                    if (corners[j][k] < tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                    if (corners[j][k] < tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                }
             }
         }
-        
-    }
 
+    }
+    return corners
+}
+
+
+function toBW() {
+    let src = opencv.imread(paletteTempCan);
+
+    // paletteTempCan.style.filter = 'grayscale(1)';
+
+    let temp = new opencv.MatVector();
+    let temp2 = new opencv.MatVector();
+    opencv.split(src, temp)
+
+
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+
+    // dst = opencv.merge(src, temp.get(3))
+
+    let mergedPlanes = new opencv.MatVector();
+
+
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 1);
+
+    opencv.split(src, temp2)
+
+    mergedPlanes.push_back(temp2.get(0))
+    mergedPlanes.push_back(temp2.get(0))
+    mergedPlanes.push_back(temp2.get(0))
+    mergedPlanes.push_back(temp.get(3))
+
+    // opencv.merge(src, mergedPlanes)
+    opencv.merge(mergedPlanes, src)
+
+    opencv.imshow(paletteTempCan, src);
+
+
+    let can = document.getElementById("paletteEdit")
+
+    let tcon = can.getContext('2d')
+    tcon.clearRect(0, 0, 900, 900);
+    tcon.drawImage(paletteTempCan, 0, 0)
+
+    src.delete();
+    dst.delete();
+    mergedPlanes.delete();
+    temp.delete();
+    temp2.delete();
 }

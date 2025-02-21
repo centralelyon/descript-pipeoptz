@@ -54,7 +54,7 @@ function loadExamples() {
         el.onclick = loadEx
         container.appendChild(el);
     }
-    for (let i = 1; i < 10; i++) {
+    for (let i = 1; i < 52; i++) {
         let num = i
 
         if (num < 10) {
