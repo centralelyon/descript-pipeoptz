@@ -271,6 +271,18 @@ docReady(function () {
     document.getElementById("marks").addEventListener('mouseout', (e) => {
         resetImg()
     });
+
+    document.getElementById("svgControl").addEventListener('click', (e) => {
+
+        let el = e.target
+
+        if (el.matches('img')) {
+            el = el.parentNode
+            document.getElementById("selectedButton3").removeAttribute("id")
+            el.setAttribute("id", "selectedButton3")
+
+        }
+    });
 });
 
 
@@ -517,6 +529,7 @@ async function importData(data) {
     updateCategories()
     updateMarks("size")
     fillPalette()
+    populateSelect()
 
 }
 

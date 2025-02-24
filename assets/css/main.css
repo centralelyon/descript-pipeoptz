@@ -24,9 +24,11 @@ body {
     height: 60px;
     cursor: pointer;
 }
+
 .paletteNumber {
     margin-bottom: 0;
 }
+
 .paletteMarks {
     position: relative;
     overflow-x: auto;
@@ -34,6 +36,7 @@ body {
     width: 100%;
     display: flex;
 }
+
 .paletteMark canvas:hover {
     filter: saturate(35%) brightness(70%) opacity(70%);
     background-color: rgba(85, 85, 85, 0.38);
@@ -313,6 +316,20 @@ svg image:hover {
     padding: 3px;
 }
 
+#selectedButton2 img {
+    z-index: 99;
+    border: solid rgb(223, 38, 38) 2px;
+    padding: 1px;
+    /*padding: 3px;*/
+}
+
+#selectedButton3 img {
+    z-index: 99;
+    border: solid rgb(223, 38, 38) 2px;
+    padding: 1px;
+    /*padding: 3px;*/
+}
+
 #selectedCat {
     border: solid rgb(223, 38, 38) 2px;
     padding: 0px;
@@ -351,4 +368,26 @@ svg image:hover {
     position: absolute;
     display: inline-block;
     overflow-y: auto;
+}
+
+
+.primitiveData {
+    display: inline-block;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.primitiveLabel {
+    margin-bottom: 0;
+    font-weight: 700;
+}
+
+.collageListDisplay p {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.collageListDisplay {
+    border-bottom: #555 solid 1px;
+    margin-bottom: 15px;
 }

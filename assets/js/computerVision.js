@@ -240,10 +240,10 @@ function testClean() {
 
 }
 
-function removeColor(r, g, b, range = 15) {
+function removeColor(r, g, b, can,range = 15) {
     let lower = [inBound(b - range), inBound(g - range), inBound(r - range), 0];
     let higher = [inBound(b + range), inBound(g + range), inBound(r + range), 255];
-    let src = opencv.imread('inVis');
+    let src = opencv.imread(can);
     let dst = new opencv.Mat();
     let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
     let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
@@ -254,7 +254,7 @@ function removeColor(r, g, b, range = 15) {
     opencv.bitwise_and(src, src, dst, mask = temp)
 
     // opencv.imshow('modalCanvas', src);
-    opencv.imshow('inVis', dst);
+    opencv.imshow(can, dst);
 
 
     src.delete();

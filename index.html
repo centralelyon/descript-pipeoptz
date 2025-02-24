@@ -23,6 +23,7 @@
     <script src="assets/js/computerVision.js"></script>
     <script src="assets/js/modalHandler.js"></script>
     <script src="assets/js/svgHandler.js"></script>
+    <script src="assets/js/paletteHandler.js"></script>
     <script src="assets/js/collageHandler.js"></script>
     <script src="assets/js/main.js"></script>
 
@@ -149,9 +150,9 @@
 
 
             <div id="marksDisplay" style="margin-top: 0;width: 100%">
-                <div>
-                    <div class="buttonImg">
-                        <img src="assets/images/buttons/reset.png" class="lightBorder"
+                <div id="svgControl">
+                    <div class="buttonImg" id="selectedButton3">
+                        <img src="assets/images/buttons/default.png" class="lightBorder"
                              onclick="switchSvg(sampleData,'default')"
                              style=""/>
                     </div>
@@ -165,12 +166,12 @@
                              onclick="switchSvg(sampleData,'scatter')"
                              style=""/>
                     </div>
-                    <div class="buttonImg">
-                        <img src="assets/images/buttons/cat.png" class="lightBorder"
-                             onclick="switchSvg(sampleData,'default')"
-                             style=""/>
-                    </div>
-
+                    <!--                <div class="buttonImg">
+                                        <img src="assets/images/buttons/cat.png" class="lightBorder"
+                                             onclick="switchSvg(sampleData,'default')"
+                                             style=""/>
+                                    </div>
+                -->
                     <div id="secondControl"
                          style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
                 </div>
@@ -183,27 +184,9 @@
         </div>
 
     </div>
-    <!--    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
-        <div class="row" style="margin-top: 0;text-align: center">
-
-            <div class="eight columns " style=" height: 300px">
-                <svg viewBox="0 0 300 300" id="collageSvg" width="300" height="300">
-
-                </svg>
-            </div>
-
-            <div id="collageData" class="four columns"
-                 style="display: inline-block">
 
 
-                <div id="collageInput">
-                    <select id="collageSel">
-
-                    </select>
-                    <input type="number" id="dataVal" disabled>
-                </div>
-            </div>
-        </div>-->
+    <!--  Palette Stuffff------------------------------------------------------------------------>
 
     <h3 style="width: 100%;text-align:center;display: inline-block">Palette</h3>
     <div class="row" style="margin-top: 0;text-align: center">
@@ -212,15 +195,14 @@
         </div>
 
     </div>
-
-
     <div class="">
         <div style="height: 350px;display: inline-block">
             <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
         </div>
         <div style="display: inline-block;width: 40px" id="editControl">
             <div class="buttonImg">
-                <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestPrev()" style="transform: scaleX(-1)"/>
+                <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestPrev()"
+                     style="transform: scaleX(-1)"/>
             </div>
             <div class="buttonImg">
                 <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestNext()" style=""/>
@@ -228,18 +210,18 @@
             <div class="buttonImg">
                 <img src="assets/images/buttons/black.png" class="lightBorder" onclick="toBW()" style=""/>
             </div>
-            <div class="buttonImg">
-                <img src="assets/images/buttons/magic.png" class="lightBorder" style=""/>
+            <div class="buttonImg selectablePallete">
+                <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
             </div>
-            <div class="buttonImg">
+            <div class="buttonImg selectablePallete">
 
                 <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" class="lightBorder" style=""/>
             </div>
-            <div class="buttonImg">
+            <div id="selectedButton2" class="buttonImg selectablePallete">
                 <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" class="lightBorder" style=""/>
             </div>
-            <div class="buttonImg">
-                <input type="range" min="1" max="10" style="width: 42px" value="1" id="strokewidth">
+            <div class="buttonImg ">
+                <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
 
             </div>
             <div class="buttonImg">
@@ -250,6 +232,39 @@
             </div>
         </div>
     </div>
+
+
+    <!--  Collage Stuffff------------------------------------------------------------------------>
+
+    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
+    <div class="row" style="margin-top: 0;text-align: center">
+
+        <div class="eight columns " style=" height: 300px">
+            <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px" width="300" height="300">
+
+            </svg>
+        </div>
+
+        <div id="collageData" class="four columns"
+             style="display: inline-block">
+            <div id="collageList">
+
+            </div>
+
+
+            <div id="collageInput" style="display: flex">
+                <select id="collageSel">
+
+                </select>
+                <input style="width: 75px" type="number" id="dataVal" >
+
+                <div class="buttonImg" onclick="addCollage()">
+                    <img src="assets/images/buttons/plus.png" class="lightBorder">
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
 
@@ -264,8 +279,8 @@
             <img style="width: inherit" src="assets/images/buttons/rotation.png"
                  onclick="switchSelectMod(this,'rotation')">
             <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
-            <img style="width: inherit" src="assets/images/buttons/magic.png" onclick="resetZoom()">
-            <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
+            <img style="width: inherit" src="assets/images/buttons/background.png" onclick="initColor(this)">
+            <!--            <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">-->
             <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
 
         </div>

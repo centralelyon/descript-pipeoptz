@@ -121,6 +121,36 @@ docReady(function () {
 
 
     })
+
+
+    document.getElementById("modalCanvas").addEventListener('click', (e) => {
+        if (clickMod == 'color') {
+
+            const can = document.getElementById("modalCanvas")
+            const cont = can.getContext('2d');
+
+            const bb = can.getBoundingClientRect();
+            const x = Math.floor((e.clientX - bb.left) / bb.width * can.width);
+            const y = Math.floor((e.clientY - bb.top) / bb.height * can.height);
+            const [r, g, b, a] = cont.getImageData(x, y, 1, 1).data;
+            const color = `rgb(${r},${g},${b})`;
+
+            // console.log({ color, r, g, b, a })
+
+            removeColor(r, g, b, selectedMark.canvas, 20)
+            cont.clearRect(0, 0, can.width, can.height);
+            cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+            clickMod = 'rule'
+            fillSvg(sampleData)
+
+            document.getElementById("selectModBut").removeAttribute("id")
+            const rul = document.querySelector('#modalSideButtons img')
+            rul.setAttribute("id", "selectModBut");
+
+        }
+
+
+    })
 });
 
 function deleteCat(val) {
@@ -675,4 +705,11 @@ function switchMark(type) {
         loadModal(sampleData[id])
     }
 
+}
+
+function initColor(el) {
+
+    clickMod = 'color'
+    document.getElementById("selectModBut").removeAttribute("id")
+    el.setAttribute("id", "selectModBut");
 }
