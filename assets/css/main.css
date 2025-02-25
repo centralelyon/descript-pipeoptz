@@ -391,3 +391,8 @@ svg image:hover {
     border-bottom: #555 solid 1px;
     margin-bottom: 15px;
 }
+
+.rotate {
+    transform-box: fill-box;
+    transform-origin: center;
+}

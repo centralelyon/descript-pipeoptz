@@ -240,7 +240,7 @@ function testClean() {
 
 }
 
-function removeColor(r, g, b, can,range = 15) {
+function removeColor(r, g, b, can, range = 15) {
     let lower = [inBound(b - range), inBound(g - range), inBound(r - range), 0];
     let higher = [inBound(b + range), inBound(g + range), inBound(r + range), 255];
     let src = opencv.imread(can);
@@ -373,4 +373,111 @@ function pixelInRange(c1, c2, range) {
 
     }
     return true
+}
+
+
+function getBBox(canvas) {
+    let src = opencv.imread(canvas);
+
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
+    let ksize = new opencv.Size(5, 5);
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+
+    opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
+
+    let contours = new opencv.MatVector();
+    let hierarchy = new opencv.Mat();
+
+    let contours2 = new opencv.MatVector();
+    let hierarchy2 = new opencv.Mat();
+
+// You can try more different parameters
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+
+    for (let i = 0; i < contours.size(); ++i) {
+
+        // let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+        //     Math.round(Math.random() * 255));
+
+        let color = new opencv.Scalar(255, 255, 255);
+
+        opencv.drawContours(temp, contours, i, color, 14, opencv.LINE_8, hierarchy, 100);
+    }
+    opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
+    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    const points = []
+    for (let i = 0; i < contours2.size(); ++i) {
+        hierarchy2
+        if (hierarchy2.intPtr(0, i)[3] > 0) {
+
+            let tt = opencv.contourArea(contours.get(i), false)
+
+            if (tt > 1) {
+                const ci = contours2.get(i)
+                let temp = []
+
+                for (let j = 0; j < ci.data32S.length; j += 2) {
+                    let p = {}
+                    p.x = ci.data32S[j]
+                    p.y = ci.data32S[j + 1]
+                    temp.push(p)
+                }
+                points.push([...temp])
+
+
+                // let color = new opencv.Scalar(255, 255, 255);
+                let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+                    Math.round(Math.random() * 255));
+                opencv.drawContours(dst, contours2, i, color, 1, opencv.LINE_8, hierarchy2, 100);
+            }
+
+        }
+
+    }
+
+    src.delete();
+    dst.delete();
+    temp.delete();
+
+    contours.delete();
+    hierarchy.delete();
+    contours2.delete();
+    hierarchy2.delete();
+
+    // If there is multiple contours we mix to make the biggest BBox
+    let corners = [[undefined, undefined], [undefined, undefined]]
+    for (let i = 0; i < points.length; i++) {
+        const tpoints = points[i].map(d => ([d.x, d.y]))
+        const tcorners = getRect(tpoints)
+
+        for (let j = 0; j < corners.length; j++) {
+            for (let k = 0; k < corners.length; k++) {
+
+                if (corners[j][k] === undefined) {
+                    corners[j][k] = tcorners[j][k]
+                } else if (j === 0) {
+                    if (corners[j][k] > tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                    if (corners[j][k] > tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                } else if (j === 1) {
+                    if (corners[j][k] < tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                    if (corners[j][k] < tcorners[j][k]) {
+                        corners[j][k] = tcorners[j][k]
+                    }
+                }
+            }
+        }
+
+    }
+    return corners
 }

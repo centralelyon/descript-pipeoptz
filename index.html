@@ -48,7 +48,7 @@
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<div class="container" style="max-width: 1200px;width:90%;margin-bottom: 5%">
+<div class="container" style="max-width: 1200px;width:90%;margin-bottom: 5%" id="testContainer">
 
     <div class="row" style="margin-top: 7%;text-align: center;display:flex">
         <div class="one column"></div>
@@ -195,11 +195,15 @@
         </div>
 
     </div>
-    <div class="">
+    <div class="" style="position:relative;">
         <div style="height: 350px;display: inline-block">
             <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
+            <div>
+                <p style="font-weight: 500;display: inline-block">Orientation</p>
+                <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
+            </div>
         </div>
-        <div style="display: inline-block;width: 40px" id="editControl">
+        <div style="display: inline-block;width: 40px;position: absolute;top:0px" id="editControl">
             <div class="buttonImg">
                 <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestPrev()"
                      style="transform: scaleX(-1)"/>
@@ -236,11 +240,12 @@
 
     <!--  Collage Stuffff------------------------------------------------------------------------>
 
-    <h3 style="width: 100%;text-align:center;display: inline-block">Collage</h3>
+    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage</h3>
     <div class="row" style="margin-top: 0;text-align: center">
 
         <div class="eight columns " style=" height: 300px">
-            <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px" width="300" height="300">
+            <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px"
+                 width="300" height="300">
 
             </svg>
         </div>
@@ -256,10 +261,13 @@
                 <select id="collageSel">
 
                 </select>
-                <input style="width: 75px" type="number" id="dataVal" >
+                <input style="width: 75px" type="number" id="dataVal">
 
                 <div class="buttonImg" onclick="addCollage()">
                     <img src="assets/images/buttons/plus.png" class="lightBorder">
+                </div>
+                <div style="margin-top: 0px" class="buttonImg">
+                    <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
                 </div>
             </div>
         </div>

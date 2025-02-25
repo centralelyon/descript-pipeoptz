@@ -1,5 +1,5 @@
 let currImg;
-
+let tsaveim
 let viewDim = []
 let sampleData = []
 
@@ -108,7 +108,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/anxiety.json";
+    const url = "assets/images/tempLoad/cleaned.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {

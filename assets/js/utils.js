@@ -40,7 +40,36 @@ function getKeyByValue(object, value) {
 }
 
 
+
+function getPoint(theta, dist, pt) {
+    theta = toRad(theta)
+
+    return {
+        x: pt.x + (dist * Math.cos(theta)),
+        y: pt.y + (dist * Math.sin(theta))
+
+    }
+
+}
+
+function toRad(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+
+function rotate_point(src, pt, angle) {
+    angle = toRad(angle)
+
+    return {
+        x: Math.cos(angle) * (pt.x - src.x) - Math.sin(angle) * (pt.y - src.y) + src.x,
+        y: Math.sin(angle) * (pt.x - src.x) + Math.cos(angle) * (pt.y - src.y) + src.y,
+    }
+
+}
+
+// ----------------------------- DATA MANIPULATION STUFF ----------------------------------------------
 function tempEdit() {
+
 
     for (let i = 0; i < sampleData.length; i++) {
         // sampleData[i]["data"] = {}
@@ -49,5 +78,28 @@ function tempEdit() {
 
         // delete sampleData[i]["data"]["stem "]
 
+    }
+}
+
+
+async function tsave() {
+
+    let dat = await getTData()
+
+    loadImg(dat.background)
+}
+
+async function getTData() {
+    const url = "assets/images/tempLoad/clean.json";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        return error
     }
 }

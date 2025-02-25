@@ -8,8 +8,10 @@ let paletteScale = 1
 let paletteOrigin = {x: 0, y: 0};
 const paletteInitCoords = {x: 0, y: 0};
 let paletteTempCan
+let paletteTempCan2
 let stColor = '#333'
 
+let primRot
 
 function fillPalette(range = [0, 10]) {
 
@@ -78,7 +80,8 @@ function fillPalette(range = [0, 10]) {
                         growth: "end",
                         anchor_type: "start",
                         color: "#555",
-                        angle: "90"
+                        angle: 90,
+                        stroke_width: 1
                     }
                 }
             }
@@ -106,45 +109,53 @@ function fillPalette(range = [0, 10]) {
             "</select>" +
             "</div>" +
 
-            "<div class='primitiveData'>" +
-            "<p class='primitiveLabel'> Growth </p>" +
-            "<select>" +
-            "<option selected>end</option>" +
-            "<option>start</option>" +
-            "<option>middle</option>" +
-            "</select>" +
-            "</div>" +
+            // "<div class='primitiveData'>" +
+            // "<p class='primitiveLabel'> Growth </p>" +
+            // "<select id='" + key + "_primitiveGrowth'>" +
+            // "<option>start</option>" +
+            // "<option>middle</option>" +
+            // "<option selected>end</option>" +
+            // "</select>" +
+            // "</div>" +
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Anchor </p>" +
-            "<select>" +
-            "<option >end</option>" +
+            "<select id='" + key + "_primitiveAnchor'>" +
             "<option selected>start</option>" +
             "<option>middle</option>" +
+            "<option >end</option>" +
             "</select>" +
             "</div>" +
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Color </p>" +
-            "<input type='color' id='primitiveColor'>" +
+            "<input type='color' id='" + key + "_primitiveColor'>" +
             "</div>" +
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Angle </p>" +
-            "<input type='number' id='primitiveAngle' style='width: 70px' value='90'>" +
+            "<input type='number' id='" + key + "_primitiveAngle' style='width: 70px' value='90'>" +
+            "</div>" +
+
+            "<div class='primitiveData'>" +
+            "<p class='primitiveLabel'> Stroke Width </p>" +
+            "<input type='range' id='" + key + "_primitiveWidth' style='width: 70px' min='1' max='10' value='1'>" +
             "</div>"
 
 
         tdiv.appendChild(tdiv_mark)
 
         container.appendChild(tdiv)
+
+        setPrimitveEvents("", key)
+
     }
 
 
     let trange = document.getElementById("strokewidth")
 
     trange.onchange = function (e) {
-        // console.log(e.target);
+
         const val = parseInt(document.getElementById("strokewidth").value);
         stWidth = val
     }
@@ -159,10 +170,13 @@ function fillPalette(range = [0, 10]) {
 function editPalette(e) {
     // console.log(this);
     let el = this
+    primRot = undefined
     let num = el.getAttribute("number")
     let key = el.getAttribute("key")
 
     selectedPalette = [key, num]
+
+    paletteResetZoom()
 
     let can = document.getElementById("paletteEdit")
     let cont = can.getContext("2d")
@@ -216,6 +230,11 @@ function editPalette(e) {
     }
     // can.onwheel = paletteZoom
 
+    document.getElementById("paletteEditRotate").oninput = function (e) {
+        primRot = +this.value
+        paletteRotate(primRot)
+
+    }
     paletteTempCan = document.createElement("canvas");
     paletteTempCan.width = can.width;
     paletteTempCan.height = can.height;
@@ -249,6 +268,7 @@ function onClickPalette(e) {
             y: (paletteTempCan.height / 2 - th / 2) / paletteScale
         }
 
+
         if (selProto.anchors) {
             selProto.anchors[0] = {
                 x: xy.x,
@@ -256,11 +276,10 @@ function onClickPalette(e) {
                 color: catColors[0],
                 rx: xy.x / paletteTempCan.width,
                 ry: xy.y / paletteTempCan.height,
-
-                px: (xy.x - paletteTempCan.width / 2 - tw / 2),
-                py: (xy.y - paletteTempCan.height / 2 - th / 2),
-                prx: (xy.x - paletteTempCan.width / 2 - tw / 2) / paletteTempCan.width,
-                pry: (xy.y - paletteTempCan.height / 2 - th / 2) / paletteTempCan.height,
+                px: (xy.x - paletteTempCan.width / 2 + tw / 2),
+                py: (xy.y - paletteTempCan.height / 2 + th / 2),
+                prx: (xy.x - paletteTempCan.width / 2 + tw / 2) / paletteTempCan.width,
+                pry: (xy.y - paletteTempCan.height / 2 + th / 2) / paletteTempCan.height,
             }
         } else {
 
@@ -271,10 +290,10 @@ function onClickPalette(e) {
                     color: catColors[0],
                     rx: xy.x / paletteTempCan.width,
                     ry: xy.y / paletteTempCan.height,
-                    px: (xy.x - paletteTempCan.width / 2 - tw / 2),
-                    py: (xy.y - paletteTempCan.height / 2 - th / 2),
-                    prx: (xy.x - paletteTempCan.width / 2 - tw / 2) / paletteTempCan.width,
-                    pry: (xy.y - paletteTempCan.height / 2 - th / 2) / paletteTempCan.height,
+                    px: (xy.x - paletteTempCan.width / 2 + tw / 2),
+                    py: (xy.y - paletteTempCan.height / 2 + th / 2),
+                    prx: (xy.x - paletteTempCan.width / 2 + tw / 2) / paletteTempCan.width,
+                    pry: (xy.y - paletteTempCan.height / 2 + th / 2) / paletteTempCan.height,
                 },
             };
 
@@ -316,7 +335,7 @@ function paletteResetZoom() {
     // paletteTempCan.height = can.height;
 
 
-    cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
+    // cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
     // resetCan()
 }
 
@@ -335,6 +354,16 @@ function drawPalette(cont, x, y, w, type, can) {
     if (type === "erase")
         cont.globalCompositeOperation = 'destination-out';
 
+    if (primRot) {
+        cont.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+        cont.rotate(toRad(-primRot));
+        strokePoint[0] = -paletteTempCan.width / 2 + strokePoint[0]
+        strokePoint[1] = -paletteTempCan.height / 2 + strokePoint[1]
+        x = -paletteTempCan.width / 2 + x
+        y = -paletteTempCan.height / 2 + y
+    }
+
+
     cont.lineCap = 'round';
     cont.lineJoin = 'round';
     cont.beginPath();
@@ -348,8 +377,19 @@ function drawPalette(cont, x, y, w, type, can) {
     cont.restore()
 
     let tcon = can.getContext('2d')
-    tcon.clearRect(0, 0, 900, 900);
+    tcon.clearRect(0, 0, 9000, 9000);
+
+    // if (primRot) {
+    //     tcon.save()
+    //     tcon.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+    //     tcon.rotate(toRad(primRot));
+    //     tcon.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
+    //     tcon.restore();
+    // } else {
     tcon.drawImage(cont.canvas, 0, 0)
+    // }
+
+    //
 }
 
 function onMouseDownPalette(e) {
@@ -377,7 +417,17 @@ function onMouseMovePalette(e) {
     }
     let tcon = can.getContext('2d')
     tcon.clearRect(0, 0, 9000, 9000);
-    tcon.drawImage(paletteTempCan, 0, 0)
+
+    if (primRot) {
+        tcon.save()
+        tcon.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+        tcon.rotate(toRad(primRot));
+        tcon.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
+        tcon.restore();
+    } else {
+        tcon.drawImage(paletteTempCan, 0, 0)
+    }
+
     displayCircle(xy)
 
 }
@@ -451,6 +501,25 @@ function switchmod(val) {
     mode = val
 }
 
+function paletteRotate(angle) {
+    let tcan = document.getElementById('paletteEdit');
+    let tcont = tcan.getContext('2d');
+
+
+    tcont.clearRect(0, 0, 9000, 9000)
+
+    tcont.save()
+    tcont.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+    tcont.rotate(toRad(angle));
+    tcont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
+    tcont.restore();
+
+    // paletteTempCan = can
+
+
+    // tcont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
+}
+
 
 function paletteZoom(e) {
     let can = document.getElementById('paletteEdit');
@@ -479,7 +548,14 @@ function paletteZoom(e) {
 
     cont.clearRect(0, 0, can.width, can.height);
     cont.setTransform(paletteScale, 0, 0, paletteScale, paletteOrigin.x, paletteOrigin.y);
-    cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
+
+
+    cont.save()
+    cont.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+    cont.rotate(toRad(primRot));
+    cont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
+    cont.restore();
+    // cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
 }
 
 
@@ -491,7 +567,7 @@ function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scale
 
 
 function savePalette() {
-    const corn = getBBox()
+    const corn = getBBox(paletteTempCan)
 
     const resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
 
@@ -500,125 +576,25 @@ function savePalette() {
 
     const resCont = resCan.getContext('2d')
 
+    resCont.save()
+    resCont.translate(resCan.width / 2, resCan.width / 2);
+    resCont.rotate(toRad(primRot));
+    // resCont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
+
+
     resCont.drawImage(paletteTempCan,
         corn[0][0],
         corn[0][1],
         resCan.width,
         resCan.height,
-        0,
-        0,
+        -resCan.width / 2,
+        -resCan.height / 2,
         resCan.width,
         resCan.height,
     )
+    resCont.restore();
     marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn;
 
-}
-
-
-function getBBox() {
-    let src = opencv.imread(paletteTempCan);
-
-    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
-    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
-    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
-    let ksize = new opencv.Size(5, 5);
-
-    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
-
-    opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
-
-    let contours = new opencv.MatVector();
-    let hierarchy = new opencv.Mat();
-
-    let contours2 = new opencv.MatVector();
-    let hierarchy2 = new opencv.Mat();
-
-// You can try more different parameters
-    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
-
-
-    for (let i = 0; i < contours.size(); ++i) {
-
-        // let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-        //     Math.round(Math.random() * 255));
-
-        let color = new opencv.Scalar(255, 255, 255);
-
-        opencv.drawContours(temp, contours, i, color, 14, opencv.LINE_8, hierarchy, 100);
-    }
-    opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
-    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
-
-    const points = []
-    for (let i = 0; i < contours2.size(); ++i) {
-        hierarchy2
-        if (hierarchy2.intPtr(0, i)[3] > 0) {
-            console.log(hierarchy2.intPtr(0, i)[3])
-            let tt = opencv.contourArea(contours.get(i), false)
-            // console.log(tt)
-            if (tt > 1) {
-                const ci = contours2.get(i)
-                let temp = []
-
-                for (let j = 0; j < ci.data32S.length; j += 2) {
-                    let p = {}
-                    p.x = ci.data32S[j]
-                    p.y = ci.data32S[j + 1]
-                    temp.push(p)
-                }
-                points.push([...temp])
-
-
-                // let color = new opencv.Scalar(255, 255, 255);
-                let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-                    Math.round(Math.random() * 255));
-                opencv.drawContours(dst, contours2, i, color, 1, opencv.LINE_8, hierarchy2, 100);
-            }
-
-        }
-
-    }
-
-    src.delete();
-    dst.delete();
-    temp.delete();
-
-    contours.delete();
-    hierarchy.delete();
-    contours2.delete();
-    hierarchy2.delete();
-
-    // If there is multiple contours we mix to make the biggest BBox
-    let corners = [[undefined, undefined], [undefined, undefined]]
-    for (let i = 0; i < points.length; i++) {
-        const tpoints = points[i].map(d => ([d.x, d.y]))
-        const tcorners = getRect(tpoints)
-
-        for (let j = 0; j < corners.length; j++) {
-            for (let k = 0; k < corners.length; k++) {
-
-                if (corners[j][k] === undefined) {
-                    corners[j][k] = tcorners[j][k]
-                } else if (j === 0) {
-                    if (corners[j][k] > tcorners[j][k]) {
-                        corners[j][k] = tcorners[j][k]
-                    }
-                    if (corners[j][k] > tcorners[j][k]) {
-                        corners[j][k] = tcorners[j][k]
-                    }
-                } else if (j === 1) {
-                    if (corners[j][k] < tcorners[j][k]) {
-                        corners[j][k] = tcorners[j][k]
-                    }
-                    if (corners[j][k] < tcorners[j][k]) {
-                        corners[j][k] = tcorners[j][k]
-                    }
-                }
-            }
-        }
-
-    }
-    return corners
 }
 
 
@@ -671,4 +647,33 @@ function toBW() {
 function setAnchor() {
 
     mode = 'anchor';
+}
+
+
+function setPrimitveEvents(type, key) { //TODO: key is out of scope
+
+    document.getElementById(key + "_primitiveAngle").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        primitive[key].angle = this.value
+    }
+
+    document.getElementById(key + "_primitiveWidth").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        primitive[key].stroke_width = this.value
+    }
+
+    document.getElementById(key + "_primitiveColor").oninput = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        primitive[key].color = this.value
+    }
+
+    document.getElementById(key + "_primitiveAnchor").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        primitive[key].anchor_type = this.value
+    }
+
+/*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        primitive[key].growth = this.value
+    }*/
 }

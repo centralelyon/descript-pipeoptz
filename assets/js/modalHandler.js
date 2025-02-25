@@ -79,7 +79,10 @@ docReady(function () {
         } else if (el.matches("p")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
-            el.outerHTML = '<input type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
+            el.outerHTML = '<input style="width: 85px" type="text" id="dataInp" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
+            let t = document.getElementById("dataInp")
+            t.focus()
+            t.setSelectionRange(0, t.value.length);
 
         } else if (el.matches(".modalInfoShare")) {
             let type = el.getAttribute('type')
@@ -93,7 +96,11 @@ docReady(function () {
         } else if (el.matches("span")) {
             const parent = el.parentNode;
             const key = parent.getAttribute('value');
-            el.outerHTML = '<input type="number" id="dataInpVal" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
+            el.outerHTML = '<input style="width: 85px;" type="number" id="dataInpVal" key="' + key + '" value="' + el.innerHTML.replace(/ /g, "") + '" />'
+
+            let t = document.getElementById("dataInpVal")
+            t.focus()
+            // t.setSelectionRange(0, t.value.length);
 
         }
     });
@@ -629,7 +636,7 @@ function tiltCan(angle) {
     cont.save()
     cont.globalAlpha = 0.9
     cont.translate(initCoords.x + selectedMark.canvas.width / 2, initCoords.y + selectedMark.canvas.height / 2);
-    cont.rotate(angle * Math.PI / 180);
+    cont.rotate(toRad(angle));
     cont.drawImage(selectedMark.canvas, -selectedMark.canvas.width / 2, -selectedMark.canvas.height / 2, selectedMark.canvas.width, selectedMark.canvas.height);
     cont.restore();
 
