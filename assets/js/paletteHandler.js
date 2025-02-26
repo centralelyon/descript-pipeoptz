@@ -1,6 +1,8 @@
 let selectedPalette;
 let marks = {}
 let primitive = {}
+let palette_cat = {}
+
 let stWidth = 1
 let mode = "stroke"
 
@@ -8,7 +10,7 @@ let paletteScale = 1
 let paletteOrigin = {x: 0, y: 0};
 const paletteInitCoords = {x: 0, y: 0};
 let paletteTempCan
-let paletteTempCan2
+
 let stColor = '#333'
 let primRot
 
@@ -92,6 +94,7 @@ function fillPalette(range = [0, 10]) {
 
 
     const mess = getOptions()
+
     for (const [key, value] of Object.entries(primitive)) {
         const tdiv = document.createElement("div")
         tdiv.id = "palette_" + key
@@ -146,7 +149,6 @@ function fillPalette(range = [0, 10]) {
             "<input type='color' id='" + key + "_primitiveColor'>" +
             "</div>" +
 
-
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Stroke Width </p>" +
             "<input type='range' id='" + key + "_primitiveWidth' style='width: 70px' min='1' max='10' value='1'>" +
@@ -158,7 +160,53 @@ function fillPalette(range = [0, 10]) {
         container.appendChild(tdiv)
 
         setPrimitveEvents("", key)
+    }
 
+    for (const [key, value] of Object.entries(categories)) {
+        if (key !== "default") {
+            const tdiv = document.createElement("div")
+            tdiv.id = "palette_" + key
+            tdiv.className = "paletteMarks"
+            tdiv.innerHTML = "<h4 class='paletteData'>" + key + ":</h4>"
+
+            const tdiv_mark = document.createElement("div")
+            tdiv_mark.id = "mark_" + key
+            tdiv_mark.className = "paletteMark"
+            tdiv_mark.setAttribute("key", key)
+            const mess = getMarks()
+
+
+            if (value.prototye) {
+
+            } else {
+
+                palette_cat[key] = {
+                    type: "attribute",
+                    apply: "none",
+                    color: value.color,
+                    name: key
+                }
+
+                tdiv_mark.innerHTML =
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Link to Mark </p>" +
+                    "<select id='" + key + "_catlinkedTo' class='catLinkTo'>" +
+                    "<option selected>None</option>" +
+                    +"" + mess +
+                    "</select>" +
+                    "</div>" +
+
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Color </p>" +
+                    "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
+                    "</div>"
+            }
+
+
+            tdiv.appendChild(tdiv_mark)
+            container.appendChild(tdiv)
+
+        }
     }
 
 
@@ -235,7 +283,6 @@ function editPalette(e) {
             if (el.classList.contains('selectablePallete')) {
                 document.getElementById("selectedButton2").removeAttribute("id")
                 el.setAttribute("id", "selectedButton2")
-
             }
         }
 
@@ -732,4 +779,22 @@ function getOptions() {
 
     return mess
 
+}
+
+
+function getMarks() {
+    let tmarks = Object.keys(marks)
+    let prim = Object.keys(primitive)
+
+
+    let mess = ""
+
+    for (let i = 0; i < tmarks.length; i++) {
+        mess += "<option type='mark' id ='apply2_" + tmarks[i] + "'>" + tmarks[i] + "</option>"
+    }
+    for (let i = 0; i < prim.length; i++) {
+        mess += "<option type='prim' id ='apply2_" + prim[i] + "'>" + prim[i] + "</option>"
+    }
+
+    return mess
 }
