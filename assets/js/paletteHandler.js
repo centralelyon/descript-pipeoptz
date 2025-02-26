@@ -10,8 +10,9 @@ const paletteInitCoords = {x: 0, y: 0};
 let paletteTempCan
 let paletteTempCan2
 let stColor = '#333'
-
 let primRot
+
+let global_anchors = {}
 
 function fillPalette(range = [0, 10]) {
 
@@ -90,6 +91,7 @@ function fillPalette(range = [0, 10]) {
     }
 
 
+    const mess = getOptions()
     for (const [key, value] of Object.entries(primitive)) {
         const tdiv = document.createElement("div")
         tdiv.id = "palette_" + key
@@ -128,14 +130,22 @@ function fillPalette(range = [0, 10]) {
             "</div>" +
 
             "<div class='primitiveData'>" +
-            "<p class='primitiveLabel'> Color </p>" +
-            "<input type='color' id='" + key + "_primitiveColor'>" +
+            "<p class='primitiveLabel'> Link to Anchor </p>" +
+            "<select id='" + key + "_primitivelinkedTo' class='primitiveLinkTo'>" +
+            +mess +
+            "</select>" +
             "</div>" +
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Angle </p>" +
             "<input type='number' id='" + key + "_primitiveAngle' style='width: 70px' value='90'>" +
             "</div>" +
+
+            "<div class='primitiveData'>" +
+            "<p class='primitiveLabel'> Color </p>" +
+            "<input type='color' id='" + key + "_primitiveColor'>" +
+            "</div>" +
+
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Stroke Width </p>" +
@@ -170,6 +180,8 @@ function fillPalette(range = [0, 10]) {
 function editPalette(e) {
     // console.log(this);
     let el = this
+
+    document.getElementById("paletteContainer").style.display = "block";
     primRot = undefined
     let num = el.getAttribute("number")
     let key = el.getAttribute("key")
@@ -248,6 +260,7 @@ function editPalette(e) {
     // can.addEventListener("mousewheel", zoom, false);
     // can.addEventListener("DOMMouseScroll", zoom, false);
 
+
 }
 
 function onClickPalette(e) {
@@ -298,6 +311,13 @@ function onClickPalette(e) {
             };
 
         }
+
+        global_anchors[0] = {
+            from: selectedPalette[0],
+            data_from: selProto.anchors[0]
+        }
+
+        updateLinkTo()
 
         // mode = "stroke"
 
@@ -595,6 +615,8 @@ function savePalette() {
     resCont.restore();
     marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn;
 
+    document.getElementById("paletteContainer").style.display = "none";
+
 }
 
 
@@ -672,8 +694,42 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
         primitive[key].anchor_type = this.value
     }
 
-/*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        primitive[key].growth = this.value
-    }*/
+    /*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            primitive[key].growth = this.value
+        }*/
+}
+
+
+function hidePaletteContainer() {
+
+    document.getElementById("paletteContainer").style.display = "none";
+}
+
+function updateLinkTo() {
+
+    const mess = getOptions()
+
+    const selects = document.querySelectorAll(".primitiveLinkTo")
+
+    selects.forEach(select => {
+
+        select.innerHTML = mess
+    })
+
+}
+
+function getOptions() {
+    let ancres = Object.keys(global_anchors)
+
+    let mess = ""
+
+
+    for (let i = 0; i < ancres.length; i++) {
+
+        mess += "<option id ='anchor_" + ancres[i] + "'>" + ancres[i] + "</option>"
+    }
+
+    return mess
+
 }

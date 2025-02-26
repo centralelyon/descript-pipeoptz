@@ -186,16 +186,16 @@
     </div>
 
 
-    <!--  Palette Stuffff------------------------------------------------------------------------>
+    <!-------------------  Palette Stuff  -------------------------------------------------------------->
 
-    <h3 style="width: 100%;text-align:center;display: inline-block">Palette</h3>
+
     <div class="row" style="margin-top: 0;text-align: center">
-
-        <div class="twelve columns " style=" height: 300px" id="paletteCont">
+        <h3 style="width: 100%;text-align:center;display: inline-block">Palette</h3>
+        <div class="twelve columns " style="" id="paletteCont">
         </div>
 
     </div>
-    <div class="" style="position:relative;">
+    <div class="" style="display: none" id="paletteContainer">
         <div style="height: 350px;display: inline-block">
             <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
             <div>
@@ -203,7 +203,11 @@
                 <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
             </div>
         </div>
-        <div style="display: inline-block;width: 40px;position: absolute;top:0px" id="editControl">
+        <div id="closePaletteContainer" style="">
+            <img style="width: inherit" onclick="hidePaletteContainer()" src="assets/images/buttons/cross.png">
+        </div>
+        <div style="display: inline-block;width: 40px;position: absolute;top:20px" id="editControl">
+
             <div class="buttonImg">
                 <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestPrev()"
                      style="transform: scaleX(-1)"/>
@@ -238,12 +242,17 @@
     </div>
 
 
-    <!--  Collage Stuffff------------------------------------------------------------------------>
+    <!--  Collage Stuff------------------------------------------------------------------------>
 
-    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage</h3>
-    <div class="row" style="margin-top: 0;text-align: center">
+    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage
+        <div style="margin-top: 0px" class="buttonImg">
+            <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
+        </div>
+    </h3>
 
-        <div class="eight columns " style=" height: 300px">
+    <div class="row" style="margin-top: 0;text-align: center;display:flex">
+
+        <div style=" height: 300px;display: inline-block">
             <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px"
                  width="300" height="300">
 
@@ -256,7 +265,6 @@
 
             </div>
 
-
             <div id="collageInput" style="display: flex">
                 <select id="collageSel">
 
@@ -266,9 +274,7 @@
                 <div class="buttonImg" onclick="addCollage()">
                     <img src="assets/images/buttons/plus.png" class="lightBorder">
                 </div>
-                <div style="margin-top: 0px" class="buttonImg">
-                    <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
-                </div>
+
             </div>
         </div>
     </div>

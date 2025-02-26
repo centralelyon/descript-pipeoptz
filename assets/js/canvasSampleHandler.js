@@ -298,7 +298,6 @@ async function addFreeSample(points) {
     let marks = document.getElementById("marks")
 
     marks.append(tcan)
-
     sampleData.push(tres)
     fillSvg(sampleData)
 }

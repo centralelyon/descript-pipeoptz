@@ -37,11 +37,13 @@ function addCollage() {
     const key = document.getElementById('collageSel').value
     const val = document.getElementById('dataVal').value
 
+    div.setAttribute("id", "dataList_" + key)
 
     addProto2Collage(key, val)
 
 
-    div.innerHTML = '<p>' + key + '</p> <p>' + val + '</p>'
+    div.innerHTML = '<p>' + key + '</p> <p>' + val + '</p>' +
+        '<img class="primitiveDataButton" src="assets/images/buttons/del.png" onclick="deleteDataList(\'collage_' + key + '\')">'
     cont.appendChild(div)
 
 }
@@ -124,7 +126,7 @@ function addProto2Collage(key, val) {
             pt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
 
 
-            pt2 = getPoint((180 + prim.angle) % 360, +val / 2, {
+            pt2 = getPoint((180 + prim.angle) % 360, +val, {
                     x: pt1.x, y: pt1.y
                 }
             )
@@ -135,6 +137,7 @@ function addProto2Collage(key, val) {
             .attr("y1", pt1.y)
             .attr("x2", pt2.x)
             .attr("y2", pt2.y)
+            .attr("id", "collage_" + key)
             .attr("stroke", prim.color)
             .attr("stroke-width", prim.stroke_width)
             .attr("stroke-linecap", "round")
@@ -177,9 +180,7 @@ function saveCollage() {
 
     img.onload = function () {
 
-
         tcon.drawImage(img, 0, 0);
-
 
         let bbox = getBBox(tcan)
 
@@ -202,7 +203,7 @@ function saveCollage() {
         for (const [key, value] of Object.entries(dataList)) {
             tdat[key] = {value: value}
         }
-        
+
         let tres = {
             x: 10,
             y: 10,
@@ -223,4 +224,12 @@ function saveCollage() {
         document.getElementById("collageList").innerHTML = ""
         svg.innerHTML = ""
     }
+}
+
+function deleteDataList(id) {
+    let key = id.split("_")[1]
+
+    document.getElementById("dataList_" + key).remove()
+    document.getElementById("collage_" + key).remove()
+
 }

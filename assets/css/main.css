@@ -102,11 +102,12 @@ body {
 
 #selFlat {
     height: 100%;
-    width: 96.6%;
+    width: 81%;
     display: block;
     /*overflow-x: scroll;*/
     overflow-y: hidden;
     white-space: nowrap;
+    margin-left: 9px;
 }
 
 
@@ -385,6 +386,8 @@ svg image:hover {
 .collageListDisplay p {
     display: inline-block;
     margin-right: 10px;
+    margin-bottom: 1rem;
+
 }
 
 .collageListDisplay {
@@ -395,4 +398,35 @@ svg image:hover {
 .rotate {
     transform-box: fill-box;
     transform-origin: center;
+}
+
+
+#paletteContainer {
+    padding: 20px;
+    border: solid #555 thin;
+    position: relative;
+    width: min-content;
+    padding-right: 70px;
+
+}
+
+#closePaletteContainer {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    cursor: pointer;
+}
+
+#closePaletteContainer:hover {
+    width: 23px;
+    height: 23px;
+}
+
+.primitiveDataButton {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-bottom: -5px;
 }
