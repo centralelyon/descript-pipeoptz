@@ -88,7 +88,6 @@ function fillPalette(range = [0, 10]) {
                     }
                 }
             }
-
         }
     }
 
@@ -173,10 +172,39 @@ function fillPalette(range = [0, 10]) {
             tdiv_mark.id = "mark_" + key
             tdiv_mark.className = "paletteMark"
             tdiv_mark.setAttribute("key", key)
-            const mess = getMarks()
+            let mess = getMarks()
 
 
-            if (value.prototye) {
+            if (value.prototype) {
+                palette_cat[key] = {
+                    type: "sample",
+                    apply: "none",
+                    color: value.color,
+                    name: key,
+                    proto: value.prototype,
+                }
+
+
+                let mess = getOptions()
+
+                tdiv_mark.innerHTML =
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Link to Anchor </p>" +
+                    "<select id='" + key + "_catlinkedTo' class='catLinkTo'>" +
+                    "<option selected>None</option>" +
+                    +"" + mess +
+                    "</select>" +
+                    "</div>" +
+
+                    "<div class='primitiveData'>" +
+                    "<canvas id='canvas_" + key + "' style='width: 60px;height: 60px'>'" +
+                    "</div>"
+
+
+                /*            "<div class='primitiveData'>" +
+                            "<p class='primitiveLabel'> Color </p>" +
+                            "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
+                            "</div>"*/
 
             } else {
 
@@ -202,10 +230,23 @@ function fillPalette(range = [0, 10]) {
                     "</div>"
             }
 
-
             tdiv.appendChild(tdiv_mark)
             container.appendChild(tdiv)
 
+            if (value.prototype) {
+                let can = document.getElementById("canvas_" + key);
+
+                let cont = can.getContext("2d")
+                if (value.prototype.canvas.width < 60) {
+                    can.width = value.prototype.canvas.width
+                }
+                if (value.prototype.canvas.height < 60) {
+                    can.height = value.prototype.canvas.height
+                }
+
+
+                cont.drawImage(value.prototype.canvas, 0, 0)
+            }
         }
     }
 
@@ -241,7 +282,7 @@ function editPalette(e) {
     let can = document.getElementById("paletteEdit")
     let cont = can.getContext("2d")
 
-    let trec = can.getBoundingClientRect() //TODO: THIS DOES NOT GIVE CORRECT VALUES ?!
+    let trec = can.getBoundingClientRect()
 
     can.width = trec.width;
     can.height = trec.height;
@@ -306,8 +347,6 @@ function editPalette(e) {
     can.addEventListener("DOMMouseScroll", paletteZoom, false);
     // can.addEventListener("mousewheel", zoom, false);
     // can.addEventListener("DOMMouseScroll", zoom, false);
-
-
 }
 
 function onClickPalette(e) {

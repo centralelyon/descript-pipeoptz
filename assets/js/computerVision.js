@@ -260,6 +260,7 @@ function removeColor(r, g, b, can, range = 15) {
     src.delete();
     dst.delete();
     low.delete();
+    temp.delete();
     high.delete();
 }
 
@@ -480,4 +481,50 @@ function getBBox(canvas) {
 
     }
     return corners
+}
+
+function toColor(canvas, r, g, b, threshold) {
+
+    let src = opencv.imread(canvas);
+    let src2 = opencv.imread(canvas);
+    let dst = new opencv.Mat();
+    let temp2 = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+
+    let color = new opencv.Scalar(r, b, g, 255)
+
+    temp2.setTo(color)
+    let lower = [0, 0, 0, 0]
+
+    let higher = [threshold, threshold, threshold, threshold]
+
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 1);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+
+    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
+    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+    opencv.inRange(src, low, high, temp);
+
+    opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
+    opencv.bitwise_and(src2, temp2, dst, mask = temp)
+
+
+    let res = document.createElement("canvas")
+
+    res.width = canvas.width
+    res.height = canvas.height
+
+    opencv.imshow(res, dst);
+
+    src.delete();
+    src2.delete();
+    dst.delete();
+    temp.delete();
+    temp2.delete();
+    // color.delete();
+    temp3.delete();
+    low.delete();
+    high.delete();
+
+    return res
+
 }

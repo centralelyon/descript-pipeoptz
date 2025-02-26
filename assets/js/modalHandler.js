@@ -425,6 +425,7 @@ function mouseUpModal(e) {
         stroke = []
         tempcat = ""
         clickMod = "rule"
+        fillPalette()
 
     } else if (clickMod === 'data') {
         mouseDown = 0

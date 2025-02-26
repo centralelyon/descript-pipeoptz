@@ -157,6 +157,7 @@ function addCategory() {
         }
 
         drawCat(name, categories[name].color, true)
+        fillPalette()
     }
 }
 
@@ -166,7 +167,6 @@ function displayCat(category) {
     document.getElementById("catMod").style.display = "block";
 
     fillCatMod(categories[category]);
-
 }
 
 function fillCatMod(category) {
@@ -175,7 +175,6 @@ function fillCatMod(category) {
     cont.innerHTML = "<tr><th>Name</th><td><input type='text' id='modalCatName' placeholder='" + category.name + "' style='width: 100%;margin: 0;height: 30px' value='" + category.name + "'></td></tr>" +
         "<tr><th>Color</th><td><input type='color' id='modalColor' value='" + category.color + "'> </td></tr>"
     // "<tr><td></td><td></td></tr>
-
 
     document.getElementById("modalColor").addEventListener('input', (e) => {
         const val = document.getElementById("modalColor").value;
