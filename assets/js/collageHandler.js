@@ -72,6 +72,7 @@ function addProto2Collage(key, val) {
             .attr("width", tw)
             .attr("height", th)
             .attr("id", "collage_" + key)
+            .attr("num", val)
             .attr("class", "rotate")
         // .attr("transform", "translate(" + (corners.width / 2 - tw / 2) + ", " + (corners.height / 2 - th / 2) + ") rotate(" + 10 + ")")
 
@@ -148,6 +149,24 @@ function addProto2Collage(key, val) {
         //     .attr("r", 3)
 
         dataList[key] = +val
+
+
+    } else if (palette_cat[key]) {
+        let cl = 1
+        if (palette_cat[key].apply !== "none") {
+
+
+            const el = document.getElementById("collage_" + palette_cat[key].apply)
+            const tval = +el.getAttribute("num")
+
+            const can = marks[palette_cat[key].apply][tval].proto.canvas
+
+            const tcol = hexToRgb(palette_cat[key].color)
+            const res = toColor(can, tcol.r*cl, tcol.g*cl, tcol.b*cl, 200)
+
+
+            el.setAttribute("href", res.toDataURL())
+        }
     }
 }
 
@@ -231,5 +250,6 @@ function deleteDataList(id) {
 
     document.getElementById("dataList_" + key).remove()
     document.getElementById("collage_" + key).remove()
+
 
 }

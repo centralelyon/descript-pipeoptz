@@ -2,7 +2,7 @@ let currImg;
 let tsaveim
 let viewDim = []
 let sampleData = []
-const totalExamples = 10
+const totalExamples = 52
 let categories = {
     default: {
         name: "default",

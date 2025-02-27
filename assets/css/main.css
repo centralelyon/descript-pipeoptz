@@ -430,3 +430,18 @@ svg image:hover {
     cursor: pointer;
     margin-bottom: -5px;
 }
+
+.currAnchor, #plusAnchor {
+    width: 25px;
+    height: 25px;
+    border: #333333 solid 1px;
+    text-align: center;
+    display: inline-block;
+    border-radius: 20%;
+    margin: 2px;
+    cursor: pointer;
+}
+
+.selectedAnchor {
+    border: red solid 1px;
+}

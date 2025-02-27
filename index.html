@@ -199,8 +199,16 @@
         <div style="height: 350px;display: inline-block">
             <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
             <div>
-                <p style="font-weight: 500;display: inline-block">Orientation</p>
+                <p style="font-weight: 600;display: inline-block">Orientation</p>
                 <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
+                <div style="display: inline-block">
+                    <p style="font-weight: 600;display: inline-block">Anchors</p>
+                    <div id="anchorsContainer" style="display: inline-block"></div>
+
+                    <div id="plusAnchor" onclick="addAnchor()">
+                        <img src="assets/images/buttons/plus.png" style="width:25px;heigh:25px">
+                    </div>
+                </div>
             </div>
         </div>
         <div id="closePaletteContainer" style="">
@@ -249,6 +257,7 @@
             <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
         </div>
     </h3>
+
 
     <div class="row" style="margin-top: 0;text-align: center;display:flex">
 

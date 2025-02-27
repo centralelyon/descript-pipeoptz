@@ -15,6 +15,7 @@ let stColor = '#333'
 let primRot
 
 let global_anchors = {}
+let currAnchor = 0
 
 function fillPalette(range = [0, 10]) {
 
@@ -198,6 +199,11 @@ function fillPalette(range = [0, 10]) {
 
                     "<div class='primitiveData'>" +
                     "<canvas id='canvas_" + key + "' style='width: 60px;height: 60px'>'" +
+                    "</div>" +
+
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Color </p>" +
+                    "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
                     "</div>"
 
 
@@ -232,6 +238,8 @@ function fillPalette(range = [0, 10]) {
 
             tdiv.appendChild(tdiv_mark)
             container.appendChild(tdiv)
+
+            setCatEvents("", key)
 
             if (value.prototype) {
                 let can = document.getElementById("canvas_" + key);
@@ -362,17 +370,11 @@ function onClickPalette(e) {
         let th = selProto.corners[1][1] - selProto.corners[0][1]
 
 
-        let tp = {
-            x: (paletteTempCan.width / 2 - tw / 2) / paletteScale,
-            y: (paletteTempCan.height / 2 - th / 2) / paletteScale
-        }
-
-
         if (selProto.anchors) {
-            selProto.anchors[0] = {
+            selProto.anchors[currAnchor] = {
                 x: xy.x,
                 y: xy.y,
-                color: catColors[0],
+                color: catColors[currAnchor],
                 rx: xy.x / paletteTempCan.width,
                 ry: xy.y / paletteTempCan.height,
                 px: (xy.x - paletteTempCan.width / 2 + tw / 2),
@@ -383,10 +385,10 @@ function onClickPalette(e) {
         } else {
 
             selProto.anchors = {
-                0: {
+                currAnchor: {
                     x: xy.x,
                     y: xy.y,
-                    color: catColors[0],
+                    color: catColors[currAnchor],
                     rx: xy.x / paletteTempCan.width,
                     ry: xy.y / paletteTempCan.height,
                     px: (xy.x - paletteTempCan.width / 2 + tw / 2),
@@ -394,14 +396,17 @@ function onClickPalette(e) {
                     prx: (xy.x - paletteTempCan.width / 2 + tw / 2) / paletteTempCan.width,
                     pry: (xy.y - paletteTempCan.height / 2 + th / 2) / paletteTempCan.height,
                 },
-            };
+            }
+            ;
 
         }
 
-        global_anchors[0] = {
+        global_anchors[currAnchor] = {
             from: selectedPalette[0],
-            data_from: selProto.anchors[0]
+            data_from: selProto.anchors[currAnchor]
         }
+
+        updateAnchorCont()
 
         updateLinkTo()
 
@@ -411,6 +416,39 @@ function onClickPalette(e) {
         // doc
         // el.setAttribute("id", "selectedButton2")
     }
+}
+
+
+function updateAnchorCont() {
+
+    let container = document.getElementById('anchorsContainer')
+
+    container.innerHTML = ''
+
+    for (const [key, value] of Object.entries(global_anchors)) {
+
+        const tdiv = document.createElement('div')
+
+        let sel = ""
+
+        if (key == currAnchor) {
+            sel = " selectedAnchor"
+            console.log("dsadas");
+        }
+
+        tdiv.setAttribute('id', 'currAnchor_' + key)
+        tdiv.setAttribute('class', 'currAnchor' + sel)
+
+        tdiv.innerHTML = key
+        tdiv.onclick = function (e) {
+            document.querySelector(".selectedAnchor").classList.remove("selectedAnchor")
+            this.classList.add("selectedAnchor")
+            const id = this.getAttribute('id')
+            currAnchor = id.split("_")[1]
+        }
+        container.appendChild(tdiv)
+    }
+
 }
 
 function displayCircle(xy) {
@@ -787,6 +825,21 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
 }
 
 
+function setCatEvents(type, key) {
+
+    document.getElementById(key + "_catColor").oninput = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        palette_cat[key].color = this.value
+    }
+
+
+    document.getElementById(key + "_catlinkedTo").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        palette_cat[key].apply = this.value
+    }
+
+}
+
 function hidePaletteContainer() {
 
     document.getElementById("paletteContainer").style.display = "none";
@@ -836,4 +889,16 @@ function getMarks() {
     }
 
     return mess
+}
+
+function addAnchor() {
+
+    let nb = Object.keys(global_anchors).length
+
+    global_anchors[nb] = {}
+
+    currAnchor = nb
+
+    updateAnchorCont()
+
 }
