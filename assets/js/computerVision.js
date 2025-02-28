@@ -512,7 +512,7 @@ function toColor(canvas, r, g, b, threshold) {
 
     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
 
-    let M = opencv.Mat.ones(3, 3, cv.CV_8U);
+    let M = opencv.Mat.ones(2, 2, cv.CV_8U);
     let p =  new opencv.Point(-1, -1)
     opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
 
@@ -521,7 +521,7 @@ function toColor(canvas, r, g, b, threshold) {
     opencv.imshow(res, temp2);
 
     src.delete();
-    M.delete();
+    // M.delete();
     temp2.delete();
     // color.delete();
     // low.delete();

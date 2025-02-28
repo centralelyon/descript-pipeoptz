@@ -23,6 +23,34 @@ function fillPalette(range = [0, 10]) {
     const container = document.getElementById("paletteCont")
     container.innerHTML = ""
 
+
+    const anchorCont = document.createElement("div")
+    anchorCont.className = "paletteMarks"
+    const anchorBlock = document.createElement("div")
+
+
+    anchorCont.innerHTML = '' +
+        '<h4 style="display: inline-block">Anchors</h4>' +
+        '<div id="anchorsContainer" style="display: inline-block"></div>'
+
+
+    const anchorsDiv = document.createElement("div")
+
+    anchorsDiv.setAttribute("id", "anchorsContainer")
+
+
+    updateAnchorCont(anchorsDiv)
+
+    anchorCont.appendChild(anchorsDiv)
+    anchorCont.innerHTML += '<div id="plusAnchor" onclick="addAnchor()">' +
+        '<img src="assets/images/buttons/plus.png" style="width:25px;height:25px;margin-top: 12%;margin-left: 4.4%;">' +
+        '</div>' +
+        '<div class="buttonImg " id="anchorBtn">' +
+        '<img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style=""/>' +
+        '</div>'
+    container.appendChild(anchorCont)
+
+
     for (let i = 0; i < sampleData.length; i++) {
 
         if (sampleData[i]["data"]) {
@@ -66,7 +94,14 @@ function fillPalette(range = [0, 10]) {
                     proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
                 }
             }
-            tdiv_mark.onclick = editPalette
+            tdiv_mark.onclick = function (e) {
+
+                if (mode !== "anchor") {
+                    editPalette(this)
+                } else {
+                    //TODO:
+                }
+            }
             tdiv.appendChild(tdiv_mark)
         }
         container.appendChild(tdiv)
@@ -256,14 +291,13 @@ function fillPalette(range = [0, 10]) {
                 let can = document.getElementById("canvas_" + key);
 
                 let cont = can.getContext("2d")
-                if (value.prototype.canvas.width < 60) {
-                    can.width = value.prototype.canvas.width
-                }
-                if (value.prototype.canvas.height < 60) {
-                    can.height = value.prototype.canvas.height
-                }
 
-                cont.drawImage(value.prototype.canvas, 0, 0)
+                let size = fixRatio2([value.prototype.canvas.width, value.prototype.canvas.height], [60, 60])
+
+                can.width = size[0]
+                can.height = size[1]
+
+                cont.drawImage(value.prototype.canvas, 0, 0, can.width, can.height)
             }
         }
     }
@@ -285,8 +319,8 @@ function fillPalette(range = [0, 10]) {
 
 
 function editPalette(e) {
-    // console.log(this);
-    let el = this
+
+    let el = e
 
     document.getElementById("paletteContainer").style.display = "block";
     primRot = undefined
@@ -429,9 +463,9 @@ function onClickPalette(e) {
 }
 
 
-function updateAnchorCont() {
+function updateAnchorCont(container) {
 
-    let container = document.getElementById('anchorsContainer')
+    // let container = document.getElementById('anchorsContainer')
 
     container.innerHTML = ''
 
@@ -443,7 +477,6 @@ function updateAnchorCont() {
 
         if (key == currAnchor) {
             sel = " selectedAnchor"
-            console.log("dsadas");
         }
 
         tdiv.setAttribute('id', 'currAnchor_' + key)
@@ -801,8 +834,16 @@ function toBW() {
 
 
 function setAnchor() {
+    let el = document.getElementById("anchorBtn")
 
-    mode = 'anchor';
+    if (mode === 'anchor') {
+        el.classList.remove('selectedAnchorBtn');
+        mode = "stroke"
+    } else {
+        mode = 'anchor';
+        el.classList.add('selectedAnchorBtn');
+    }
+    // mode = 'anchor';
 }
 
 
@@ -942,6 +983,7 @@ function addAnchor() {
 
     currAnchor = nb
 
-    updateAnchorCont()
+    let el = document.getElementById("anchorsContainer")
+    updateAnchorCont(el)
 
 }
