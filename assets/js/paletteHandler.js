@@ -152,8 +152,20 @@ function fillPalette(range = [0, 10]) {
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Stroke Width </p>" +
             "<input type='range' id='" + key + "_primitiveWidth' style='width: 70px' min='1' max='10' value='1'>" +
-            "</div>"
+            "</div>" +
 
+            "<div class='primitiveData'>" +
+            "<p class='primitiveLabel'> Set Anchors </p>" +
+            "<select id='" + key + "_primitiveAnchors' class='primitiveAnchors'>" +
+            "<option selected>None</option>" +
+            +mess +
+            "</select>" +
+            "</div>" +
+
+            "<div class='primitiveData'>" +
+            "<p class='primitiveLabel'> Anchor Pos </p>" +
+            "<input type='range' id='" + key + "_primitiveAnchorLocation' style='width: 70px' min='1' max='10' value='1'>" +
+            "</div>"
 
         tdiv.appendChild(tdiv_mark)
 
@@ -184,7 +196,6 @@ function fillPalette(range = [0, 10]) {
                     name: key,
                     proto: value.prototype,
                 }
-
 
                 let mess = getOptions()
 
@@ -251,7 +262,6 @@ function fillPalette(range = [0, 10]) {
                 if (value.prototype.canvas.height < 60) {
                     can.height = value.prototype.canvas.height
                 }
-
 
                 cont.drawImage(value.prototype.canvas, 0, 0)
             }
@@ -818,6 +828,32 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
         primitive[key].anchor_type = this.value
     }
 
+
+    document.getElementById(key + "_primitiveAnchors").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        currAnchor = this.value
+        // primitive[key].anchor_type = this.value
+    }
+
+    document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
+
+
+        const key = this.getAttribute("id").split("_")[0];
+
+        if (primitive[key].anchors) {
+            primitive[key].anchors[currAnchor] = {percent: this.value}
+
+        } else {
+            primitive[key].anchors = {}
+            primitive[key].anchors[currAnchor] = {percent: this.value}
+        }
+
+        global_anchors[currAnchor] = {from: key, data_from: {percent: this.value}}
+
+        // primitive[key].anchors = this.value
+
+    }
+
     /*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
             const key = this.getAttribute("id").split("_")[0];
             primitive[key].growth = this.value
@@ -856,6 +892,14 @@ function updateLinkTo() {
         select.innerHTML = mess
     })
 
+
+    let selects2 = document.querySelectorAll(".primitiveAnchors")
+
+    selects2.forEach(select => {
+
+        select.innerHTML = "<option selected>None</option>" + mess
+    })
+
 }
 
 function getOptions() {
@@ -870,7 +914,6 @@ function getOptions() {
     }
 
     return mess
-
 }
 
 

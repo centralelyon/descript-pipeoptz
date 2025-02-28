@@ -463,15 +463,67 @@ function export2json() {
 
     let t = document.getElementById("inVis")
     // let cont = canvas.getContext("2d")
-
     // cont.drawImage(currImg, 0, 0);
-
     //todo: FIX WHY USING CURRIMG IS NOT WORKING ?!
+
+    let tmarks = {}
+    for (const [key, value] of Object.entries(marks)) {
+        tmarks[key] = {}
+        let cloneVal = {...value}
+        for (const [key2, value2] of Object.entries(cloneVal)) {
+
+            let tval = {...value2}
+            if (tval?.proto?.canvas)
+                tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+            tmarks[key][key2] = tval
+        }
+    }
+
+
+    let tcat = {}
+    for (const [key, value] of Object.entries(palette_cat)) {
+        tcat[key] = {}
+
+        let tval = {...value}
+        if (tval?.proto?.canvas)
+            tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+        tcat[key] = tval
+    }
+
+
+    let tprim = {}
+    for (const [key, value] of Object.entries(primitive)) {
+        tprim[key] = {}
+
+        let tval = {...value}
+        if (tval?.proto?.canvas)
+            tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+        tprim[key] = tval
+    }
+
+    let tanchor = {}
+    for (const [key, value] of Object.entries(global_anchors)) {
+        tanchor[key] = {}
+
+        let tval = {...value}
+
+        tanchor[key] = tval
+    }
+
+    let palette = {
+        categories: tcat,
+        marks: tmarks,
+        primitive: tprim,
+        anchors: tanchor
+    }
+
     const tempData = {
+
         categories: categories,
         // background: canvas.toDataURL("image/png"),
         background: t.toDataURL("image/png"),
-        marks: tdat
+        marks: tdat,
+        palette: palette
     }
     download(JSON.stringify(tempData), "descript.json", "text/json");
 }

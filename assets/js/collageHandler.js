@@ -162,7 +162,7 @@ function addProto2Collage(key, val) {
             const can = marks[palette_cat[key].apply][tval].proto.canvas
 
             const tcol = hexToRgb(palette_cat[key].color)
-            const res = toColor(can, tcol.r*cl, tcol.g*cl, tcol.b*cl, 200)
+            const res = toColor(can, tcol.r*cl, tcol.g*cl, tcol.b*cl, 180)
 
 
             el.setAttribute("href", res.toDataURL())
@@ -215,7 +215,6 @@ function saveCollage() {
 
         let tx = invis.width
         let ty = invis.height
-
 
         let tdat = {}
 

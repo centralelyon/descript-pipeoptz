@@ -7,7 +7,7 @@ function testEdge() {
     let ksize = new opencv.Size(5, 5);
 
     opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
-
+//17, 16
     opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
 
     let contours = new opencv.MatVector();
@@ -485,89 +485,47 @@ function getBBox(canvas) {
 function toColor(canvas, r, g, b, threshold) {
 
     let src = opencv.imread(canvas);
-    let src2 = opencv.imread(canvas);
-    let src3 = opencv.Mat.ones(src2.rows, src2.cols, opencv.CV_8UC3);
-    let dst = new opencv.Mat();
     let temp2 = opencv.Mat.ones(src.rows, src.cols, opencv.CV_8UC3);
-    let temp3 = new opencv.MatVector();
-
-    let color = new opencv.Scalar(r, g, b, 255)
-    let white = new opencv.Scalar(255, 255, 255, 255)
-    // let color = new opencv.Scalar(b, g,r, 255)
-
-
-    src3.setTo(white)
-
-    let lower = [0, 0, 0, 0]
-
-    let higher = [threshold, threshold, threshold, threshold]
-
-    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 1);
-    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
-
-    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
-    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
-    opencv.inRange(src, low, high, temp);
-
-
-    opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
-
-
-    temp2.setTo(color,temp)
-
-
-    // temp2.copyTo(dst, mask = temp)
-
-    opencv.bitwise_and(temp2,src2 , dst, mask = temp)
-    // opencv.bitwise_not(temp,temp)
-    // dst.copyTo(temp, temp)
-    // dst.setTo(color,mask = temp)
-    // dst.setTo(color,mask = temp)
-    // src2.setTo([r,g,b,255],mask = temp)
-    // opencv.bitwise_not(temp,temp)
-    // opencv.bitwise_xor(src3, temp2, dst, mask = temp)
-    // opencv.bitwise_not(temp,temp)
-    // opencv.bitwise_or(dst, , dst, mask = temp)
-    // opencv.bitwise_xor(src2, temp2, dst, mask = temp)
-    /*    let mask2 = new opencv.Mat();
-        opencv.subtract(dst, src2, src3, mask2, -1);
-
-
-        let mergedPlanes = new opencv.MatVector();
-        let temp4 = new opencv.MatVector();
-
-        opencv.split(dst, temp4)
-
-        opencv.split(src3, temp3)
-
-        mergedPlanes.push_back(temp3.get(0))
-        mergedPlanes.push_back(temp3.get(1))
-        mergedPlanes.push_back(temp3.get(2))
-        mergedPlanes.push_back(temp4.get(3))
-
-        // opencv.merge(src, mergedPlanes)
-        opencv.merge(mergedPlanes, dst)*/
-
 
     let res = document.createElement("canvas")
-
     res.width = canvas.width
     res.height = canvas.height
 
-    opencv.imshow(res, dst);
-    // opencv.imshow(res, temp2);
-    // opencv.imshow(res, temp);
-    // opencv.imshow(res, src2);
+
+    let color = new opencv.Scalar(r, g, b, 255)
+    let white = new opencv.Scalar(255, 255, 255, 255)
+
+
+    temp2.setTo(white)
+
+    let lower = [2, 2, 2, 255]
+    let higher = [threshold, threshold, threshold, threshold]
+
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
+    opencv.cvtColor(src, src, opencv.COLOR_RGB2GRAY, 3);
+
+
+    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
+    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+
+    opencv.inRange(src, low, high, src);
+
+    opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
+
+    let M = opencv.Mat.ones(3, 3, cv.CV_8U);
+    let p =  new opencv.Point(-1, -1)
+    opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
+
+    temp2.setTo(color, src)
+
+    opencv.imshow(res, temp2);
 
     src.delete();
-    src2.delete();
-    src3.delete();
-    dst.delete();
-    temp.delete();
+    M.delete();
     temp2.delete();
     // color.delete();
-    low.delete();
-    high.delete();
+    // low.delete();
+    // high.delete();
 
     return res
 
