@@ -108,7 +108,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/cleaned.json";
+    const url = "assets/images/tempLoad/francis.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -449,8 +449,13 @@ function export2json() {
         if (tobj.data) {
 
             for (const [key, value] of Object.entries(tobj.data)) {
-                if (value?.proto?.canvas)
-                    value.proto.canvas = value.proto.canvas.toDataURL("image/png")
+
+                const tval = {...value}
+                if (tval?.proto?.canvas) {
+                    tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+                }
+                tobj[key] = tval
+
             }
         }
         tdat.push(tobj)
@@ -473,8 +478,10 @@ function export2json() {
         for (const [key2, value2] of Object.entries(cloneVal)) {
 
             let tval = {...value2}
-            if (tval?.proto?.canvas)
-                tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+            if (tval?.proto?.canvas) {
+                if (typeof tval?.proto?.canvas !== "string")
+                    tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+            }
             tmarks[key][key2] = tval
         }
     }
@@ -496,8 +503,12 @@ function export2json() {
         tprim[key] = {}
 
         let tval = {...value}
-        if (tval?.proto?.canvas)
-            tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+        if (tval?.proto?.canvas) {
+            if (typeof tval?.proto?.canvas !== "string") {
+                tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+            }
+        }
+
         tprim[key] = tval
     }
 
@@ -561,6 +572,13 @@ async function importData(data) {
             }
         }
     }
+
+    for (const [key, value] of Object.entries(tempData["categories"])) {
+        if (value.prototype) {
+            value.prototype.canvas = await convertToCanvas(value.prototype.canvas)
+        }
+    }
+
 
     sampleData = tempData["marks"];
     categories = tempData["categories"];

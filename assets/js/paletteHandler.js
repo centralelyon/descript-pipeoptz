@@ -99,7 +99,8 @@ function fillPalette(range = [0, 10]) {
                 if (mode !== "anchor") {
                     editPalette(this)
                 } else {
-                    //TODO:
+                    //TODO: Set for CATA and other primitive
+                    setAnchorOnProto(e, this)
                 }
             }
             tdiv.appendChild(tdiv_mark)
@@ -207,6 +208,8 @@ function fillPalette(range = [0, 10]) {
         container.appendChild(tdiv)
 
         setPrimitveEvents("", key)
+
+
     }
 
     for (const [key, value] of Object.entries(categories)) {
@@ -217,7 +220,7 @@ function fillPalette(range = [0, 10]) {
             tdiv.innerHTML = "<h4 class='paletteData'>" + key + ":</h4>"
 
             const tdiv_mark = document.createElement("div")
-            tdiv_mark.id = "mark_" + key
+            tdiv_mark.id = "cat_" + key
             tdiv_mark.className = "paletteMark"
             tdiv_mark.setAttribute("key", key)
             let mess = getMarks()
@@ -235,13 +238,13 @@ function fillPalette(range = [0, 10]) {
                 let mess = getOptions()
 
                 tdiv_mark.innerHTML =
-                    "<div class='primitiveData'>" +
-                    "<p class='primitiveLabel'> Link to Anchor </p>" +
-                    "<select id='" + key + "_catlinkedTo' class='catLinkTo'>" +
-                    "<option selected>None</option>" +
-                    +"" + mess +
-                    "</select>" +
-                    "</div>" +
+                    /*                  "<div class='primitiveData'>" +
+                                      "<p class='primitiveLabel'> Link to Anchor </p>" +
+                                      "<select id='" + key + "_catlinkedTo' class='catLinkTo" + (value.prototype ? "Proto" : "") + "'>" +
+                                      "<option selected>None</option>" +
+                                      +"" + mess +
+                                      "</select>" +
+                                      "</div>" +*/
 
                     "<div class='primitiveData'>" +
                     "<canvas id='canvas_" + key + "' style='width: 60px;height: 60px'>'" +
@@ -257,6 +260,12 @@ function fillPalette(range = [0, 10]) {
                             "<p class='primitiveLabel'> Color </p>" +
                             "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
                             "</div>"*/
+
+                tdiv_mark.onclick = function (e) {
+                    if (mode === "anchor") {
+                        setAnchorOnProto(e, this)
+                    }
+                }
 
             } else {
 
@@ -280,6 +289,7 @@ function fillPalette(range = [0, 10]) {
                     "<p class='primitiveLabel'> Color </p>" +
                     "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
                     "</div>"
+
             }
 
             tdiv.appendChild(tdiv_mark)
@@ -876,6 +886,12 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
         // primitive[key].anchor_type = this.value
     }
 
+    document.getElementById(key + "_primitivelinkedTo").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        // primitive[key].anchor_type = this.value
+        primitive[key].linkTo = this.value
+    }
+
     document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
 
 
@@ -909,12 +925,12 @@ function setCatEvents(type, key) {
         palette_cat[key].color = this.value
     }
 
-
-    document.getElementById(key + "_catlinkedTo").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        palette_cat[key].apply = this.value
+    if (palette_cat[key].proto === undefined) {
+        document.getElementById(key + "_catlinkedTo").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            palette_cat[key].apply = this.value
+        }
     }
-
 }
 
 function hidePaletteContainer() {
@@ -927,18 +943,24 @@ function updateLinkTo() {
     const mess = getOptions()
 
     const selects = document.querySelectorAll(".primitiveLinkTo")
-
     selects.forEach(select => {
 
-        select.innerHTML = mess
+        select.innerHTML = "" + mess
     })
 
 
     let selects2 = document.querySelectorAll(".primitiveAnchors")
-
     selects2.forEach(select => {
 
         select.innerHTML = "<option selected>None</option>" + mess
+    })
+
+    let selectsCat = document.querySelectorAll(".catLinkToProto")
+
+    selectsCat.forEach(select => {
+
+        select.innerHTML = "<option selected>None</option>" + mess
+
     })
 
 }
@@ -951,7 +973,7 @@ function getOptions() {
 
     for (let i = 0; i < ancres.length; i++) {
 
-        mess += "<option id ='anchor_" + ancres[i] + "'>" + ancres[i] + "</option>"
+        mess += "<option class ='anchor_" + ancres[i] + "'>" + ancres[i] + "</option>"
     }
 
     return mess
@@ -986,4 +1008,85 @@ function addAnchor() {
     let el = document.getElementById("anchorsContainer")
     updateAnchorCont(el)
 
+}
+
+
+function setAnchorOnProto(e, el) {
+
+    if (e.target.matches("canvas")) {
+        const xy = getMousePos(e)
+
+        let tcan = e.target
+        let trect = tcan.getBoundingClientRect()
+        let id = el.getAttribute("id")
+        let type = id.split("_")[0]
+        let key = el.getAttribute("key")
+
+        let selProto
+        let num
+
+        if (type === "mark") {
+            num = +el.getAttribute("number")
+
+            selProto = marks[key][num].proto
+
+        } else if (type === "cat") {
+            selProto = palette_cat[key].proto
+        }
+
+
+        let tw = selProto.corners[1][0] - selProto.corners[0][0]
+        let th = selProto.corners[1][1] - selProto.corners[0][1]
+
+
+        if (selProto.anchors === undefined) {
+            selProto.anchors = {}
+        }
+
+        selProto.anchors[currAnchor] = {
+            x: xy.x,
+            y: xy.y,
+            color: catColors[currAnchor],
+            rx: xy.x / trect.width,
+            ry: xy.y / trect.height,
+            px: (xy.x - trect.width / 2 + tw / 2),
+            py: (xy.y - trect.height / 2 + th / 2),
+            prx: (xy.x - trect.width / 2 + tw / 2) / trect.width,
+            pry: (xy.y - trect.height / 2 + th / 2) / trect.height,
+        }
+
+
+        if (type === "mark") {
+            if (global_anchors[currAnchor] === undefined) {
+                global_anchors[currAnchor] = {}
+            }
+
+            global_anchors[currAnchor].from = {
+                type: type,
+                key: key,
+                number: num,
+                data: selProto.anchors[currAnchor]
+
+            }
+
+        } else if (type === "cat") {
+            if (global_anchors[currAnchor] === undefined) {
+                global_anchors[currAnchor] = {}
+            }
+            palette_cat[key].apply = global_anchors[currAnchor].from
+
+            global_anchors[currAnchor].to = {
+                type: type,
+                key: key,
+                data: selProto.anchors[currAnchor]
+            }
+
+        }
+
+        // updateAnchorCont()
+
+        updateLinkTo()
+
+
+    }
 }

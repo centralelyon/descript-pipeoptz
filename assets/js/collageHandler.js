@@ -80,19 +80,35 @@ function addProto2Collage(key, val) {
         displayedMarks[key] = marks[key][val].proto
 
     } else if (primitive[key]) {
-        let tempProto // displayed mark used to get anchor
-        for (const [_, value] of Object.entries(displayedMarks)) { //TODO: FILTER TO GET CORRECT ANCHOR
-            tempProto = value
 
-            // const tw = tcorners[1][0] - tcorners[0][0]
-            // const th = tcorners[1][1] - tcorners[0][1]
+        if (primitive[key].linkTo === undefined) {
+            primitive[key].linkTo = currAnchor
         }
 
+
+        let anch = primitive[key].linkTo
+
+
+        let tempProto // displayed mark used to get anchor
+        let fr = global_anchors[anch].from
+        if (fr.type === "mark") {
+
+            tempProto = marks[fr.key][fr.number].proto
+        } else if (fr.type === "cat") {
+            tempProto = palette_cat[fr.key].proto
+            //TODO: set Cat proto here
+        }
+
+
         const prim = primitive[key]
-        let cont = document.getElementById("collage_anxiety") //TODO: SET LINKEDTO in ANCHORS and use them here
+        let cont = document.getElementById("collage_" + fr.key) //TODO: SET LINKEDTO in ANCHORS and use them here
 
         let x = +cont.getAttribute("x")
         let y = +cont.getAttribute("y")
+
+
+        let tw = cont.getAttribute("width")
+        let th = cont.getAttribute("height")
 
 
         let pt1;
@@ -100,7 +116,8 @@ function addProto2Collage(key, val) {
         prim.angle = +prim.angle
         if (prim.anchor_type === "start") {
 
-            pt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
+            // pt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
+            pt1 = {x: (x + tempProto.anchors[anch].rx * tw), y: (y + tempProto.anchors[anch].ry * th)}
 
             const pt = getPoint(+prim.angle, +val, {
                     x: pt1.x, y: pt1.y
@@ -111,7 +128,7 @@ function addProto2Collage(key, val) {
 
         if (prim.anchor_type === "middle") {
 
-            let tpt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
+            let tpt1 = {x: (x + tempProto.anchors[anch].rx * tw), y: (y + tempProto.anchors[anch].ry * th)}
 
             pt1 = getPoint(+prim.angle, +val / 2, {
                     x: tpt1.x, y: tpt1.y
@@ -124,7 +141,7 @@ function addProto2Collage(key, val) {
         }
 
         if (prim.anchor_type === "end") {
-            pt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
+            pt1 = {x: (x + tempProto.anchors[anch].rx * tw), y: (y + tempProto.anchors[anch].ry * th)}
 
 
             pt2 = getPoint((180 + prim.angle) % 360, +val, {
@@ -153,8 +170,7 @@ function addProto2Collage(key, val) {
 
     } else if (palette_cat[key]) {
         let cl = 1
-        if (palette_cat[key].apply !== "none") {
-
+        if (palette_cat[key].proto === undefined) {
 
             const el = document.getElementById("collage_" + palette_cat[key].apply)
             const tval = +el.getAttribute("num")
@@ -162,14 +178,67 @@ function addProto2Collage(key, val) {
             const can = marks[palette_cat[key].apply][tval].proto.canvas
 
             const tcol = hexToRgb(palette_cat[key].color)
-            const res = toColor(can, tcol.r*cl, tcol.g*cl, tcol.b*cl, 180)
-
+            const res = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 180)
 
             el.setAttribute("href", res.toDataURL())
+
+        } else {
+
+            const can = palette_cat[key].proto.canvas //TODO: Test if in range
+
+            const tcorners = palette_cat[key].proto.corners
+
+            const tw = tcorners[1][0] - tcorners[0][0]
+            const th = tcorners[1][1] - tcorners[0][1]
+
+            let anch = getAnchorFromTo(key)
+
+
+            let fr = anch.from.data
+            let to = anch.to.data
+
+
+            let cont = document.getElementById("collage_" + anch.from.key)
+            let x = +cont.getAttribute("x")
+            let y = +cont.getAttribute("y")
+
+            let tw2 = cont.getAttribute("width")
+            let th2 = cont.getAttribute("height")
+
+            if (anch.from.type === "mark") {
+
+                d3Svg.append("svg:image")
+                    .attr("xlink:href", can.toDataURL())
+                    .attr("x", x + (fr.rx * tw2) + (to.rx * tw))
+                    .attr("y", y + (fr.ry * th2) + (to.ry * th))
+                    .attr("width", tw)
+                    .attr("height", th)
+                    .attr("id", "collage_" + key)
+                    .attr("class", "rotate")
+            } else { //TODO: PRIMITIVE AND CAT PROTO
+
+            }
         }
     }
 }
 
+
+function getAnchorFromTo(name) {
+
+
+    for (const [key, value] of Object.entries(global_anchors)) {
+        if (value.to) {
+            if (value.to.key === name) {
+                return value
+            }
+
+        }
+
+    }
+
+
+    return undefined
+}
 
 function saveCollage() {
 
