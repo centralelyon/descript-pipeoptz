@@ -498,7 +498,7 @@ function toColor(canvas, r, g, b, threshold) {
 
     temp2.setTo(white)
 
-    let lower = [2, 2, 2, 255]
+    let lower = [10, 10, 10, 255]
     let higher = [threshold, threshold, threshold, threshold]
 
     opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
@@ -512,9 +512,9 @@ function toColor(canvas, r, g, b, threshold) {
 
     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
 
-    let M = opencv.Mat.ones(2, 2, cv.CV_8U);
-    let p =  new opencv.Point(-1, -1)
-    opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
+    // let M = opencv.Mat.ones(2, 2, cv.CV_8U);
+    // let p = new opencv.Point(-1, -1)
+    // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
 
     temp2.setTo(color, src)
 

@@ -35,12 +35,17 @@ function addCollage() {
 
     div.classList.add("collageListDisplay")
     const key = document.getElementById('collageSel').value
-    const val = document.getElementById('dataVal').value
+    let val = document.getElementById('dataVal').value
+
+
+    if (Object.keys(palette_cat).indexOf(key) > -1) {
+        val = ""
+    }
+
 
     div.setAttribute("id", "dataList_" + key)
 
     addProto2Collage(key, val)
-
 
     div.innerHTML = '<p>' + key + '</p> <p>' + val + '</p>' +
         '<img class="primitiveDataButton" src="assets/images/buttons/del.png" onclick="deleteDataList(\'collage_' + key + '\')">'
@@ -81,13 +86,11 @@ function addProto2Collage(key, val) {
 
     } else if (primitive[key]) {
 
-        if (primitive[key].linkTo === undefined) {
+        if (primitive[key].linkTo === undefined || primitive[key].linkTo === "None") {
             primitive[key].linkTo = currAnchor
         }
 
-
         let anch = primitive[key].linkTo
-
 
         let tempProto // displayed mark used to get anchor
         let fr = global_anchors[anch].from
@@ -99,13 +102,11 @@ function addProto2Collage(key, val) {
             //TODO: set Cat proto here
         }
 
-
         const prim = primitive[key]
-        let cont = document.getElementById("collage_" + fr.key) //TODO: SET LINKEDTO in ANCHORS and use them here
+        let cont = document.getElementById("collage_" + fr.key)
 
         let x = +cont.getAttribute("x")
         let y = +cont.getAttribute("y")
-
 
         let tw = cont.getAttribute("width")
         let th = cont.getAttribute("height")
@@ -116,7 +117,6 @@ function addProto2Collage(key, val) {
         prim.angle = +prim.angle
         if (prim.anchor_type === "start") {
 
-            // pt1 = {x: (x + tempProto.anchors[0].px), y: (y + tempProto.anchors[0].py)}
             pt1 = {x: (x + tempProto.anchors[anch].rx * tw), y: (y + tempProto.anchors[anch].ry * th)}
 
             const pt = getPoint(+prim.angle, +val, {
@@ -170,6 +170,7 @@ function addProto2Collage(key, val) {
 
     } else if (palette_cat[key]) {
         let cl = 1
+        dataList[key] = ""
         if (palette_cat[key].proto === undefined) {
 
             const el = document.getElementById("collage_" + palette_cat[key].apply)
@@ -178,7 +179,7 @@ function addProto2Collage(key, val) {
             const can = marks[palette_cat[key].apply][tval].proto.canvas
 
             const tcol = hexToRgb(palette_cat[key].color)
-            const res = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 180)
+            const res = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
 
             el.setAttribute("href", res.toDataURL())
 
@@ -194,29 +195,69 @@ function addProto2Collage(key, val) {
             let anch = getAnchorFromTo(key)
 
 
-            let fr = anch.from.data
-            let to = anch.to.data
-
-
-            let cont = document.getElementById("collage_" + anch.from.key)
-            let x = +cont.getAttribute("x")
-            let y = +cont.getAttribute("y")
-
-            let tw2 = cont.getAttribute("width")
-            let th2 = cont.getAttribute("height")
-
             if (anch.from.type === "mark") {
+
+                let fr = anch.from.data
+                let to = anch.to.data
+
+                let cont = document.getElementById("collage_" + anch.from.key)
+                let x = +cont.getAttribute("x")
+                let y = +cont.getAttribute("y")
+
+                let tw2 = cont.getAttribute("width")
+                let th2 = cont.getAttribute("height")
 
                 d3Svg.append("svg:image")
                     .attr("xlink:href", can.toDataURL())
-                    .attr("x", x + (fr.rx * tw2) + (to.rx * tw))
-                    .attr("y", y + (fr.ry * th2) + (to.ry * th))
+                    .attr("x", x + (fr.rx * tw2) - (to.rx * tw))
+                    .attr("y", y + (fr.ry * th2) - (to.ry * th))
                     .attr("width", tw)
                     .attr("height", th)
                     .attr("id", "collage_" + key)
                     .attr("class", "rotate")
-            } else { //TODO: PRIMITIVE AND CAT PROTO
 
+            } else if (anch.from.type === "primitive") {
+                let cont = document.getElementById("collage_" + anch.from.key)
+                let fr = anch.from
+                let to = anch.to
+                if (fr.data.type === "line") {
+                    let x1 = +cont.getAttribute("x1")
+                    let y1 = +cont.getAttribute("y1")
+
+                    let x2 = +cont.getAttribute("x2")
+                    let y2 = +cont.getAttribute("y2")
+
+                    let pt = getPointat({x: x1, y: y1}, {x: x2, y: y2}, 100 - anch.from.data.percent)
+
+                    console.log(pt);
+                    console.log(to);
+                    console.log(tw + " -- " + (to.data.rx * tw));
+                    console.log(th);
+
+                    /*  ------------------ Debug Stuff
+                                        d3Svg.append("circle")
+                                        .attr("cx", pt.x)
+                                        .attr("cy", pt.y)
+                                        .attr("r", 3)
+
+                                        d3Svg.append("circle")
+                                            .attr("cx", pt.x+(to.data.rx * tw))
+                                            .attr("cy", pt.y)
+                                            .attr("r", 3)
+                    */
+
+                    d3Svg.append("svg:image")
+                        .attr("xlink:href", can.toDataURL())
+                        .attr("x", pt.x - (to.data.rx * tw))
+                        .attr("y", pt.y - (to.data.ry * th))
+                        .attr("width", tw)
+                        .attr("height", th)
+                        .attr("id", "collage_" + key)
+                        .attr("class", "rotate")
+                }
+
+            } else if (anch.from.type === "cat") {
+                //TODO: for this to work we need to be able to set From in cat proto, for now only TO can be used
             }
         }
     }
@@ -225,17 +266,13 @@ function addProto2Collage(key, val) {
 
 function getAnchorFromTo(name) {
 
-
     for (const [key, value] of Object.entries(global_anchors)) {
         if (value.to) {
             if (value.to.key === name) {
                 return value
             }
-
         }
-
     }
-
 
     return undefined
 }
@@ -286,9 +323,15 @@ function saveCollage() {
         let ty = invis.height
 
         let tdat = {}
+        let tcat = {}
 
         for (const [key, value] of Object.entries(dataList)) {
-            tdat[key] = {value: value}
+            if (categories[key] !== undefined) {
+                tcat[key] = categories[key]
+            } else {
+                tdat[key] = {value: value}
+            }
+
         }
 
         let tres = {
@@ -298,12 +341,12 @@ function saveCollage() {
             height: can.height,
             type: "made",
             canvas: can,
-            // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
             rx: 10 / tx,
             ry: 10 / ty,
             rWidth: can.width / tx,
             rHeight: can.height / ty,
-            data: tdat
+            data: tdat,
+            categories: tcat
         }
 
         sampleData.push(tres)

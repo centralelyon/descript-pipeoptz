@@ -40,7 +40,6 @@ function getKeyByValue(object, value) {
 }
 
 
-
 function getPoint(theta, dist, pt) {
     theta = toRad(theta)
 
@@ -112,4 +111,12 @@ function hexToRgb(hex) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
+}
+
+
+function getPointat(p1, p2, percent) {
+    return {
+        x: (p1.x * percent + p2.x * (100 - percent)) / 100,
+        y: (p1.y * percent + p2.y * (100 - percent)) / 100,
+    }
 }

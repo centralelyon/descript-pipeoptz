@@ -108,7 +108,7 @@ async function init() {
 }
 
 async function getData() {
-    const url = "assets/images/tempLoad/francis.json";
+    const url = "assets/images/tempLoad/bluedone.json";
     try {
         const response = await fetch(url);
         if (!response.ok) {

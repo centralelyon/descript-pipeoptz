@@ -171,6 +171,7 @@ function fillPalette(range = [0, 10]) {
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Link to Anchor </p>" +
             "<select id='" + key + "_primitivelinkedTo' class='primitiveLinkTo'>" +
+            "<option selected>None</option>" +
             +mess +
             "</select>" +
             "</div>" +
@@ -200,7 +201,7 @@ function fillPalette(range = [0, 10]) {
 
             "<div class='primitiveData'>" +
             "<p class='primitiveLabel'> Anchor Pos </p>" +
-            "<input type='range' id='" + key + "_primitiveAnchorLocation' style='width: 70px' min='1' max='10' value='1'>" +
+            "<input type='range' id='" + key + "_primitiveAnchorLocation' style='width: 70px' min='0' max='100' value='0' step='10'>" +
             "</div>"
 
         tdiv.appendChild(tdiv_mark)
@@ -262,7 +263,10 @@ function fillPalette(range = [0, 10]) {
                             "</div>"*/
 
                 tdiv_mark.onclick = function (e) {
-                    if (mode === "anchor") {
+                    if (mode !== "anchor") {
+                        editPalette(this)
+                    } else {
+                        //TODO: Set for CATA and other primitive
                         setAnchorOnProto(e, this)
                     }
                 }
@@ -288,8 +292,12 @@ function fillPalette(range = [0, 10]) {
                     "<div class='primitiveData'>" +
                     "<p class='primitiveLabel'> Color </p>" +
                     "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
-                    "</div>"
+                    "</div>" +
 
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> DashArray </p>" +
+                    "<input style='width: 60px' type='text' value='' id='" + key + "_catDash'>" +
+                    "</div>"
             }
 
             tdiv.appendChild(tdiv_mark)
@@ -330,14 +338,16 @@ function fillPalette(range = [0, 10]) {
 
 function editPalette(e) {
 
+    console.log(e);
     let el = e
 
     document.getElementById("paletteContainer").style.display = "block";
     primRot = undefined
     let num = el.getAttribute("number")
     let key = el.getAttribute("key")
+    let type = el.getAttribute("id").split("_")[0]
 
-    selectedPalette = [key, num]
+    selectedPalette = [key, num, type]
 
     paletteResetZoom()
 
@@ -348,20 +358,34 @@ function editPalette(e) {
 
     can.width = trec.width;
     can.height = trec.height;
-    // console.log(trec);
+
     let w = trec.width
     let h = trec.height
+
+    let proto
+
+    if (type === "mark") {
+
+        proto = marks[key][num].proto
+
+    } else if (type === "cat") {
+        proto = palette_cat[key].proto
+    }
+
+
+    // console.log(trec);
+
     // corners[1][0] - corners[0][0]
-    let tw = marks[key][num].proto.corners[1][0] - marks[key][num].proto.corners[0][0]
-    let th = marks[key][num].proto.corners[1][1] - marks[key][num].proto.corners[0][1]
+    let tw = proto.corners[1][0] - proto.corners[0][0]
+    let th = proto.corners[1][1] - proto.corners[0][1]
 
 
     cont.clearRect(0, 0, 900, 900)
-    cont.drawImage(marks[key][num].proto.canvas,
+    cont.drawImage(proto.canvas,
         0,
         0,
-        marks[key][num].proto.canvas.width,
-        marks[key][num].proto.canvas.height,
+        proto.canvas.width,
+        proto.canvas.height,
         can.width / 2 - tw / 2,
         can.height / 2 - th / 2,
         tw,
@@ -395,7 +419,6 @@ function editPalette(e) {
     document.getElementById("paletteEditRotate").oninput = function (e) {
         primRot = +this.value
         paletteRotate(primRot)
-
     }
     paletteTempCan = document.createElement("canvas");
     paletteTempCan.width = can.width;
@@ -765,8 +788,12 @@ function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scale
 
 function savePalette() {
     const corn = getBBox(paletteTempCan)
-
-    const resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
+    let resCan
+    if (selectedPalette[2] === "mark") {
+        resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
+    } else if (selectedPalette[2] === "cat") {
+        resCan = palette_cat[selectedPalette[0]].proto.canvas
+    }
 
     resCan.width = corn[1][0] - corn[0][0]
     resCan.height = corn[1][1] - corn[0][1]
@@ -790,10 +817,20 @@ function savePalette() {
         resCan.height,
     )
     resCont.restore();
-    marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn;
 
+    if (selectedPalette[2] === "mark") {
+        marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
+    } else if (selectedPalette[2] === "cat") {
+        palette_cat[selectedPalette[0]].proto.corners = corn
+        let tcan = document.getElementById("canvas_" + selectedPalette[0])
+        let tcont = tcan.getContext('2d')
+        let size = fixRatio2([palette_cat[selectedPalette[0]].proto.canvas.width, palette_cat[selectedPalette[0]].proto.canvas.height], [60, 60])
+
+        tcan.width = size[0]
+        tcan.height = size[1]
+        tcont.drawImage(palette_cat[selectedPalette[0]].proto.canvas, 0, 0, size[0], size[1])
+    }
     document.getElementById("paletteContainer").style.display = "none";
-
 }
 
 
@@ -881,8 +918,31 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
 
 
     document.getElementById(key + "_primitiveAnchors").onchange = function () {
+
+        // currAnchor = this.value
         const key = this.getAttribute("id").split("_")[0];
-        currAnchor = this.value
+
+        const val = +document.getElementById(key + "_primitiveAnchorLocation").value
+
+
+        if (primitive[key].anchors) {
+            primitive[key].anchors[this.value] = {percent: val}
+
+        } else {
+            primitive[key].anchors = {}
+            primitive[key].anchors[this.value] = {percent: val}
+        }
+
+        global_anchors[this.value] = {
+            from:
+                {
+                    data: {percent: val, type: "line"},
+                    key: key,
+                    type: "primitive",
+                }
+        }
+
+
         // primitive[key].anchor_type = this.value
     }
 
@@ -894,18 +954,30 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
 
     document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
 
-
         const key = this.getAttribute("id").split("_")[0];
+        let anchor = document.getElementById(key + "_primitiveAnchors").value
 
+        if (anchor === "None") {
+            anchor = currAnchor
+        }
+
+        const val = +this.value
         if (primitive[key].anchors) {
-            primitive[key].anchors[currAnchor] = {percent: this.value}
+            primitive[key].anchors[anchor] = {percent: val}
 
         } else {
             primitive[key].anchors = {}
-            primitive[key].anchors[currAnchor] = {percent: this.value}
+            primitive[key].anchors[anchor] = {percent: val}
         }
 
-        global_anchors[currAnchor] = {from: key, data_from: {percent: this.value}}
+        global_anchors[anchor] = {
+            from:
+                {
+                    data: {percent: val, type: "line"},
+                    key: key,
+                    type: "primitive",
+                }
+        }
 
         // primitive[key].anchors = this.value
 
@@ -945,7 +1017,7 @@ function updateLinkTo() {
     const selects = document.querySelectorAll(".primitiveLinkTo")
     selects.forEach(select => {
 
-        select.innerHTML = "" + mess
+        select.innerHTML = "<option selected>None</option>" + mess
     })
 
 
@@ -958,11 +1030,8 @@ function updateLinkTo() {
     let selectsCat = document.querySelectorAll(".catLinkToProto")
 
     selectsCat.forEach(select => {
-
         select.innerHTML = "<option selected>None</option>" + mess
-
     })
-
 }
 
 function getOptions() {
@@ -1007,6 +1076,8 @@ function addAnchor() {
 
     let el = document.getElementById("anchorsContainer")
     updateAnchorCont(el)
+    updateLinkTo()
+
 
 }
 
@@ -1054,6 +1125,12 @@ function setAnchorOnProto(e, el) {
             prx: (xy.x - trect.width / 2 + tw / 2) / trect.width,
             pry: (xy.y - trect.height / 2 + th / 2) / trect.height,
         }
+
+        /*        let cont = selProto.canvas.getContext("2d")
+                cont.beginPath();
+                cont.arc(xy.x * tw, xy.y * th, 5, 0, 2 * Math.PI);
+                cont.closePath()
+                cont.fill();*/
 
 
         if (type === "mark") {
