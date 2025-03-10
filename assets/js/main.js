@@ -22,7 +22,7 @@ let stroke = [];
 let opencv = null
 
 let selectedMark = null
-
+let dragMod = false
 let dataEncoding = {}
 let examples = [
     "assets/images/tempExamples/lollipop.png",
@@ -290,6 +290,12 @@ docReady(function () {
 onkeyup = function (e) {
     if (e.keyCode in keymap) {
         keymap[e.keyCode] = false;
+
+        if (e.keyCode == 16) {
+            dragMod = false
+            let svg = d3.select("#svgDisplay")
+            svg.selectAll("image").style("cursor", "pointer")
+        }
     }
 };
 
@@ -343,6 +349,12 @@ onkeydown = function (e) {
 
 
         }
+    }
+
+    if (keymap[16]) {
+        dragMod = true
+        let svg = d3.select("#svgDisplay")
+        svg.selectAll("image").style("cursor", "grab")
     }
 
     if (keymap[27]) {

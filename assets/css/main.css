@@ -170,11 +170,8 @@ canvas {
     cursor: pointer;
 }
 
-svg image:hover {
-    cursor: pointer;
-    /*transform: scale(1.05);*/
-    border: #498db4 solid 1px;
-
+#svgDisplay image {
+    /*cursor: pointer;*/
 }
 
 #closeMod:hover {

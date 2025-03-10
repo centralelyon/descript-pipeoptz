@@ -172,16 +172,28 @@ function addProto2Collage(key, val) {
         let cl = 1
         dataList[key] = ""
         if (palette_cat[key].proto === undefined) {
-
             const el = document.getElementById("collage_" + palette_cat[key].apply)
-            const tval = +el.getAttribute("num")
 
-            const can = marks[palette_cat[key].apply][tval].proto.canvas
+            if (palette_cat[key].colorOn) {
+                if (marks[palette_cat[key].apply]) {
 
-            const tcol = hexToRgb(palette_cat[key].color)
-            const res = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+                    const tval = +el.getAttribute("num")
 
-            el.setAttribute("href", res.toDataURL())
+                    const can = marks[palette_cat[key].apply][tval].proto.canvas
+
+                    const tcol = hexToRgb(palette_cat[key].color)
+                    const res = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+
+                    el.setAttribute("href", res.toDataURL())
+
+                } else if (primitive[palette_cat[key].apply]) {
+                    el.setAttribute("stroke", palette_cat[key].color)
+                }
+            }
+
+            if (palette_cat[key].styleText !== "") {
+                el.style = palette_cat[key].styleText
+            }
 
         } else {
 
@@ -228,11 +240,6 @@ function addProto2Collage(key, val) {
                     let y2 = +cont.getAttribute("y2")
 
                     let pt = getPointat({x: x1, y: y1}, {x: x2, y: y2}, 100 - anch.from.data.percent)
-
-                    console.log(pt);
-                    console.log(to);
-                    console.log(tw + " -- " + (to.data.rx * tw));
-                    console.log(th);
 
                     /*  ------------------ Debug Stuff
                                         d3Svg.append("circle")

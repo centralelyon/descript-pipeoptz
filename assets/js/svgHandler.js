@@ -12,7 +12,8 @@ let over_on = true
 let bounds = []
 let seldots
 let offset
-
+let selectedImg
+let tx
 
 function fillSvg(marks) {
 
@@ -23,16 +24,15 @@ function fillSvg(marks) {
 
     const svg = d3.select('#svgDisplay');
 
+    svg.style("width", rect.width + "px")
+    svg.style("height", rect.height + "px")
+
 
     svg.selectAll("image").remove();
 
     const w = rect.width
     const h = rect.height
     bounds = [w, h]
-
-    svg.attr("width", w);
-    svg.attr("height", h);
-
 
     lineGenerator = d3.line();
 
@@ -81,7 +81,16 @@ function fillSvg(marks) {
         .on("drag", dragMove)
         .on("end", dragEnd);
 
+    const drag2 = d3
+        .drag()
+        .on("start", imgDragStart)
+        .on("drag", imgDragMove)
+        .on("end", imgDragEnd);
+
     svg.call(drag)
+
+
+    svg.selectAll("image").call(drag2)
 
 
 }
@@ -376,16 +385,18 @@ function drawPath() {
 }
 
 function dragStart() {
-    coords = [];
-    offset = undefined
-    const svg = d3.select('#svgDisplay');
-    over_on = false
-    // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
-    // svg.selectAll("images").attr("fill", "steelblue");
-    // svg.style("background-color", "rgba(0,0,0,0.65)");
-    d3.select("#lasso").remove();
-    svg.append("path")
-        .attr("id", "lasso");
+    if (!dragMod) {
+        coords = [];
+        offset = undefined
+        const svg = d3.select('#svgDisplay');
+        over_on = false
+        // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
+        // svg.selectAll("images").attr("fill", "steelblue");
+        // svg.style("background-color", "rgba(0,0,0,0.65)");
+        d3.select("#lasso").remove();
+        svg.append("path")
+            .attr("id", "lasso");
+    }
 }
 
 function fixBounds(point) {
@@ -408,93 +419,99 @@ function fixBounds(point) {
 }
 
 function dragMove(event) {
-    let mouseX = event.x;
-    let mouseY = event.y
+    if (!dragMod) {
+        let mouseX = event.x;
+        let mouseY = event.y
 
-    if (offset === undefined) {
-        offset = [event.sourceEvent.offsetX - event.x, event.sourceEvent.offsetY - event.y];
+        if (offset === undefined) {
+            offset = [event.sourceEvent.offsetX - event.x, event.sourceEvent.offsetY - event.y];
+
+        }
+
+        mouseX += offset[0];
+        mouseY += offset[1];
+
+        const svg = d3.select('#svgDisplay');
+
+        const pt = fixBounds([mouseX, mouseY])
+        coords.push(pt);
+
+        svg.selectAll("image").style("opacity", 0.3);
+        drawPath();
+        svg.selectAll("image").each((d, i, e) => {
+
+            const elem = d3.select(e[i])
+
+            let point = [
+                parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
+                parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
+            ];
+
+            if (pointInPolygon(point, coords)) {
+                elem.style("opacity", 1)
+            }
+        })
 
     }
-
-    mouseX += offset[0];
-    mouseY += offset[1];
-
-    const svg = d3.select('#svgDisplay');
-
-    const pt = fixBounds([mouseX, mouseY])
-    coords.push(pt);
-
-    svg.selectAll("image").style("opacity", 0.3);
-    drawPath();
-    svg.selectAll("image").each((d, i, e) => {
-
-        const elem = d3.select(e[i])
-
-        let point = [
-            parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
-            parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
-        ];
-
-        if (pointInPolygon(point, coords)) {
-            elem.style("opacity", 1)
-        }
-    })
 }
 
 function dragEnd() {
-    let selectedDots = [];
-    const svg = d3.select('#svgDisplay');
 
-    const tsvg = document.getElementById("marksDisplay")
+    if (!dragMod) {
+        let selectedDots = [];
+        const svg = d3.select('#svgDisplay');
 
-    const w = tsvg.offsetWidth
-    const h = tsvg.offsetHeight
+        const tsvg = document.getElementById("marksDisplay")
 
-    svg.selectAll("image").each((d, i, e) => {
-        // console.log(d);
+        const w = tsvg.offsetWidth
+        const h = tsvg.offsetHeight
 
-        const elem = d3.select(e[i])
+        svg.selectAll("image").each((d, i, e) => {
+            // console.log(d);
 
-        /*        let point = [
-                    d.rx * w + (d.rWidth * w) / 2,
-                    d.ry * h + (d.rHeight * h) / 2,
-                ];*/
+            const elem = d3.select(e[i])
 
-        let point = [
-            parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
-            parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
-        ];
+            /*        let point = [
+                        d.rx * w + (d.rWidth * w) / 2,
+                        d.ry * h + (d.rHeight * h) / 2,
+                    ];*/
 
-
-        // let rect = [
-        //     d.rx * w,
-        //     d.ry * h,
-        //     d.rWidth * w + d.rx * w,
-        //     d.ry * h +
-        //     d.rHeight * h,
-        // ];
-        if (pointInPolygon(point, coords)) {
-            // d3.select("image[num='" + i + "'").transition().duration(250).style("opacity", 0.5);
-            selectedDots.push(d);
-            // this.style("opacity", 0);
-            // console.log(e[i]);
-            // d3.select(e[i]).style("opacity", 0)
-            // e[i]
-        }
+            let point = [
+                parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
+                parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
+            ];
 
 
-        // if (rectInPolygon(rect, coords))
-        //     selectedDots.push(d);
+            // let rect = [
+            //     d.rx * w,
+            //     d.ry * h,
+            //     d.rWidth * w + d.rx * w,
+            //     d.ry * h +
+            //     d.rHeight * h,
+            // ];
+            if (pointInPolygon(point, coords)) {
+                // d3.select("image[num='" + i + "'").transition().duration(250).style("opacity", 0.5);
+                selectedDots.push(d);
+                // this.style("opacity", 0);
+                // console.log(e[i]);
+                // d3.select(e[i]).style("opacity", 0)
+                // e[i]
+            }
 
 
-    });
-    seldots = [...selectedDots]
-    svg.selectAll("image").style("opacity", 1);
-    // over_on = true
+            // if (rectInPolygon(rect, coords))
+            //     selectedDots.push(d);
 
-    drawSamples(selectedDots);
-    // d3.select("#lasso").remove();
-    // console.log(`select: ${selectedDots}`);
+
+        });
+        seldots = [...selectedDots]
+        svg.selectAll("image").style("opacity", 1);
+        // over_on = true
+
+        drawSamples(selectedDots);
+
+
+    }
 }
 
 function sortGrid(e) {
@@ -719,3 +736,67 @@ function rotaTest() {
     })
 }
 
+function imgDragStart(event) {
+    if (dragMod) {
+
+        selectedImg = d3.select(this)
+
+        if (offset === undefined) {
+            offset = [event.x - selectedImg.attr("x"), event.y - selectedImg.attr("y")];
+        }
+
+
+    }
+
+}
+
+function imgDragMove(event) {
+    if (dragMod) {
+
+        let mouseX = event.x;
+        let mouseY = event.y
+
+        /*        if (offset === undefined) {
+                    offset = [event.sourceEvent.offsetX - event.x, event.sourceEvent.offsetY - event.y];
+                }
+
+         */
+        mouseX -= offset[0];
+        mouseY -= offset[1];
+
+        const pt = fixBounds([mouseX, mouseY])
+
+        selectedImg.attr("x", pt[0])
+        selectedImg.attr("y", pt[1])
+    }
+}
+
+
+function imgDragEnd(event) {
+    if (dragMod) {
+        let mouseX = event.x;
+        let mouseY = event.y
+
+        mouseX -= offset[0];
+        mouseY -= offset[1];
+
+        const pt = fixBounds([mouseX, mouseY])
+
+        selectedImg.attr("x", pt[0])
+        selectedImg.attr("y", pt[1])
+
+
+        let num = +selectedImg.attr("num")
+
+        let svg = document.getElementById("svgDisplay")
+        let bbox = svg.getBoundingClientRect()
+
+        sampleData[num].rx = pt[0] / bbox.width
+        sampleData[num].ry = pt[1] / bbox.height
+
+        selectedImg = undefined
+        offset = undefined
+        dragMod = false
+
+    }
+}

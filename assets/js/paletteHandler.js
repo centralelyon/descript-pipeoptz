@@ -233,6 +233,7 @@ function fillPalette(range = [0, 10]) {
                     apply: "none",
                     color: value.color,
                     name: key,
+                    style: "",
                     proto: value.prototype,
                 }
 
@@ -252,8 +253,8 @@ function fillPalette(range = [0, 10]) {
                     "</div>" +
 
                     "<div class='primitiveData'>" +
-                    "<p class='primitiveLabel'> Color </p>" +
-                    "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
+                    "<p class='primitiveLabel'> Style </p>" +
+                    "<input style='width: 150px' type='text' value='' id='" + key + "_catStyle'>" +
                     "</div>"
 
 
@@ -277,7 +278,9 @@ function fillPalette(range = [0, 10]) {
                     type: "attribute",
                     apply: "none",
                     color: value.color,
-                    name: key
+                    name: key,
+                    style: "",
+                    colorOn: true
                 }
 
                 tdiv_mark.innerHTML =
@@ -290,13 +293,18 @@ function fillPalette(range = [0, 10]) {
                     "</div>" +
 
                     "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Use color </p>" +
+                    "<input style='width: 30px' min ='0' max='1'  type='range' value='1' id='" + key + "_catColorOn'>" +
+                    "</div>" +
+
+                    "<div class='primitiveData'>" +
                     "<p class='primitiveLabel'> Color </p>" +
                     "<input type='color' value='" + categories[key].color + "' id='" + key + "_catColor'>" +
                     "</div>" +
 
                     "<div class='primitiveData'>" +
-                    "<p class='primitiveLabel'> DashArray </p>" +
-                    "<input style='width: 60px' type='text' value='' id='" + key + "_catDash'>" +
+                    "<p class='primitiveLabel'> Style </p>" +
+                    "<input style='width: 150px' type='text' value='' id='" + key + "_catStyle'>" +
                     "</div>"
             }
 
@@ -992,9 +1000,10 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
 
 function setCatEvents(type, key) {
 
-    document.getElementById(key + "_catColor").oninput = function () {
+
+    document.getElementById(key + "_catStyle").oninput = function () {
         const key = this.getAttribute("id").split("_")[0];
-        palette_cat[key].color = this.value
+        palette_cat[key].styleText = this.value
     }
 
     if (palette_cat[key].proto === undefined) {
@@ -1002,6 +1011,17 @@ function setCatEvents(type, key) {
             const key = this.getAttribute("id").split("_")[0];
             palette_cat[key].apply = this.value
         }
+
+        document.getElementById(key + "_catColorOn").oninput = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            palette_cat[key].colorOn = +this.value === 1
+        }
+
+        document.getElementById(key + "_catColor").oninput = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            palette_cat[key].color = this.value
+        }
+
     }
 }
 
