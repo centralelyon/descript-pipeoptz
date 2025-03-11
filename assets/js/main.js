@@ -117,7 +117,7 @@ async function init() {
     type = (type === null ? "deardata" : type)
     if (type === "deardata") {  //Default to lollipops
         week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
-        author = (author === null ? "giorgia" : author)
+        author = (author === null ? "giorgia" : author).toLowerCase()
     }
     let authorRef = author === "giorgia" ? 0 : 1;
     loadExamples(week);
@@ -128,7 +128,6 @@ async function init() {
     } else {
         let url = ""
         if (type === "deardata") {
-            let el
             url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
         }
         loadImg(url)
