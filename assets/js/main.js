@@ -18,7 +18,7 @@ let origin = null;
 let keymap = {}
 let strokePoint = [];
 let stroke = [];
-
+const urlParams = new URLSearchParams(window.location.search);
 let opencv = null
 
 let selectedMark = null
@@ -37,6 +37,10 @@ const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/
 // https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_19%2Bfront.jpg
 docReady(init)
 
+
+const dataRef = {
+    giorgia_36: "assets/images/tempLoad/bluedone.json"
+}
 
 function loadExamples() {
 
@@ -97,9 +101,30 @@ function loadEx() {
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
 
-    let json = await getData()
+    let week = urlParams.get("week")
+    let author = urlParams.get("author")
+    let type = urlParams.get("type")
 
-    importData(json);
+    type = (type === null ? "deardata" : type)
+    if (type === "deardata") {  //Default to lollipops
+        week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
+        author = (author === null ? "giorgia" : author)
+    }
+
+    if (dataRef[author + "_" + week]) {
+        let json = await getData(dataRef[author + "_" + week])
+        importData(json);
+    } else {
+        let url = ""
+        if (type === "deardata") {
+            if (author === "giorgia") {
+                url = url_templates[0][0] + week + url_templates[0][1]
+            } else {
+                url = url_templates[1][0] + week + url_templates[1][1]
+            }
+        }
+        loadImg(url)
+    }
 
     switchMode("rect")
     loadExamples();
@@ -107,8 +132,8 @@ async function init() {
     document.getElementById("imgLoader").addEventListener("change", importImg);
 }
 
-async function getData() {
-    const url = "assets/images/tempLoad/bluedone.json";
+async function getData(url) {
+
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -747,7 +772,5 @@ docReady(function () {
         updateCategories()
     })
 })
-
-
 
 

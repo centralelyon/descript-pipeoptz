@@ -705,9 +705,7 @@ function loadbg(bg) {
 
         pcont.drawImage(can, 0, 0, can.width, can.height)
     }
-
 }
-
 
 function getClosestNext() {
     let ind = selectedPalette[1]
@@ -743,8 +741,6 @@ function paletteRotate(angle) {
     tcont.restore();
 
     // paletteTempCan = can
-
-
     // tcont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
 }
 
@@ -762,7 +758,6 @@ function paletteZoom(e) {
     // pcont.drawImage(can, 0, 0, can.width, can.height, 0, 0, 0, 0)
     e.preventDefault();
     let zoomStep = 1.1
-
 
     let x = e.offsetX;
     let y = e.offsetY;
@@ -857,7 +852,6 @@ function toBW() {
     // dst = opencv.merge(src, temp.get(3))
 
     let mergedPlanes = new opencv.MatVector();
-
 
     opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 1);
 
