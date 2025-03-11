@@ -130,10 +130,7 @@ async function init() {
         if (type === "deardata") {
             let el
             url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
-            el = document.querySelector("div[template='" + authorRef + "'][value=" + week + "]")
         }
-        // scrollTo(el)
-
         loadImg(url)
     }
 
