@@ -17,17 +17,21 @@ let primRot
 let global_anchors = {}
 let currAnchor = 0
 
-function fillPalette(range = [0, 10]) {
+function fillPalette(range = [0, 10], reset = true) {
 
-    marks = {}
+    if (reset) {
+        marks = {}
+        primitive = {}
+        global_anchors = {}
+        categories = {}
+    }
+
     const container = document.getElementById("paletteCont")
     container.innerHTML = ""
-
 
     const anchorCont = document.createElement("div")
     anchorCont.className = "paletteMarks"
     const anchorBlock = document.createElement("div")
-
 
     anchorCont.innerHTML = '' +
         '<h4 style="display: inline-block">Anchors</h4>' +
@@ -35,9 +39,7 @@ function fillPalette(range = [0, 10]) {
 
 
     const anchorsDiv = document.createElement("div")
-
     anchorsDiv.setAttribute("id", "anchorsContainer")
-
 
     updateAnchorCont(anchorsDiv)
 
@@ -73,7 +75,7 @@ function fillPalette(range = [0, 10]) {
         const tdiv = document.createElement("div")
         tdiv.id = "palette_" + key
         tdiv.className = "paletteMarks"
-        tdiv.innerHTML = "<h4 class='paletteData'>" + key + ":</h4>"
+        tdiv.innerHTML = "<h4 onclick='exportPalette(\"" + key + "\",\"mark\")' class='paletteData'>" + key + ":</h4>"
         for (let i = range[0]; i < range[1]; i++) {
             const tdiv_mark = document.createElement("div")
             tdiv_mark.id = "mark_" + key
@@ -135,7 +137,7 @@ function fillPalette(range = [0, 10]) {
         const tdiv = document.createElement("div")
         tdiv.id = "palette_" + key
         tdiv.className = "paletteMarks"
-        tdiv.innerHTML = "<h4 class='paletteData'>" + key + ":</h4>"
+        tdiv.innerHTML = "<h4 onclick='exportPalette(\"" + key + "\",\"primitive\")' class='paletteData'>" + key + ":</h4>"
         const tdiv_mark = document.createElement("div")
         tdiv_mark.id = "mark_" + key
         tdiv_mark.className = "paletteMark"
@@ -218,7 +220,7 @@ function fillPalette(range = [0, 10]) {
             const tdiv = document.createElement("div")
             tdiv.id = "palette_" + key
             tdiv.className = "paletteMarks"
-            tdiv.innerHTML = "<h4 class='paletteData'>" + key + ":</h4>"
+            tdiv.innerHTML = "<h4 onclick='exportPalette(\"" + key + "\",\"category\")' class='paletteData'>" + key + ":</h4>"
 
             const tdiv_mark = document.createElement("div")
             tdiv_mark.id = "cat_" + key
@@ -1175,9 +1177,67 @@ function setAnchorOnProto(e, el) {
         }
 
         // updateAnchorCont()
-
         updateLinkTo()
-
-
     }
+}
+
+
+function exportPalette(key, type) {
+    const elem = "";
+    let tdat
+    if (type === "mark") {
+        tdat = marks[key]
+    }
+
+    if (type === "primitive") {
+        tdat = primitive[key]
+    }
+    if (type === "category") {
+        tdat = palette_cat[key]
+    }
+
+    for (const [key, value] of Object.entries(tdat)) {
+
+        const tval = {...value}
+        if (tval?.proto?.canvas) {
+            tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+        }
+        tdat[key] = tval
+    }
+
+    const res = {
+        type: type,
+        data: tdat,
+        name: key
+    }
+
+    download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
+}
+
+function importPalette(e) {
+    const reader = new FileReader();
+
+    reader.onload = async function (e) {
+        let jsonObj = JSON.parse(e.target.result);
+
+        for (const [key, value] of Object.entries(jsonObj.data)) {
+            if (value.proto) {
+                value.proto.canvas = await convertToCanvas(value.proto.canvas)
+            }
+        }
+
+
+        if (jsonObj.type === "mark") {
+            marks[jsonObj.name] = jsonObj.data;
+        }
+        if (jsonObj.type === "primitive") {
+            primitive[jsonObj.name] = jsonObj.data;
+        }
+        if (jsonObj.type === "category") {
+            palette_cat[jsonObj.name] = jsonObj.data;
+        }
+
+        fillPalette([0, 10], false)
+    }
+    reader.readAsText(e.target.files[0]);
 }

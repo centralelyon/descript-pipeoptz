@@ -79,10 +79,7 @@ function loadExamples(week = 0, author = "giorgia") {
                 el.scrollIntoView()
                 el.classList.add("selectedIm");
             }
-
         }
-
-
     }
 }
 
@@ -109,15 +106,21 @@ async function loadEx() {
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
 
+    let week = null
+    let author = null
+    let type = null
+    if (urlParams.has("week"))
+        week = urlParams.get("week").toLowerCase()
 
-    let week = urlParams.get("week")
-    let author = urlParams.get("author")
-    let type = urlParams.get("type")
+    if (urlParams.has("author"))
+        author = urlParams.get("author").toLowerCase()
+    if (urlParams.has("type"))
+        type = urlParams.get("type").toLowerCase()
 
     type = (type === null ? "deardata" : type)
     if (type === "deardata") {  //Default to lollipops
         week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
-        author = (author === null ? "giorgia" : author).toLowerCase()
+        author = (author === null ? "giorgia" : author)
     }
     let authorRef = author === "giorgia" ? 0 : 1;
     loadExamples(week);
@@ -136,8 +139,7 @@ async function init() {
     switchMode("rect")
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
-
-
+    document.getElementById("paletteLoader").addEventListener("change", importPalette);
 }
 
 async function getData(url) {
@@ -147,14 +149,11 @@ async function getData(url) {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-
         return await response.json();
-
     } catch (error) {
         return error
     }
 }
-
 
 function getSamplesFromCategory(category) {
     return sampleData.filter(sample => {
@@ -163,7 +162,6 @@ function getSamplesFromCategory(category) {
         } else {
             return false
         }
-
     })
 }
 
@@ -173,7 +171,6 @@ function switchSampleSelect(e, type) {
 
     e.setAttribute("id", "selectedButton")
     switchMode(type)
-
 }
 
 function addCategory() {
@@ -591,6 +588,9 @@ function importFromJson(e) {
     reader.onload = function (e) {
         let jsonObj = JSON.parse(e.target.result);
 
+        // jsonObj.palette.primitive = {}
+        // delete jsonObj.categories.time.prototype
+
         importData(jsonObj);
         // console.log(jsonObj)
     }
@@ -731,6 +731,9 @@ function purge() {
     currImg = null;
 
     sampleData = []
+    palette_cat = {}
+    marks = {}
+    primitive = {}
 
     categories = {
         default: {
@@ -757,6 +760,8 @@ function purge() {
 
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();
+    document.getElementById("paletteCont").innerHTML = "";
+
 }
 
 function clearExamples() {
