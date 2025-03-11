@@ -42,22 +42,19 @@ const dataRef = {
     giorgia_36: "assets/images/tempLoad/bluedone.json"
 }
 
-function loadExamples() {
+function loadExamples(week = 0, author = "giorgia") {
 
     const container = document.getElementById('selFlat');
+    let authorRef = author === "giorgia" ? 0 : 1;
+    /*    for (let i = 0; i < 1; i++) {
+            const el = document.createElement("div");
+            el.style.backgroundImage = "url('" + examples[i] + "')";
+            el.setAttribute('value', i);
+            el.setAttribute('type', "data");
 
-    for (let i = 0; i < 1; i++) {
-        const el = document.createElement("div");
-        el.style.backgroundImage = "url('" + examples[i] + "')";
-        el.setAttribute('value', i);
-        el.setAttribute('type', "data");
-
-        if (i === 0)
-            el.classList.add("selectedIm");
-
-        el.onclick = loadEx
-        container.appendChild(el);
-    }
+            el.onclick = loadEx
+            container.appendChild(el);
+        }*/
     for (let i = 1; i < totalExamples; i++) {
         let num = i
 
@@ -74,15 +71,22 @@ function loadExamples() {
             el.setAttribute('template', j);
             el.setAttribute('type', "url");
 
+
             el.onclick = loadEx
             container.appendChild(el);
+
+            if (num == week && j === authorRef) {
+                el.scrollIntoView()
+                el.classList.add("selectedIm");
+            }
+
         }
 
 
     }
 }
 
-function loadEx() {
+async function loadEx() {
 
     clearExamples()
     this.classList.add("selectedIm");
@@ -93,13 +97,18 @@ function loadEx() {
     if (type === "url") {
         let i = this.getAttribute("value")
         let j = this.getAttribute("template")
-
+        let author = j == 0 ? "giorgia" : "stefanie"
         loadImg(encodeURI(url_templates[j][0] + i + url_templates[j][1]))
+        if (dataRef[author + "_" + i]) {
+            let json = await getData(dataRef[author + "_" + i])
+            importData(json);
+        }
     }
 }
 
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
+
 
     let week = urlParams.get("week")
     let author = urlParams.get("author")
@@ -110,6 +119,8 @@ async function init() {
         week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
         author = (author === null ? "giorgia" : author)
     }
+    let authorRef = author === "giorgia" ? 0 : 1;
+    loadExamples(week);
 
     if (dataRef[author + "_" + week]) {
         let json = await getData(dataRef[author + "_" + week])
@@ -117,19 +128,20 @@ async function init() {
     } else {
         let url = ""
         if (type === "deardata") {
-            if (author === "giorgia") {
-                url = url_templates[0][0] + week + url_templates[0][1]
-            } else {
-                url = url_templates[1][0] + week + url_templates[1][1]
-            }
+            let el
+            url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
+            el = document.querySelector("div[template='" + authorRef + "'][value=" + week + "]")
         }
+        // scrollTo(el)
+
         loadImg(url)
     }
 
     switchMode("rect")
-    loadExamples();
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
+
+
 }
 
 async function getData(url) {
