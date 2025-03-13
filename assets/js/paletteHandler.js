@@ -17,7 +17,7 @@ let primRot
 let global_anchors = {}
 let currAnchor = 0
 
-function fillPalette(range = [0, 10], reset = true) {
+function fillPalette(range = [0, 10], reset = false) {
 
     if (reset) {
         marks = {}
@@ -343,6 +343,7 @@ function fillPalette(range = [0, 10], reset = true) {
 
         stColor = this.value
     }
+    populateSelect()
 }
 
 
@@ -1225,7 +1226,6 @@ function importPalette(e) {
                 value.proto.canvas = await convertToCanvas(value.proto.canvas)
             }
         }
-
 
         if (jsonObj.type === "mark") {
             marks[jsonObj.name] = jsonObj.data;

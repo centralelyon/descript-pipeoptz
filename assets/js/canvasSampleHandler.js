@@ -247,9 +247,9 @@ async function addFreeSample(points) {
 
     tcat[selectedCategory] = categories[selectedCategory]
 
-    const vectors = PCA.getEigenVectors(points)
-
-    const angle = get_orr(vectors[0].vector, vectors[1].vector)
+    // const vectors = PCA.getEigenVectors(points)
+    //
+    // const angle = get_orr(vectors[0].vector, vectors[1].vector)
 
     let tres = {
         x: corners[0][0],
@@ -266,7 +266,7 @@ async function addFreeSample(points) {
         rHeight: th / ty,
         categories: tcat,
         data: {
-            orientation: Math.round(angle * 100) / 100
+            // orientation: Math.round(angle * 100) / 100
         }
     }
 

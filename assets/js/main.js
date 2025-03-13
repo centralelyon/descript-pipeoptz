@@ -23,6 +23,7 @@ let opencv = null
 
 let selectedMark = null
 let dragMod = false
+let rotateMod = false
 let dataEncoding = {}
 let examples = [
     "assets/images/tempExamples/lollipop.png",
@@ -70,7 +71,6 @@ function loadExamples(week = 0, author = "giorgia") {
             el.setAttribute('value', num);
             el.setAttribute('template', j);
             el.setAttribute('type', "url");
-
 
             el.onclick = loadEx
             container.appendChild(el);
@@ -140,6 +140,8 @@ async function init() {
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("paletteLoader").addEventListener("change", importPalette);
+
+
 }
 
 async function getData(url) {
@@ -187,7 +189,7 @@ function addCategory() {
         }
 
         drawCat(name, categories[name].color, true)
-        fillPalette()
+        fillPalette([0, 10], false)
     }
 }
 
@@ -326,6 +328,10 @@ onkeyup = function (e) {
             let svg = d3.select("#svgDisplay")
             svg.selectAll("image").style("cursor", "pointer")
         }
+
+        if (e.keyCode == 18) {
+            rotateMod = false
+        }
     }
 };
 
@@ -385,6 +391,10 @@ onkeydown = function (e) {
         dragMod = true
         let svg = d3.select("#svgDisplay")
         svg.selectAll("image").style("cursor", "grab")
+    }
+
+    if (keymap[18]) {
+        rotateMod = true
     }
 
     if (keymap[27]) {
@@ -644,6 +654,7 @@ async function importData(data) {
     updateMarks("size")
     fillPalette()
     populateSelect()
+    fillTable()
 
 }
 
@@ -709,6 +720,7 @@ document.onpaste = (evt) => {
                 // console.log(currImg);
                 switchMode("rect")
                 clearExamples()
+                purge()
 
             }
             reader.readAsDataURL(file);
@@ -761,7 +773,7 @@ function purge() {
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();
     document.getElementById("paletteCont").innerHTML = "";
-
+    populateSelect()
 }
 
 function clearExamples() {
