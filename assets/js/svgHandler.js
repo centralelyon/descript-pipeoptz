@@ -756,11 +756,10 @@ function imgDragMove(event) {
         let mouseX = event.x;
         let mouseY = event.y
 
-        /*        if (offset === undefined) {
-                    offset = [event.sourceEvent.offsetX - event.x, event.sourceEvent.offsetY - event.y];
-                }
+        if (offset === undefined) {
+            offset = [event.x - selectedImg.attr("x"), event.y - selectedImg.attr("y")];
+        }
 
-         */
         mouseX -= offset[0];
         mouseY -= offset[1];
 
