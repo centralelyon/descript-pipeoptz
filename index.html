@@ -25,6 +25,7 @@
     <script src="assets/js/svgHandler.js"></script>
     <script src="assets/js/paletteHandler.js"></script>
     <script src="assets/js/collageHandler.js"></script>
+    <script src="assets/js/tableHandler.js"></script>
     <script src="assets/js/main.js"></script>
 
 
@@ -189,7 +190,12 @@
     <!------------------------  Palette Stuff  ----------------------------------------------------------->
 
     <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-        <h3 style="width: 100%;text-align:center;display: inline-block">Palette</h3>
+        <h3 style="width: 100%;text-align:center;display: inline-block">
+            <input type="file" name="img" id="paletteLoader" style="display: none;"/>
+            <img src="assets/images/buttons/export.png" class="buttonImg" style="transform: scaleX(-1);cursor: pointer"
+                 onclick="fakeFile('paletteLoader')">
+            Palette
+        </h3>
         <div class="twelve columns " style="" id="paletteCont">
         </div>
     </div>
@@ -225,9 +231,9 @@
             <div class="buttonImg">
                 <img src="assets/images/buttons/black.png" class="lightBorder" onclick="toBW()" style=""/>
             </div>
- <!--           <div class="buttonImg selectablePallete">
-                <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
-            </div>-->
+            <!--           <div class="buttonImg selectablePallete">
+                           <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
+                       </div>-->
             <div class="buttonImg selectablePallete">
 
                 <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" class="lightBorder" style=""/>
@@ -285,6 +291,22 @@
 
             </div>
         </div>
+    </div>
+
+
+    <!--  DataTable for some reason ?? Stuff------------------------------------------------------------------------>
+    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
+        <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Datatable
+        </h3>
+        <div class="twelve columns">
+            <table id="datatable" style="width: 101%">
+                <tr id="tableHeader"></tr>
+            </table>
+
+
+        </div>
+
+
     </div>
 
 

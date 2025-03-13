@@ -53,6 +53,7 @@ function fillSvg(marks) {
         .attr("y", (d) => d.ry * h)
         .attr("width", (d) => d.rWidth * w)
         .attr("height", (d) => d.rHeight * h)
+        .attr("class", "rotate")
         .on("mouseenter", (e) => {
             if (over_on)
                 drawSamples([e.target.__data__])
@@ -63,11 +64,9 @@ function fillSvg(marks) {
                 d3.selectAll("image").style("opacity", 1)
             }
         })
-
         .on("click", (e) => {
 
             d3.selectAll("image").style("opacity", 1)
-
             const el = e.target
             loadModal(sampleData.find((d) => d === el.__data__))
         })
@@ -746,20 +745,25 @@ function imgDragStart(event) {
         }
 
 
-    }
+    } else if (rotateMod) {
 
+        selectedImg = d3.select(this)
+        if (offset === undefined) {
+            offset = [event.x - selectedImg.attr("x"), event.y - selectedImg.attr("y")];
+        }
+    }
 }
 
 function imgDragMove(event) {
     if (dragMod) {
-
         let mouseX = event.x;
         let mouseY = event.y
 
-        if (offset === undefined) {
-            offset = [event.x - selectedImg.attr("x"), event.y - selectedImg.attr("y")];
-        }
+        /*        if (offset === undefined) {
+                    offset = [event.sourceEvent.offsetX - event.x, event.sourceEvent.offsetY - event.y];
+                }
 
+         */
         mouseX -= offset[0];
         mouseY -= offset[1];
 
@@ -767,6 +771,19 @@ function imgDragMove(event) {
 
         selectedImg.attr("x", pt[0])
         selectedImg.attr("y", pt[1])
+
+    } else if (rotateMod) {
+        let mouseX = event.x;
+        let mouseY = event.y
+        mouseX -= offset[0];
+        mouseY -= offset[1];
+
+        let orx = selectedImg.attr("x");
+        let ory = selectedImg.attr("y");
+
+        let deg = get_orr([orx, ory], [mouseX, mouseY]);
+
+        selectedImg.style("transform", "rotate(" + deg + "deg)");
     }
 }
 

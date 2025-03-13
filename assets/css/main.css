@@ -95,6 +95,9 @@ body {
     color: #333;
     text-decoration: underline;
     margin-bottom: 0;
+    position: sticky;
+    top: 0;
+    left: 1%;
 }
 
 .selectedIm {
@@ -450,3 +453,14 @@ canvas {
     /*height: fit-content;*/
 }
 
+table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #F1F1F1;
+}
+
+#datatable td {
+    padding: 6px 9px;
+    text-align: center;
+}

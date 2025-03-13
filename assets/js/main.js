@@ -18,11 +18,12 @@ let origin = null;
 let keymap = {}
 let strokePoint = [];
 let stroke = [];
-
+const urlParams = new URLSearchParams(window.location.search);
 let opencv = null
 
 let selectedMark = null
 let dragMod = false
+let rotateMod = false
 let dataEncoding = {}
 let examples = [
     "assets/images/tempExamples/lollipop.png",
@@ -38,22 +39,23 @@ const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/
 docReady(init)
 
 
-function loadExamples() {
+const dataRef = {
+    giorgia_36: "assets/images/tempLoad/bluedone.json"
+}
+
+function loadExamples(week = 0, author = "giorgia") {
 
     const container = document.getElementById('selFlat');
+    let authorRef = author === "giorgia" ? 0 : 1;
+    /*    for (let i = 0; i < 1; i++) {
+            const el = document.createElement("div");
+            el.style.backgroundImage = "url('" + examples[i] + "')";
+            el.setAttribute('value', i);
+            el.setAttribute('type', "data");
 
-    for (let i = 0; i < 1; i++) {
-        const el = document.createElement("div");
-        el.style.backgroundImage = "url('" + examples[i] + "')";
-        el.setAttribute('value', i);
-        el.setAttribute('type', "data");
-
-        if (i === 0)
-            el.classList.add("selectedIm");
-
-        el.onclick = loadEx
-        container.appendChild(el);
-    }
+            el.onclick = loadEx
+            container.appendChild(el);
+        }*/
     for (let i = 1; i < totalExamples; i++) {
         let num = i
 
@@ -72,13 +74,16 @@ function loadExamples() {
 
             el.onclick = loadEx
             container.appendChild(el);
+
+            if (num == week && j === authorRef) {
+                el.scrollIntoView()
+                el.classList.add("selectedIm");
+            }
         }
-
-
     }
 }
 
-function loadEx() {
+async function loadEx() {
 
     clearExamples()
     this.classList.add("selectedIm");
@@ -89,39 +94,68 @@ function loadEx() {
     if (type === "url") {
         let i = this.getAttribute("value")
         let j = this.getAttribute("template")
-
+        let author = j == 0 ? "giorgia" : "stefanie"
         loadImg(encodeURI(url_templates[j][0] + i + url_templates[j][1]))
+        if (dataRef[author + "_" + i]) {
+            let json = await getData(dataRef[author + "_" + i])
+            importData(json);
+        }
     }
 }
 
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
 
-    let json = await getData()
+    let week = null
+    let author = null
+    let type = null
+    if (urlParams.has("week"))
+        week = urlParams.get("week").toLowerCase()
 
-    importData(json);
+    if (urlParams.has("author"))
+        author = urlParams.get("author").toLowerCase()
+    if (urlParams.has("type"))
+        type = urlParams.get("type").toLowerCase()
+
+    type = (type === null ? "deardata" : type)
+    if (type === "deardata") {  //Default to lollipops
+        week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
+        author = (author === null ? "giorgia" : author)
+    }
+    let authorRef = author === "giorgia" ? 0 : 1;
+    loadExamples(week);
+
+    if (dataRef[author + "_" + week]) {
+        let json = await getData(dataRef[author + "_" + week])
+        importData(json);
+    } else {
+        let url = ""
+        if (type === "deardata") {
+            url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
+        }
+        loadImg(url)
+    }
 
     switchMode("rect")
-    loadExamples();
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
+    document.getElementById("paletteLoader").addEventListener("change", importPalette);
+
+
 }
 
-async function getData() {
-    const url = "assets/images/tempLoad/bluedone.json";
+async function getData(url) {
+
     try {
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-
         return await response.json();
-
     } catch (error) {
         return error
     }
 }
-
 
 function getSamplesFromCategory(category) {
     return sampleData.filter(sample => {
@@ -130,7 +164,6 @@ function getSamplesFromCategory(category) {
         } else {
             return false
         }
-
     })
 }
 
@@ -140,7 +173,6 @@ function switchSampleSelect(e, type) {
 
     e.setAttribute("id", "selectedButton")
     switchMode(type)
-
 }
 
 function addCategory() {
@@ -157,7 +189,7 @@ function addCategory() {
         }
 
         drawCat(name, categories[name].color, true)
-        fillPalette()
+        fillPalette([0, 10], false)
     }
 }
 
@@ -296,6 +328,10 @@ onkeyup = function (e) {
             let svg = d3.select("#svgDisplay")
             svg.selectAll("image").style("cursor", "pointer")
         }
+
+        if (e.keyCode == 18) {
+            rotateMod = false
+        }
     }
 };
 
@@ -355,6 +391,10 @@ onkeydown = function (e) {
         dragMod = true
         let svg = d3.select("#svgDisplay")
         svg.selectAll("image").style("cursor", "grab")
+    }
+
+    if (keymap[18]) {
+        rotateMod = true
     }
 
     if (keymap[27]) {
@@ -558,6 +598,9 @@ function importFromJson(e) {
     reader.onload = function (e) {
         let jsonObj = JSON.parse(e.target.result);
 
+        // jsonObj.palette.primitive = {}
+        // delete jsonObj.categories.time.prototype
+
         importData(jsonObj);
         // console.log(jsonObj)
     }
@@ -611,6 +654,7 @@ async function importData(data) {
     updateMarks("size")
     fillPalette()
     populateSelect()
+    fillTable()
 
 }
 
@@ -676,6 +720,7 @@ document.onpaste = (evt) => {
                 // console.log(currImg);
                 switchMode("rect")
                 clearExamples()
+                purge()
 
             }
             reader.readAsDataURL(file);
@@ -698,6 +743,9 @@ function purge() {
     currImg = null;
 
     sampleData = []
+    palette_cat = {}
+    marks = {}
+    primitive = {}
 
     categories = {
         default: {
@@ -724,6 +772,8 @@ function purge() {
 
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();
+    document.getElementById("paletteCont").innerHTML = "";
+    populateSelect()
 }
 
 function clearExamples() {
@@ -747,7 +797,5 @@ docReady(function () {
         updateCategories()
     })
 })
-
-
 
 
