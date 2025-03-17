@@ -23,7 +23,7 @@ function fillPalette(range = [0, 10], reset = false) {
         marks = {}
         primitive = {}
         global_anchors = {}
-        categories = {}
+        palette_cat = {}
     }
 
     const container = document.getElementById("paletteCont")
@@ -70,6 +70,7 @@ function fillPalette(range = [0, 10], reset = false) {
             }
         }
     }
+    const mess = getOptions()
 
     for (const [key, value] of Object.entries(marks)) {
         const tdiv = document.createElement("div")
@@ -106,8 +107,34 @@ function fillPalette(range = [0, 10], reset = false) {
                 }
             }
             tdiv.appendChild(tdiv_mark)
+
         }
+
+
+        const div1 = document.createElement("div")
+        const div2 = document.createElement("div")
+
+
+        div1.className = "primitiveData"
+        div2.className = "primitiveData"
+        div1.innerHTML = "<p class='primitiveLabel'> Linked to Palette </p>" +
+            "<select id='" + key + "_markLinkedToPalette' class='palettelinkedTo'>" +
+            "<option selected>None</option>" +
+            +"" + mess +
+            "</select>"
+        div2.innerHTML =
+            "<p class='primitiveLabel'> On Anchor </p>" +
+            "<select id='" + key + "_markLinkedTo' class='anchorLinkTo'>" +
+            "<option selected>None</option>" +
+            +mess +
+            "</select>"
+
+        tdiv.appendChild(div1)
+        tdiv.appendChild(div2)
+
+
         container.appendChild(tdiv)
+        setMarkEvent(key)
     }
 
 
@@ -116,7 +143,7 @@ function fillPalette(range = [0, 10], reset = false) {
     for (let i = 0; i < sampleData.length; i++) {
         if (sampleData[i]["data"]) {
             for (const [key, value] of Object.entries(sampleData[i].data)) {
-                if (!tkeys.includes(key)) {
+                if (!tkeys.includes(key) && !primitive[key]) {
                     primitive[key] = {
                         shape: "line",
                         growth: "end",
@@ -130,8 +157,6 @@ function fillPalette(range = [0, 10], reset = false) {
         }
     }
 
-
-    const mess = getOptions()
 
     for (const [key, value] of Object.entries(primitive)) {
         const tdiv = document.createElement("div")
@@ -171,8 +196,16 @@ function fillPalette(range = [0, 10], reset = false) {
             "</div>" +
 
             "<div class='primitiveData'>" +
-            "<p class='primitiveLabel'> Link to Anchor </p>" +
-            "<select id='" + key + "_primitivelinkedTo' class='primitiveLinkTo'>" +
+            "<p class='primitiveLabel'> Linked to Palette </p>" +
+            "<select id='" + key + "_primitivelinkedToPalette' class='palettelinkedTo'>" +
+            "<option selected>None</option>" +
+            +"" + mess +
+            "</select>" +
+            "</div>" +
+
+            "<div class='primitiveData'>" +
+            "<p class='primitiveLabel'> On Anchor </p>" +
+            "<select id='" + key + "_primitivelinkedTo' class='anchorLinkTo'>" +
             "<option selected>None</option>" +
             +mess +
             "</select>" +
@@ -230,13 +263,15 @@ function fillPalette(range = [0, 10], reset = false) {
 
 
             if (value.prototype) {
-                palette_cat[key] = {
-                    type: "sample",
-                    apply: "none",
-                    color: value.color,
-                    name: key,
-                    style: "",
-                    proto: value.prototype,
+                if (!palette_cat[key]) {
+                    palette_cat[key] = {
+                        type: "sample",
+                        apply: "none",
+                        color: value.color,
+                        name: key,
+                        style: "",
+                        proto: value.prototype,
+                    }
                 }
 
                 let mess = getOptions()
@@ -257,6 +292,21 @@ function fillPalette(range = [0, 10], reset = false) {
                     "<div class='primitiveData'>" +
                     "<p class='primitiveLabel'> Style </p>" +
                     "<input style='width: 150px' type='text' value='' id='" + key + "_catStyle'>" +
+                    "</div>" +
+
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> Linked to Palette </p>" +
+                    "<select id='" + key + "_catlinkedToPalette' class='palettelinkedTo'>" +
+                    "<option selected>None</option>" +
+                    +"" + mess +
+                    "</select>" +
+                    "</div>" +
+                    "<div class='primitiveData'>" +
+                    "<p class='primitiveLabel'> On Anchor </p>" +
+                    "<select id='" + key + "_catlinkedTo' class='anchorLinkTo'>" +
+                    "<option selected>None</option>" +
+                    +mess +
+                    "</select>" +
                     "</div>"
 
 
@@ -267,7 +317,9 @@ function fillPalette(range = [0, 10], reset = false) {
 
                 tdiv_mark.onclick = function (e) {
                     if (mode !== "anchor") {
-                        editPalette(this)
+
+                        let t = document.getElementById("canvas_" + key)
+                        editPalette(t)
                     } else {
                         //TODO: Set for CATA and other primitive
                         setAnchorOnProto(e, this)
@@ -276,14 +328,17 @@ function fillPalette(range = [0, 10], reset = false) {
 
             } else {
 
-                palette_cat[key] = {
-                    type: "attribute",
-                    apply: "none",
-                    color: value.color,
-                    name: key,
-                    style: "",
-                    colorOn: true
+                if (!palette_cat[key]) {
+                    palette_cat[key] = {
+                        type: "attribute",
+                        apply: "none",
+                        color: value.color,
+                        name: key,
+                        style: "",
+                        colorOn: true
+                    }
                 }
+
 
                 tdiv_mark.innerHTML =
                     "<div class='primitiveData'>" +
@@ -344,12 +399,11 @@ function fillPalette(range = [0, 10], reset = false) {
         stColor = this.value
     }
     populateSelect()
+    updateLink2Palette()
 }
 
 
 function editPalette(e) {
-
-    console.log(e);
     let el = e
 
     document.getElementById("paletteContainer").style.display = "block";
@@ -957,6 +1011,13 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
         primitive[key].linkTo = this.value
     }
 
+    document.getElementById(key + "_primitivelinkedToPalette").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        // primitive[key].anchor_type = this.value
+        primitive[key].apply = this.value
+    }
+
+
     document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
 
         const key = this.getAttribute("id").split("_")[0];
@@ -984,6 +1045,11 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
                 }
         }
 
+        document.getElementById(key + "_primitivelinkedTo").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            primitive[key].apply = this.value
+        }
+
         // primitive[key].anchors = this.value
 
     }
@@ -997,17 +1063,13 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
 
 function setCatEvents(type, key) {
 
-
-    document.getElementById(key + "_catStyle").oninput = function () {
+    document.getElementById(key + "_catStyle").oninput = function (e) {
         const key = this.getAttribute("id").split("_")[0];
         palette_cat[key].styleText = this.value
     }
 
+
     if (palette_cat[key].proto === undefined) {
-        document.getElementById(key + "_catlinkedTo").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].apply = this.value
-        }
 
         document.getElementById(key + "_catColorOn").oninput = function () {
             const key = this.getAttribute("id").split("_")[0];
@@ -1019,6 +1081,17 @@ function setCatEvents(type, key) {
             palette_cat[key].color = this.value
         }
 
+    } else {
+
+        document.getElementById(key + "_catlinkedTo").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            palette_cat[key].linkTo = this.value
+        }
+
+        document.getElementById(key + "_catlinkedToPalette").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            palette_cat[key].apply = this.value
+        }
     }
 }
 
@@ -1049,7 +1122,14 @@ function updateLinkTo() {
     selectsCat.forEach(select => {
         select.innerHTML = "<option selected>None</option>" + mess
     })
+
+    let selectsanchs = document.querySelectorAll(".anchorLinkTo")
+
+    selectsanchs.forEach(select => {
+        select.innerHTML = "<option selected>None</option>" + mess
+    })
 }
+
 
 function getOptions() {
     let ancres = Object.keys(global_anchors)
@@ -1240,4 +1320,60 @@ function importPalette(e) {
         fillPalette([0, 10], false)
     }
     reader.readAsText(e.target.files[0]);
+}
+
+function updateLink2Palette() {
+
+    let list = []
+
+    for (const [key, value] of Object.entries(marks)) {
+        list.push(key)
+    }
+
+    for (const [key, value] of Object.entries(palette_cat)) {
+        if (value.proto)
+            list.push(key)
+    }
+
+    for (const [key, value] of Object.entries(primitive)) {
+        list.push(key)
+    }
+
+
+    let mess = ""
+
+    for (let i = 0; i < list.length; i++) {
+        mess += "<option> " + list[i] + "</option>"
+    }
+
+    document.querySelectorAll(".palettelinkedTo").forEach(d => {
+
+
+        d.innerHTML = "<option> none</option>" + mess
+
+    })
+
+}
+
+function setMarkEvent(key) {
+
+    document.getElementById(key + "_markLinkedToPalette").onchange = function (e) {
+
+        const key = this.getAttribute("id").split("_")[0];
+        // primitive[key].anchor_type = this.value
+        for (const [key, value] of Object.entries(marks)) {
+            value.apply = this.value
+        }
+    }
+
+
+    document.getElementById(key + "_markLinkedTo").onchange = function () {
+        const key = this.getAttribute("id").split("_")[0];
+        // primitive[key].anchor_type = this.value
+        for (const [key, value] of Object.entries(marks)) {
+            value.linkTo = this.value
+        }
+    }
+
+
 }

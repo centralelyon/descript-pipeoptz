@@ -200,7 +200,6 @@ function switchSvg(marks, style) {
 
         cont.addEventListener("change", sortGrid)
 
-
     } else if (style === 'scatter') { // -------------------------Scatter
 
         curr_mod = "scatter"

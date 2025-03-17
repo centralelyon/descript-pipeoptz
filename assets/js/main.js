@@ -40,7 +40,7 @@ docReady(init)
 
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/bluedone.json"
+    giorgia_36: "assets/images/tempLoad/anchors.json"
 }
 
 function loadExamples(week = 0, author = "giorgia") {
@@ -634,9 +634,26 @@ async function importData(data) {
         }
     }
 
+    for (const [key, value] of Object.entries(tempData["palette"]["categories"])) {
+        if (value.proto) {
+            value.proto.canvas = await convertToCanvas(value.proto.canvas)
+        }
+    }
+
+    for (const [key, tval] of Object.entries(tempData["palette"]["marks"])) {
+        for (const [key, value] of Object.entries(tval)) {
+            if (value.proto) {
+                value.proto.canvas = await convertToCanvas(value.proto.canvas)
+            }
+        }
+    }
+
 
     sampleData = tempData["marks"];
     categories = tempData["categories"];
+    palette_cat = tempData["palette"]["categories"];
+    primitive = tempData["palette"]["primitive"];
+    marks = tempData["palette"]["marks"];
 
     document.querySelectorAll(".category").forEach((item) => {
         // if (item.getAttribute("value") !== "default") {

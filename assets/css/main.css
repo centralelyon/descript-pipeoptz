@@ -464,3 +464,18 @@ table th {
     padding: 6px 9px;
     text-align: center;
 }
+
+#newDataTable div {
+    display: inline-block;
+}
+
+
+#newDataTable div p{
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-right: 23px;
+}
+
+#newDataTable div input[type="text"]{
+   width: 75px;
+}

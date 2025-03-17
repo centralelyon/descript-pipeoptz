@@ -69,7 +69,7 @@ function addProto2Collage(key, val) {
 
         const tw = tcorners[1][0] - tcorners[0][0]
         const th = tcorners[1][1] - tcorners[0][1]
-
+        //TODO connect to another anchor
         d3Svg.append("svg:image")
             .attr("xlink:href", can.toDataURL())
             .attr("x", corners.width / 2 - tw / 2)
@@ -93,23 +93,50 @@ function addProto2Collage(key, val) {
         let anch = primitive[key].linkTo
 
         let tempProto // displayed mark used to get anchor
-        let fr = global_anchors[anch].from
-        if (fr.type === "mark") {
 
-            tempProto = marks[fr.key][fr.number].proto
-        } else if (fr.type === "cat") {
-            tempProto = palette_cat[fr.key].proto
-            //TODO: set Cat proto here
-        }
+        let applyTo = primitive[key].apply
 
-        const prim = primitive[key]
-        let cont = document.getElementById("collage_" + fr.key)
+        let ttype = ""
+        let fr
+
+        console.log(applyTo);
+
+        let cont = document.getElementById("collage_" + applyTo)
 
         let x = +cont.getAttribute("x")
         let y = +cont.getAttribute("y")
 
         let tw = cont.getAttribute("width")
         let th = cont.getAttribute("height")
+
+        let num = +cont.getAttribute("num")
+
+
+        if (marks[applyTo]) {
+            ttype = "mark"
+            if (num !== undefined) {
+                fr = marks[applyTo][num].proto.anchors[anch]
+                fr.type = "mark"
+            } else {
+                //TODO: CONTINUOUS DATA HERE
+            }
+
+        } else if (primitive[applyTo]) {
+            ttype = "primitive"
+        } else if (palette_cat[applyTo]) {
+            ttype = "cat"
+            fr = palette_cat[applyTo].proto.anchors[anch]
+            fr.type = "cat"
+        }
+
+
+        if (fr.type === "mark") {
+            tempProto = marks[applyTo][num].proto
+        } else if (fr.type === "cat") {
+            tempProto = palette_cat[applyTo].proto
+        }
+
+        const prim = primitive[key]
 
 
         let pt1;
@@ -171,7 +198,7 @@ function addProto2Collage(key, val) {
     } else if (palette_cat[key]) {
         let cl = 1
         dataList[key] = ""
-        if (palette_cat[key].proto === undefined) {
+        if (palette_cat[key].proto === undefined) { //ATTRIBUTE CATEGORY
             const el = document.getElementById("collage_" + palette_cat[key].apply)
 
             if (palette_cat[key].colorOn) {
@@ -195,7 +222,10 @@ function addProto2Collage(key, val) {
                 el.style = palette_cat[key].styleText
             }
 
-        } else {
+        } else { //PROTO CATEGORY
+
+            let applyTo = palette_cat[key].apply
+            let anch = palette_cat[key].linkTo
 
             const can = palette_cat[key].proto.canvas //TODO: Test if in range
 
@@ -204,20 +234,42 @@ function addProto2Collage(key, val) {
             const tw = tcorners[1][0] - tcorners[0][0]
             const th = tcorners[1][1] - tcorners[0][1]
 
-            let anch = getAnchorFromTo(key)
+            // let anch = getAnchorFromTo(key)
+
+            let cont = document.getElementById("collage_" + applyTo)
+            let num = +cont.getAttribute("num")
+
+            let fr
+            let to = palette_cat[key].proto.anchors[anch]
+            let ttype
 
 
-            if (anch.from.type === "mark") {
+            console.log(applyTo);
+            if (marks[applyTo]) {
+                ttype = "mark"
+                if (num !== undefined) {
+                    fr = marks[applyTo][num].proto.anchors[anch]
+                    fr.type = "mark"
+                } else {
+                    //TODO: CONTINUOUS DATA HERE
+                }
+            } else if (primitive[applyTo]) {
+                ttype = "primitive"
+                fr = primitive[applyTo].anchors[anch]
+            } else if (palette_cat[applyTo]) {
+                ttype = "cat"
+                fr = palette_cat[applyTo].proto.anchors[anch]
+                fr.type = "cat"
+            }
 
-                let fr = anch.from.data
-                let to = anch.to.data
+            if (ttype === "mark") {
 
-                let cont = document.getElementById("collage_" + anch.from.key)
                 let x = +cont.getAttribute("x")
                 let y = +cont.getAttribute("y")
 
                 let tw2 = cont.getAttribute("width")
                 let th2 = cont.getAttribute("height")
+
 
                 d3Svg.append("svg:image")
                     .attr("xlink:href", can.toDataURL())
@@ -228,18 +280,17 @@ function addProto2Collage(key, val) {
                     .attr("id", "collage_" + key)
                     .attr("class", "rotate")
 
-            } else if (anch.from.type === "primitive") {
-                let cont = document.getElementById("collage_" + anch.from.key)
-                let fr = anch.from
-                let to = anch.to
-                if (fr.data.type === "line") {
+            } else if (ttype === "primitive") {
+                let cont = document.getElementById("collage_" + applyTo) //TODO: change w.r.t. a anchor from select
+
+                if (primitive[applyTo].shape === "line") {
                     let x1 = +cont.getAttribute("x1")
                     let y1 = +cont.getAttribute("y1")
 
                     let x2 = +cont.getAttribute("x2")
                     let y2 = +cont.getAttribute("y2")
 
-                    let pt = getPointat({x: x1, y: y1}, {x: x2, y: y2}, 100 - anch.from.data.percent)
+                    let pt = getPointat({x: x1, y: y1}, {x: x2, y: y2}, 100 - fr.percent)
 
                     /*  ------------------ Debug Stuff
                                         d3Svg.append("circle")
@@ -255,16 +306,31 @@ function addProto2Collage(key, val) {
 
                     d3Svg.append("svg:image")
                         .attr("xlink:href", can.toDataURL())
-                        .attr("x", pt.x - (to.data.rx * tw))
-                        .attr("y", pt.y - (to.data.ry * th))
+                        .attr("x", pt.x - (to.rx * tw))
+                        .attr("y", pt.y - (to.ry * th))
                         .attr("width", tw)
                         .attr("height", th)
                         .attr("id", "collage_" + key)
                         .attr("class", "rotate")
                 }
 
-            } else if (anch.from.type === "cat") {
-                //TODO: for this to work we need to be able to set From in cat proto, for now only TO can be used
+            } else if (ttype === "cat") {
+
+                let x = +cont.getAttribute("x")
+                let y = +cont.getAttribute("y")
+
+                let tw2 = cont.getAttribute("width")
+                let th2 = cont.getAttribute("height")
+
+                d3Svg.append("svg:image")
+                    .attr("xlink:href", can.toDataURL())
+                    .attr("x", x + (fr.rx * tw2) - (to.rx * tw))
+                    .attr("y", y + (fr.ry * th2) - (to.ry * th))
+                    .attr("width", tw)
+                    .attr("height", th)
+                    .attr("id", "collage_" + key)
+                    .attr("class", "rotate")
+
             }
         }
     }
@@ -338,7 +404,6 @@ function saveCollage() {
             } else {
                 tdat[key] = {value: value}
             }
-
         }
 
         let tres = {
@@ -368,6 +433,101 @@ function deleteDataList(id) {
 
     document.getElementById("dataList_" + key).remove()
     document.getElementById("collage_" + key).remove()
+}
+
+function getCollageOrder(drawingData) {
+
+    let order = []
+    /*
+        let tdat = {
+            0: {from: {key: "stem"}, to: {key: "co-worker"}},
+            1: {from: {key: "anxiety"}}
+        }*/
 
 
+    let tdat = {
+        anxiety: "",
+        stem: "",
+        wrong: "",
+        francis: ""
+    }
+
+    drawingData = tdat
+
+    let links = getRelationships(drawingData)
+
+    let graph = pairsToIndex(links)
+    let res = listNode(graph[""])
+
+    return res
+}
+
+function getFromTo(key, data, value) {
+    if (data.hasOwnProperty(key)) {
+        if (value.apply) {
+            if (typeof value.apply !== "string") //Shameless stuff to avoid to fix cat apply to mark issue
+                value.apply = value.apply.key
+            // return [key, value.apply]
+            return [value.apply, key]
+        } else {
+            return ["", key]
+            // return [key, ""]
+        }
+    }
+    return false
+}
+
+function getRelationships(drawingData) {
+    let res = []
+    for (const [key, value] of Object.entries(marks)) {
+        let t = getFromTo(key, drawingData, value)
+        if (t) {
+            res.push(t)
+        }
+    }
+
+    for (const [key, value] of Object.entries(primitive)) {
+        let t = getFromTo(key, drawingData, value)
+        if (t) {
+            res.push(t)
+        }
+    }
+
+    for (const [key, value] of Object.entries(palette_cat)) {
+        let t = getFromTo(key, drawingData, value)
+        if (t) {
+            res.push(t)
+        }
+    }
+
+    return res
+}
+
+function pairsToIndex(pairs) {
+    return pairs.reduce((index, pair, i, list) => {
+        let [parent, child] = pair;
+
+        let parent_exists = index.hasOwnProperty(parent);
+        let child_exists = index.hasOwnProperty(child);
+
+        if (!parent_exists) {
+            index[parent] = {key: parent, children: []};
+        }
+
+        if (!child_exists) {
+            index[child] = {key: child, children: []};
+        }
+
+        let rel_captured = Boolean(index[parent].children.find((c) => c.key === child));
+
+        if (!rel_captured) {
+            index[parent].children.push(index[child]);
+        }
+
+        return index;
+    }, {});
+}
+
+function listNode(node) {
+    return Array.prototype.concat.apply([node.key], node.children.map(listNode));
 }
