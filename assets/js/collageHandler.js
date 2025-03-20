@@ -184,6 +184,7 @@ function addProto2Collage(key, val) {
                 tcont.drawImage(tprot.canvas, tpt.x, tpt.y)
             }
 
+
             d3Svg.append("svg:image")
                 .attr("xlink:href", tcan.toDataURL())
                 .attr("x", corners.width / 2 - tw / 2)
@@ -202,8 +203,40 @@ function addProto2Collage(key, val) {
         } else if (marks[key].displaytype === "morph") {
 
             let range = getMarkRange(key)
-                // let xratio = TODO: interpolation here
 
+            console.log(range);
+
+
+            // const tw =
+            //
+
+            let minCorner = range[0][1]
+            let maxCorner = range[1][1]
+
+            let min_width = minCorner[1][0] - minCorner[0][0]
+            let max_width = maxCorner[1][0] - maxCorner[0][0]
+
+            let min_height = minCorner[1][1] - minCorner[0][1]
+            let max_height = maxCorner[1][1] - maxCorner[0][1]
+
+
+            let xratio = d3.scaleLinear().domain([range[0][0], range[1][0]]).range([min_width, max_width])
+            let yratio = d3.scaleLinear().domain([range[0][0], range[1][0]]).range([min_height, max_height])
+
+            let twidth = xratio(val)
+            let theight = yratio(val)
+
+            const can = marks[key].proto.canvas //TODO: Test if in range
+
+            d3Svg.append("svg:image")
+                .attr("xlink:href", can.toDataURL())
+                .attr("x", corners.width / 2 - twidth / 2)
+                .attr("y", corners.height / 2 - theight / 2)
+                .attr("width", twidth)
+                .attr("height", theight)
+                .attr("id", "collage_" + key)
+                .attr("num", val)
+                .attr("class", "rotate")
 
 
         }
@@ -237,11 +270,12 @@ function addProto2Collage(key, val) {
 
         if (marks[applyTo]) {
             ttype = "mark"
-            if (num !== undefined) {
+            if (marks[applyTo].displaytype === "range") {
                 fr = marks[applyTo][num].proto.anchors[anch]
                 fr.type = "mark"
             } else {
-                //TODO: CONTINUOUS DATA HERE
+                fr = marks[applyTo].proto.anchors[anch]
+                fr.type = "mark"
             }
 
         } else if (primitive[applyTo]) {
@@ -254,7 +288,12 @@ function addProto2Collage(key, val) {
 
 
         if (fr.type === "mark") {
-            tempProto = marks[applyTo][num].proto
+            if (marks[applyTo].displaytype === "range") {
+                tempProto = marks[applyTo][num].proto
+            } else {
+                tempProto = marks[applyTo].proto
+            }
+
         } else if (fr.type === "cat") {
             tempProto = palette_cat[applyTo].proto
         }
@@ -577,6 +616,8 @@ function getCollageOrder(drawingData) {
        drawingData = tdat*/
 
     let links = getRelationships(drawingData)
+
+    console.log(links);
 
     let graph = pairsToIndex(links)
     let res = listNode(graph[""])
