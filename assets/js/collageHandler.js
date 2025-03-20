@@ -58,31 +58,155 @@ function addProto2Collage(key, val) {
     const svg = document.getElementById("collageSvg")
     const corners = svg.getBoundingClientRect();
 
-
+    console.log("doing :", key)
     const d3Svg = d3.select(svg)
 
+    //TODO: REMOVE BELOW AFTER DEBUG
+    // marks[key].displaytype = "repeat"
     if (marks[key]) {
 
-        const can = marks[key][val].proto.canvas //TODO: Test if in range
+        if (marks[key].displaytype === "range") {
 
-        const tcorners = marks[key][val].proto.corners
+            const can = marks[key][val].proto.canvas //TODO: Test if in range
 
-        const tw = tcorners[1][0] - tcorners[0][0]
-        const th = tcorners[1][1] - tcorners[0][1]
-        //TODO connect to another anchor
-        d3Svg.append("svg:image")
-            .attr("xlink:href", can.toDataURL())
-            .attr("x", corners.width / 2 - tw / 2)
-            .attr("y", corners.height / 2 - th / 2)
-            .attr("width", tw)
-            .attr("height", th)
-            .attr("id", "collage_" + key)
-            .attr("num", val)
-            .attr("class", "rotate")
-        // .attr("transform", "translate(" + (corners.width / 2 - tw / 2) + ", " + (corners.height / 2 - th / 2) + ") rotate(" + 10 + ")")
+            const tcorners = marks[key][val].proto.corners
 
-        dataList[key] = +val
-        displayedMarks[key] = marks[key][val].proto
+            const tw = tcorners[1][0] - tcorners[0][0]
+            const th = tcorners[1][1] - tcorners[0][1]
+            //TODO connect to another anchor by changing corners.width/2
+            d3Svg.append("svg:image")
+                .attr("xlink:href", can.toDataURL())
+                .attr("x", corners.width / 2 - tw / 2)
+                .attr("y", corners.height / 2 - th / 2)
+                .attr("width", tw)
+                .attr("height", th)
+                .attr("id", "collage_" + key)
+                .attr("num", val)
+                .attr("class", "rotate")
+            // .attr("transform", "translate(" + (corners.width / 2 - tw / 2) + ", " + (corners.height / 2 - th / 2) + ") rotate(" + 10 + ")")
+
+            dataList[key] = +val
+            displayedMarks[key] = marks[key][val].proto
+
+        } else if (marks[key].displaytype === "repeat") {
+
+            val = +val
+            let tcan = document.createElement("canvas")
+            let tcont = tcan.getContext("2d")
+
+            let fr = marks[key].repeatFrom
+            let to = marks[key].repeatTo
+            let tprot = marks[key].proto
+
+
+            // TODO: swap with above once debugged
+            // let fr = 0
+            // let to = 1
+            // let tprot =
+            //     {
+            //         canvas: marks[key][7].proto.canvas,
+            //         anchors: {
+            //             // 0: {x: 20, y: 60},
+            //             // 1: {x: 46, y: 20}
+            //             0: {x: 15, y: 15},
+            //             1: {x: 65, y: 65}
+            //
+            //         },
+            //     }
+
+
+            let frCoords = {x: tprot.anchors[fr].x, y: tprot.anchors[fr].y}
+            let toCoords = {x: tprot.anchors[to].x, y: tprot.anchors[to].y}
+            let dist = euclidian_dist([frCoords.x, frCoords.y], [toCoords.x, toCoords.y])
+            let orr = get_orr([frCoords.x, frCoords.y], [toCoords.x, toCoords.y])
+
+
+            const pt = getPoint(orr, dist * +val, {
+                    x: frCoords.x, y: frCoords.y
+                }
+            )
+
+            let tw = Math.abs(frCoords.x - toCoords.x) * (val) + frCoords.x //+ (tprot.canvas.width -frCoords.x) //+ tprot.canvas.width
+            let th = Math.abs(frCoords.y - toCoords.y) * (val) + frCoords.y
+            // let tw = Math.abs(pt.x) + dist// (tprot.canvas.width - frCoords.x)
+            // let th = Math.abs(pt.y) + (tprot.canvas.height - frCoords.y)
+
+            //+ tprot.canvas.height
+
+            tcan.width = Math.max(tw, tprot.canvas.width)
+            tcan.height = Math.max(th, tprot.canvas.height)
+
+            console.log(frCoords);
+            console.log(toCoords);
+            let st = [-frCoords.x, 0] //TODO: use that to fit on anchors
+            // let st = [0, 0]
+
+
+            if (pt.x < 0) {
+                st[0] = tw - (tprot.canvas.width)
+                // st[0] = tw - (frCoords.x)
+            } else {
+                // tw += +toCoords.x
+                tw += +toCoords.x
+            }
+            if (pt.y < 0) {
+                st[1] = th - (tprot.canvas.height)
+            } else {
+                th += +toCoords.y
+            }
+
+            //TODO: Below is for debug
+            /*            console.log("start", st)
+
+                        let con = tprot.canvas.getContext("2d")
+                        con.beginPath();
+                        con.arc(frCoords.x, frCoords.y, 5, 0, 2 * Math.PI);
+                        con.closePath()
+                        con.fillStyle = "red"
+                        con.globalAlpha = 0.6
+                        con.fill();
+
+                        con.beginPath();
+                        con.arc(toCoords.x, toCoords.y, 5, 0, 2 * Math.PI);
+                        con.closePath()
+                        con.fillStyle = "green"
+                        con.fill();*/
+
+
+            const seg = getPoint(orr, dist * +val, {
+                    x: st[0], y: st[1]
+                }
+            )
+
+            for (let i = 0; i < val; i++) {
+
+                let tpt = getPointat({x: st[0], y: st[1]}, {x: seg.x, y: seg.y}, 100 - (i / val) * 100)
+                tcont.drawImage(tprot.canvas, tpt.x, tpt.y)
+            }
+
+            d3Svg.append("svg:image")
+                .attr("xlink:href", tcan.toDataURL())
+                .attr("x", corners.width / 2 - tw / 2)
+                .attr("y", corners.height / 2 - th / 2)
+                .attr("width", tcan.width)
+                .attr("height", tcan.height)
+                .attr("id", "collage_" + key)
+                .attr("num", val)
+                .attr("class", "rotate")
+                .style("outline", "solid #333 2px")
+
+            // console.log(dist);
+            // console.log("orientation", orr);
+            // console.log(pt);
+
+        } else if (marks[key].displaytype === "morph") {
+
+            let range = getMarkRange(key)
+                // let xratio = TODO: interpolation here
+
+
+
+        }
 
     } else if (primitive[key]) {
 
@@ -99,7 +223,6 @@ function addProto2Collage(key, val) {
         let ttype = ""
         let fr
 
-        console.log(applyTo);
 
         let cont = document.getElementById("collage_" + applyTo)
 
@@ -138,7 +261,6 @@ function addProto2Collage(key, val) {
 
         const prim = primitive[key]
 
-
         let pt1;
         let pt2;
         prim.angle = +prim.angle
@@ -169,8 +291,6 @@ function addProto2Collage(key, val) {
 
         if (prim.anchor_type === "end") {
             pt1 = {x: (x + tempProto.anchors[anch].rx * tw), y: (y + tempProto.anchors[anch].ry * th)}
-
-
             pt2 = getPoint((180 + prim.angle) % 360, +val, {
                     x: pt1.x, y: pt1.y
                 }
@@ -201,6 +321,7 @@ function addProto2Collage(key, val) {
         if (palette_cat[key].proto === undefined) { //ATTRIBUTE CATEGORY
             const el = document.getElementById("collage_" + palette_cat[key].apply)
 
+
             if (palette_cat[key].colorOn) {
                 if (marks[palette_cat[key].apply]) {
 
@@ -217,8 +338,7 @@ function addProto2Collage(key, val) {
                     el.setAttribute("stroke", palette_cat[key].color)
                 }
             }
-
-            if (palette_cat[key].styleText !== "") {
+            if (palette_cat[key].styleText !== "" && palette_cat[key].styleText !== undefined) {
                 el.style = palette_cat[key].styleText
             }
 
@@ -244,7 +364,8 @@ function addProto2Collage(key, val) {
             let ttype
 
 
-            console.log(applyTo);
+            console.log("from : ", applyTo);
+            console.log("to : ", anch);
             if (marks[applyTo]) {
                 ttype = "mark"
                 if (num !== undefined) {
@@ -425,6 +546,7 @@ function saveCollage() {
         fillSvg(sampleData)
         document.getElementById("collageList").innerHTML = ""
         svg.innerHTML = ""
+        fillTable()
     }
 }
 
@@ -445,14 +567,14 @@ function getCollageOrder(drawingData) {
         }*/
 
 
-    let tdat = {
-        anxiety: "",
-        stem: "",
-        wrong: "",
-        francis: ""
-    }
+    /*   let tdat = {
+           anxiety: "",
+           stem: "",
+           wrong: "",
+           francis: ""
+       }
 
-    drawingData = tdat
+       drawingData = tdat*/
 
     let links = getRelationships(drawingData)
 

@@ -120,3 +120,29 @@ function getPointat(p1, p2, percent) {
         y: (p1.y * percent + p2.y * (100 - percent)) / 100,
     }
 }
+
+function cloneCanvas(oldCanvas) {
+
+    //create a new canvas
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
+
+    //set dimensions
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+
+    //apply the old canvas to the new one
+    context.drawImage(oldCanvas, 0, 0);
+
+    //return the new canvas
+    return newCanvas;
+}
+
+function getFirstIndexOfMaxValue(array) {
+    return array.reduce((r, v, i, a) => v <= a[r] ? r : i, -1);
+}
+
+
+function getFirstIndexOfMinValue(array) {
+    return array.reduce((r, v, i, a) => v >= a[r] ? r : i, -1);
+}

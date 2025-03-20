@@ -40,7 +40,7 @@ docReady(init)
 
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/anchors.json"
+    giorgia_36: "assets/images/tempLoad/full.json"
 }
 
 function loadExamples(week = 0, author = "giorgia") {
@@ -549,6 +549,16 @@ function export2json() {
         tcat[key] = tval
     }
 
+    let tcat2 = {}
+    for (const [key, value] of Object.entries(categories)) {
+        tcat2[key] = {}
+
+        let tval = {...value}
+        if (tval?.prototype?.canvas)
+            tval.prototype.canvas = tval.prototype.canvas.toDataURL("image/png")
+        tcat2[key] = tval
+    }
+
 
     let tprim = {}
     for (const [key, value] of Object.entries(primitive)) {
@@ -617,6 +627,7 @@ async function importData(data) {
 
     const tempData = data;
 
+
     for (let i = 0; i < tempData["marks"].length; i++) {
         tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
         if (tempData["marks"][i].data) {
@@ -631,6 +642,7 @@ async function importData(data) {
     for (const [key, value] of Object.entries(tempData["categories"])) {
         if (value.prototype) {
             value.prototype.canvas = await convertToCanvas(value.prototype.canvas)
+            // value.prototype.canvas = await convertToCanvas(tempData["palette"]["categories"][key]["proto"]["canvas"])
         }
     }
 

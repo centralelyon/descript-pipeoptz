@@ -10,6 +10,10 @@ function fillTable() {
     let tableHeader = document.getElementById("tableHeader")
     let tableContainer = document.getElementById("datatable")
 
+    tableContainer.innerHTML = ""
+
+    tableContainer.appendChild(tableHeader)
+
     let data_mess = ""
     for (let i = 0; i < datas.length; i++) {
         data_mess += "<th>" + datas[i] + "</th>"
@@ -101,7 +105,8 @@ function fillInputs(catas, datas) {
 }
 
 function saveRow() {
-
+    const svg = document.getElementById("collageSvg")
+    svg.innerHTML = ""
     let t = document.querySelectorAll(".newRowCat")
     let t2 = document.querySelectorAll(".newRowData")
     let drawingData = {}
@@ -129,4 +134,6 @@ function saveRow() {
     }
 
     dataList = drawingData
+
+
 }
