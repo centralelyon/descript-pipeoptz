@@ -381,7 +381,6 @@ function mouseUpModal(e) {
         // let pts = stroke
         let corners = getRect(pts)
 
-
         let tw = corners[1][0] - corners[0][0]
         let th = corners[1][1] - corners[0][1]
 
@@ -397,7 +396,7 @@ function mouseUpModal(e) {
         for (let i = 1; i < pts.length; i++) {
             cont.lineTo(pts[i][0] - corners[0][0], pts[i][1] - corners[0][1]);
         }
-        // tcont.stroke()
+
         cont.closePath();
         cont.clip()
 
@@ -414,11 +413,20 @@ function mouseUpModal(e) {
             th
         )
 
+        let rstroke = tstroke.map((d) => {
+            return [d[0] - initCoords.x, d[1] - initCoords.y]
+        })
+
+        let rstrokeR = rstroke.map((d) => {
+            return [d[0] / selectedMark.canvas.width, d[1] / selectedMark.canvas.height]
+        })
 
         categories[tempcat]["prototype"] = {
             canvas: can,
             contour: tstroke,
-            corners: getRect(tstroke)
+            corners: getRect(tstroke),
+            rContourPx: rstroke,
+            rContour: rstrokeR
         }
 
         // xy = toWorld(xy, modalOrigin, modalScale)
@@ -474,10 +482,20 @@ function mouseUpModal(e) {
             th
         )
 
+        let rstroke = tstroke.map((d) => {
+            return [d[0] - initCoords.x, d[1] - initCoords.y]
+        })
+
+        let rstrokeR = rstroke.map((d) => {
+            return [d[0] / selectedMark.canvas.width, d[1] / selectedMark.canvas.height]
+        })
+
         selectedMark.data[tempDat].proto = {
             canvas: can,
             contour: tstroke,
-            corners: getRect(tstroke)
+            corners: getRect(tstroke),
+            rContourPx: rstroke,
+            rContour: rstrokeR
         }
         dataEncoding[tempDat] = {
             canvas: can,

@@ -26,16 +26,21 @@ let dragMod = false
 let rotateMod = false
 let dataEncoding = {}
 let examples = [
-    "assets/images/tempExamples/lollipop.png",
-    "assets/images/tempExamples/goodbye.png",
-    "assets/images/tempExamples/buy.png",
-    "assets/images/tempExamples/laugh.png",
-    "assets/images/tempExamples/doors.jpg",
+    "assets/images/tempExamples/cholera.png",
+    "assets/images/tempExamples/xrousse.png",
+    // "assets/images/tempExamples/goodbye.png",
+    // "assets/images/tempExamples/buy.png",
+    // "assets/images/tempExamples/laugh.png",
+    // "assets/images/tempExamples/doors.jpg",
 ]
 const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_", "_Front.jpg"],
     ["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_", "+front.jpg"]]
 
 // https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_19%2Bfront.jpg
+let globalPalettes = {}
+const fakePalettesBase = "assets/tempData/"
+const fakePalettes = ["palette_anxiety.json", "palette_stem.json", "palette_you.json", "palette_wrong.json"]
+
 docReady(init)
 
 
@@ -43,9 +48,22 @@ const dataRef = {
     giorgia_36: "assets/images/tempLoad/full.json"
 }
 
+
 function loadExamples(week = 0, author = "giorgia") {
 
     const container = document.getElementById('selFlat');
+
+    for (let i = 0; i < examples.length; i++) {
+        const el = document.createElement("div");
+        el.style.backgroundImage = "url('" + examples[i] + "')";
+        el.setAttribute('type', "example");
+        el.setAttribute('value', i);
+        el.onclick = loadEx
+        container.appendChild(el);
+
+    }
+
+
     let authorRef = author === "giorgia" ? 0 : 1;
     /*    for (let i = 0; i < 1; i++) {
             const el = document.createElement("div");
@@ -89,9 +107,9 @@ async function loadEx() {
     this.classList.add("selectedIm");
     const type = this.getAttribute("type")
     purge()
-    if (type === "data")
+    if (type === "data") {
         loadImg(examples[this.getAttribute("value")])
-    if (type === "url") {
+    } else if (type === "url") {
         let i = this.getAttribute("value")
         let j = this.getAttribute("template")
         let author = j == 0 ? "giorgia" : "stefanie"
@@ -100,12 +118,14 @@ async function loadEx() {
             let json = await getData(dataRef[author + "_" + i])
             importData(json);
         }
+    } else if (type === "example") {
+        loadImg(examples[this.getAttribute("value")])
     }
 }
 
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
-
+    // fillAllPalette()
     let week = null
     let author = null
     let type = null
@@ -803,6 +823,7 @@ function purge() {
     svg.selectAll("image").remove();
     document.getElementById("paletteCont").innerHTML = "";
     populateSelect()
+    fillTable()
 }
 
 function clearExamples() {
@@ -813,6 +834,7 @@ function clearExamples() {
     }
 
 }
+
 
 docReady(function () {
     document.getElementById("closeCatMod").addEventListener('click', (e) => {
@@ -828,3 +850,46 @@ docReady(function () {
 })
 
 
+async function fillAllPalette() {
+
+
+    let tdat = []
+
+
+    for (let i = 0; i < fakePalettes.length; i++) {
+        let t = await getData(fakePalettesBase + fakePalettes[i])
+
+        tdat.push(t)
+    }
+
+    console.log(tdat);
+
+
+    for (let i = 0; i < tdat.length; i++) {
+        let tname = tdat[i].name
+        if (globalPalettes[tname]) {
+            tname += "_" + i
+        }
+
+        if (tdat[i].data) {
+            for (const [name, value] of Object.entries(tdat[i].data)) {
+                if (value.proto) {
+                    value.proto.canvas = await convertToCanvas(value.proto.canvas)
+                }
+            }
+        }
+
+        if (tdat[i].proto) {
+            tdat[i].proto.canvas = await convertToCanvas(tdat[i].proto.canvas)
+        }
+
+        let tcan = document.createElement("canvas");
+
+        tdat[i].globalPaletteCanvas = tcan
+        tcan.width = 78
+        tcan.height = 78
+
+
+    }
+
+}
