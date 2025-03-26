@@ -657,6 +657,7 @@ async function importData(data) {
                 }
             }
         }
+
     }
 
     for (const [key, value] of Object.entries(tempData["categories"])) {

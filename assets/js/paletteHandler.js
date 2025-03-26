@@ -84,18 +84,20 @@ function fillPalette(range = [0, 10], reset = false) {
         }
     }
 
-    console.log(marks["anxiety"].proto);
+
     const mess = getOptions()
 
     const typesDisplay = "<option value ='range'>range</option>" +
         "<option value ='repeat'>repeat</option>" +
         "<option value ='morph'>morph</option>"
 
+
     for (const [key, value] of Object.entries(marks)) {
         const tdiv = document.createElement("div")
         tdiv.id = "palette_" + key
         tdiv.className = "paletteMarks"
         tdiv.innerHTML = "<h4 onclick='exportPalette(\"" + key + "\",\"mark\")' class='paletteData'>" + key + ":</h4>"
+        marks[key].displaytype = "range"
         if (marks[key].displaytype !== undefined) {
             if (marks[key].displaytype === "repeat") {
                 const tdiv_mark = document.createElement("div")
@@ -145,7 +147,7 @@ function fillPalette(range = [0, 10], reset = false) {
                 tdiv.appendChild(tdiv_mark)
 
             } else if (marks[key].displaytype === "range") {
-
+                console.log("dqsdqsdqs");
                 makeRangeMark(range, key, tdiv, value, typesDisplay)
             } else if (marks[key].displaytype === "morph") {
 
@@ -179,7 +181,7 @@ function fillPalette(range = [0, 10], reset = false) {
                 tdiv.appendChild(tdiv_mark)
             }
         } else {
-
+            console.log("dsqdq");
             makeRangeMark(range, key, tdiv, value, typesDisplay)
         }
 
@@ -228,6 +230,7 @@ function fillPalette(range = [0, 10], reset = false) {
 
             cont.drawImage(value.proto.canvas, 0, 0, can.width, can.height)
         }
+
         setMarkEvent(key, marks[key].displaytype)
 
         document.querySelectorAll("#" + key + "_displayTypes option").forEach(option => {
