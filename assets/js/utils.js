@@ -146,3 +146,21 @@ function getFirstIndexOfMaxValue(array) {
 function getFirstIndexOfMinValue(array) {
     return array.reduce((r, v, i, a) => v >= a[r] ? r : i, -1);
 }
+
+
+async function tempRemoveProtoCan() {
+
+    let t = await getData("assets/tempData/full.json")
+;
+    for (const [name, value] of Object.entries(t.marks)) {
+        if (value.data?.anxiety?.proto) {
+            delete value.data.anxiety.proto.canvas
+            delete value.anxiety
+        }
+        //
+    }
+    delete t.palette
+    console.log(t)
+    download(JSON.stringify(t), "full.json", "text/json");
+
+}

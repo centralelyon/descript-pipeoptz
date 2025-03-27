@@ -631,7 +631,9 @@ function importFromJson(e) {
         // jsonObj.palette.primitive = {}
         // delete jsonObj.categories.time.prototype
 
-        importData(jsonObj);
+        importData(jsonObj).then(fillTable );
+
+        // fillTable()
         // console.log(jsonObj)
     }
     reader.readAsText(e.target.files[0]);
@@ -644,12 +646,18 @@ function fakeFile(name) {
 
 
 async function importData(data) {
-
+    // purge()
     const tempData = data;
 
 
+    let toDel = []
     for (let i = 0; i < tempData["marks"].length; i++) {
-        tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
+        console.log("waiting mark ", i);
+        if (tempData["marks"][i].canvas.length > 50) {
+            tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
+        } else {
+            toDel.push(tempData["marks"][i])
+        }
         if (tempData["marks"][i].data) {
             for (const [key, value] of Object.entries(tempData["marks"][i].data)) {
                 if (value.proto) {
@@ -658,7 +666,14 @@ async function importData(data) {
             }
         }
     }
-
+    console.log(toDel);
+    for (let i = 0; i < toDel.length; i++) {
+        let id = tempData["marks"].indexOf(toDel[i]);
+        console.log(id);
+        if (id > -1) {
+            tempData["marks"].splice(id, 1)
+        }
+    }
     for (const [key, value] of Object.entries(tempData["categories"])) {
         if (value.prototype) {
             value.prototype.canvas = await convertToCanvas(value.prototype.canvas)
@@ -687,17 +702,19 @@ async function importData(data) {
     primitive = tempData["palette"]["primitive"];
     marks = tempData["palette"]["marks"];
 
+
     document.querySelectorAll(".category").forEach((item) => {
         // if (item.getAttribute("value") !== "default") {
         item.remove()
         // }
     })
 
+
     loadImg(tempData.background)
 
     // let im = document.getElementById("tester")
     // im.src = tempData.background
-
+    console.log(sampleData);
 
     updateCategories()
     updateMarks("size")

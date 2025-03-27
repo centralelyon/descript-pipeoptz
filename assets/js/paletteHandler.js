@@ -84,7 +84,6 @@ function fillPalette(range = [0, 10], reset = false) {
         }
     }
 
-    console.log(marks["anxiety"].proto);
     const mess = getOptions()
 
     const typesDisplay = "<option value ='range'>range</option>" +
