@@ -665,6 +665,7 @@ async function importData(data) {
                 }
             }
         }
+
     }
     console.log(toDel);
     for (let i = 0; i < toDel.length; i++) {

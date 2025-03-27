@@ -84,6 +84,7 @@ function fillPalette(range = [0, 10], reset = false) {
         }
     }
 
+
     const mess = getOptions()
 
     const typesDisplay = "<option value ='range'>range</option>" +
@@ -95,6 +96,7 @@ function fillPalette(range = [0, 10], reset = false) {
         tdiv.id = "palette_" + key
         tdiv.className = "paletteMarks"
         tdiv.innerHTML = "<h4 onclick='exportPalette(\"" + key + "\",\"mark\")' class='paletteData'>" + key + ":</h4>"
+
         if (marks[key].displaytype !== undefined) {
             if (marks[key].displaytype === "repeat") {
                 const tdiv_mark = document.createElement("div")
@@ -227,6 +229,7 @@ function fillPalette(range = [0, 10], reset = false) {
 
             cont.drawImage(value.proto.canvas, 0, 0, can.width, can.height)
         }
+
         setMarkEvent(key, marks[key].displaytype)
 
         document.querySelectorAll("#" + key + "_displayTypes option").forEach(option => {
