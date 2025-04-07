@@ -24,6 +24,7 @@ function fillPalette(range = [0, 10], reset = false) {
         primitive = {}
         global_anchors = {}
         palette_cat = {}
+        fillTable()
     }
 
     const container = document.getElementById("paletteCont")
@@ -362,7 +363,7 @@ function fillPalette(range = [0, 10], reset = false) {
 
 
             if (value.prototype) {
-                if (!palette_cat[key]) {
+                // if (!palette_cat[key]) {
                     palette_cat[key] = {
                         type: "sample",
                         apply: "none",
@@ -371,7 +372,7 @@ function fillPalette(range = [0, 10], reset = false) {
                         style: "",
                         proto: value.prototype,
                     }
-                }
+                // }
 
                 let mess = getOptions()
 
@@ -429,7 +430,7 @@ function fillPalette(range = [0, 10], reset = false) {
 
             } else {
 
-                if (!palette_cat[key]) {
+                // if (!palette_cat[key]) {
                     palette_cat[key] = {
                         type: "attribute",
                         apply: "none",
@@ -438,7 +439,7 @@ function fillPalette(range = [0, 10], reset = false) {
                         style: "",
                         colorOn: true
                     }
-                }
+                // }
 
 
                 tdiv_mark.innerHTML =

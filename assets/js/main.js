@@ -39,13 +39,15 @@ const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/
 // https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_19%2Bfront.jpg
 let globalPalettes = {}
 const fakePalettesBase = "assets/tempData/"
-const fakePalettes = ["palette_anxiety.json", "palette_stem.json", "palette_you.json", "palette_wrong.json"]
+// const fakePalettes = ["palette_anxiety.json", "palette_stem.json", "palette_you.json", "palette_wrong.json"]
+const fakePalettes = []
+
 
 docReady(init)
 
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/full.json"
+    // giorgia_36: "assets/images/tempLoad/full.json"
 }
 
 
