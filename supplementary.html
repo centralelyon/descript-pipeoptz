@@ -8,7 +8,24 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="icon" type="image/png" href="assets/images/favicon/favicon.ico">
     <style>
+        .observablehq--inspect {
+            pointer-events: none !important;
+        }
 
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .observablehq {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
     </style>
 
 
@@ -16,6 +33,5 @@
 <body>
 <iframe style="margin-left:10%!important; " id="test" width="80%" height="9999" frameborder="0"
         src="https://observablehq.com/embed/d0e47dc6720a2b07?cell=*"></iframe>
-
 </body>
 </html>
