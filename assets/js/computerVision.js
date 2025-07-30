@@ -35,7 +35,6 @@ function testEdge() {
     const points = []
     for (let i = 0; i < contours2.size(); ++i) {
 
-
         if ((hierarchy2.intPtr(0, i)[0] !== -1 || hierarchy2.intPtr(0, i)[1] !== -1) && hierarchy2.intPtr(0, i)[3] == 1) {
             // if (hierarchy2.intPtr(0, i)[3] == 1) {
             // console.log(hierarchy2.intPtr(0, i));
@@ -108,7 +107,6 @@ function contours2Marks(conts) {
     // console.log(tpoints);
 
     for (let i = 0; i < conts.length; i++) {
-
 
         let tcan = document.createElement('canvas');
         let tcont = tcan.getContext('2d');
