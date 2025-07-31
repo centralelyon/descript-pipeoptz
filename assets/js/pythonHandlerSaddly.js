@@ -1,6 +1,7 @@
 function forwardPipeline(pipeline, img=null) {
     img = getImgBase64(currImg)
     img = dataURLtoFile(img, "temp.png")
+
     let form = new FormData();
     form.append("pipeline", pipeline);
     form.append("image", img);
