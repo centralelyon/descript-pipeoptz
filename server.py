@@ -4,36 +4,74 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import sys, os
-
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+cors = CORS(app) # allow CORS for all domains on all routes.
+app.config['CORS_HEADERS'] = 'Content-Type'
 
+import base64
+from io import BytesIO
 import ujson as ujson
+
 sys.path.insert(1, 'pipelines')
 
-from complex  import pipeline
+from complex import *
+from simple_split import *
+
 # import complex
-pipelines = dict({"removeBG": pipeline})
+pipelines = dict({"removeBG": initComplex(),
+                  "split": initSplit()})
+
+
+def initPipelines():
+    global pipelines
 
 
 @app.route('/ask', methods=["POST"])
+@cross_origin()
 def ask():
-
-    im =  request.files['image']
-    tt =  np.array(Image.open(im))
+    im = request.files['image']
+    tt = np.array(Image.open(im))
 
     tpip = pipelines[request.form['pipeline']]
 
-    res = tpip.run({'image':tt})
-    print(res)
-
+    res = tpip.run({'image': tt})
+    # print(len(res[1]["Splitter"]))
+    tres = []
+    coords = []
+    for img in res[1]["Splitter"]:
+        # print(img.shape)
+        tres.append(numpy_to_b64(img))
+        # coords.append(img[1])
+    print(tres[0])
     resp = Response(response=ujson.dumps({
-        "images": res
+        "images": tres
     }),
         status=200,
         mimetype="application/json")
 
+    # resp.headers.add("Access-Control-Allow-Origin", "*")
+    # resp.headers.add('Access-Control-Allow-Headers', "*")
+    # resp.headers.add('Access-Control-Allow-Methods', "*")
     return resp
+
+
+def np2base64(img):
+    # img.tobytes()
+    print(img.shape)
+    return base64.b64encode(img)
+
+
+def numpy_to_b64(array):
+    im_pil = Image.fromarray(array)
+    if im_pil.mode != 'RGB':
+        im_pil = im_pil.convert('RGB')
+    buff = BytesIO()
+    im_pil.save(buff, format="png")
+    im_b64 = base64.b64encode(buff.getvalue()).decode("utf-8")
+
+    return im_b64
 
 
 if __name__ == '__main__':

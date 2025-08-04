@@ -165,24 +165,28 @@ def loss(f1, f2):
     return 1/(IoU(f1, f2)+1e-20)**2
 
 
+def initComplex():
+
 ########## DEFINITION DE LA PIPELINE ##########
-pipeline = Pipeline("RemoveBG")
-pipeline.add_node(Node("Palette size", integer, fixed_params={"n":8}))
-pipeline.add_node(Node("Extract palette", extract_palette, fixed_params={"use_lab":False}), predecessors={"image":"run_params:image", "n_colors":"Palette size"})
-pipeline.add_node(Node("Palette indices", ith_subset, fixed_params={"i": 37}), predecessors={"n":"Palette size"})
-pipeline.add_node(Node("Recolor", recolor), predecessors={"image":"run_params:image", "palette":"Extract palette"})
-pipeline.add_node(Node("Remove palette", remove_palette), predecessors={"image":"run_params:image", "recolored_image":"Recolor", "palette":"Extract palette", "indices_to_remove":"Palette indices"})
-pipeline.add_node(Node("To mask", to_mask), predecessors={"image":"Remove palette"})
-pipeline.add_node(Node("Isolate", isolate), predecessors={"binary_mask": "To mask"})
-pipeline.add_node(Node("Main element", biggest_mask), predecessors={"elements":"Isolate"})
-pipeline.add_node(Node("Colored element", colored_mask), predecessors={"image":"run_params:image", "mask":"Main element"})
+    pipeline = Pipeline("RemoveBG")
+    pipeline.add_node(Node("Palette size", integer, fixed_params={"n":8}))
+    pipeline.add_node(Node("Extract palette", extract_palette, fixed_params={"use_lab":False}), predecessors={"image":"run_params:image", "n_colors":"Palette size"})
+    pipeline.add_node(Node("Palette indices", ith_subset, fixed_params={"i": 37}), predecessors={"n":"Palette size"})
+    pipeline.add_node(Node("Recolor", recolor), predecessors={"image":"run_params:image", "palette":"Extract palette"})
+    pipeline.add_node(Node("Remove palette", remove_palette), predecessors={"image":"run_params:image", "recolored_image":"Recolor", "palette":"Extract palette", "indices_to_remove":"Palette indices"})
+    pipeline.add_node(Node("To mask", to_mask), predecessors={"image":"Remove palette"})
+    pipeline.add_node(Node("Isolate", isolate), predecessors={"binary_mask": "To mask"})
+    pipeline.add_node(Node("Main element", biggest_mask), predecessors={"elements":"Isolate"})
+    pipeline.add_node(Node("Colored element", colored_mask), predecessors={"image":"run_params:image", "mask":"Main element"})
+    return pipeline
 
 
+def optComplex(pipeline):
 ########## DEFINITION DE L'OPTIMISEUR ##########
-optimizer = PipelineOptimizer(pipeline, loss, max_time_pipeline=0.1)
-optimizer.add_param(IntParameter("Palette size", "n", 8, 15))
-optimizer.add_param(IntParameter("Palette indices", "i", 1, 63))
-optimizer.add_param(BoolParameter("Extract palette", "use_lab"))
+    optimizer = PipelineOptimizer(pipeline, loss, max_time_pipeline=0.1)
+    optimizer.add_param(IntParameter("Palette size", "n", 8, 15))
+    optimizer.add_param(IntParameter("Palette indices", "i", 1, 63))
+    optimizer.add_param(BoolParameter("Extract palette", "use_lab"))
 
 
 

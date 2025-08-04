@@ -656,7 +656,7 @@ async function importData(data) {
 
     let toDel = []
     for (let i = 0; i < tempData["marks"].length; i++) {
-        console.log("waiting mark ", i);
+        // console.log("waiting mark ", i);
         if (tempData["marks"][i].canvas.length > 50) {
             tempData["marks"][i].canvas = await convertToCanvas(tempData["marks"][i].canvas)
         } else {

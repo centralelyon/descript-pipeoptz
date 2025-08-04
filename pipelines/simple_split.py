@@ -14,9 +14,12 @@ def split_image_in_four(image):
     return [top_left, top_right, bottom_left, bottom_right]
 
 
-pipeline = Pipeline("ImageSplitter")
-pipeline.add_node(
+
+
+def initSplit():
+    pipeline = Pipeline("ImageSplitter")
+    pipeline.add_node(
     Node("Splitter", split_image_in_four),
     predecessors={"image": "run_params:image"}
-)
-
+    )
+    return pipeline
