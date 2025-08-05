@@ -9,10 +9,7 @@ async function forwardPipeline(pipeline, img = null) {
     let imgs = await fetch("http://localhost:5000/ask",
         {
             mode: 'cors',
-            headers: {
-                // "Access-Control-Allow-Origin":"*",
-                // "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, HEAD, OPTIONS"
-            },
+            headers: {},
             method: "POST",
             body: form
         })
@@ -24,15 +21,51 @@ async function forwardPipeline(pipeline, img = null) {
             return res.json();
         })
         .then(function (data) {
-            // console.log(JSON.stringify(data))
             return data
         })
 
-    // console.log(imgs["images"]);
+    let allCorners = fakeCoords()
 
-    let cans = []
+    let tx = currImg.width
+    let ty = currImg.height
+
+
     for (let i = 0; i < imgs["images"].length; i++) {
-        cans.push( await convertToCanvas("data:image/png;base64,"+imgs["images"][i]));
+        const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i])
+
+        let corners = allCorners[i]
+        let tw = tcan.width
+        let th = tcan.height
+
+        let tres = {
+            x: corners[0],
+            y: corners[1],
+            width: tw,
+            height: th,
+            type: "rect",
+            canvas: tcan,
+            // categories: "default",
+            rx: corners[0] / tx,
+            ry: corners[1] / ty,
+            rWidth: tw / tx,
+            rHeight: th / ty,
+
+        }
+
+        sampleData.push(tres)
+
+
     }
-    console.log(cans);
+    fillSvg(sampleData)
+
+}
+
+
+function fakeCoords() {
+
+    let xs = [0, currImg.width / 2, 0, currImg.width / 2]
+    let ys = [0, currImg.height / 2, 0, currImg.height / 2]
+
+
+    return [[xs[0], ys[0]], [xs[1], ys[0]], [xs[0], ys[1]], [xs[1], ys[1]]];
 }

@@ -49,7 +49,7 @@ docReady(init)
 
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/full.json"
+    // giorgia_36: "assets/images/tempLoad/full.json"
 }
 
 
@@ -163,7 +163,7 @@ async function init() {
     switchMode("rect")
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
-    document.getElementById("paletteLoader").addEventListener("change", importPalette);
+    // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
 }
@@ -213,7 +213,7 @@ function addCategory() {
         }
 
         drawCat(name, categories[name].color, true)
-        fillPalette([0, 10], false)
+        // fillPalette([0, 10], false)
     }
 }
 
@@ -388,7 +388,7 @@ onkeydown = function (e) {
                 selectedInfo = tkey
 
             fillInfos(selectedMark)
-            fillPalette()
+            // fillPalette()
         }
 
         if (document.activeElement === document.getElementById("dataInpVal")) {
@@ -404,7 +404,7 @@ onkeydown = function (e) {
 
                 selectedMark.data[tsel].value = parseFloat(tval)
                 fillInfos(selectedMark)
-                fillPalette()
+                // fillPalette()
             }
 
 
@@ -635,7 +635,7 @@ function importFromJson(e) {
         // jsonObj.palette.primitive = {}
         // delete jsonObj.categories.time.prototype
 
-        importData(jsonObj).then(fillTable );
+        importData(jsonObj)//.then(fillTable );
 
         // fillTable()
         // console.log(jsonObj)
@@ -723,9 +723,9 @@ async function importData(data) {
 
     updateCategories()
     updateMarks("size")
-    fillPalette()
-    populateSelect()
-    fillTable()
+    // fillPalette()
+    // populateSelect()
+    // fillTable()
 
 }
 
@@ -844,8 +844,8 @@ function purge() {
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();
     document.getElementById("paletteCont").innerHTML = "";
-    populateSelect()
-    fillTable()
+    // populateSelect()
+    // fillTable()
 }
 
 function clearExamples() {

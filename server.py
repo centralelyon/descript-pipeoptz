@@ -37,29 +37,20 @@ def ask():
     tpip = pipelines[request.form['pipeline']]
 
     res = tpip.run({'image': tt})
-    # print(len(res[1]["Splitter"]))
     tres = []
-    coords = []
     for img in res[1]["Splitter"]:
-        # print(img.shape)
         tres.append(numpy_to_b64(img))
-        # coords.append(img[1])
-    print(tres[0])
+
     resp = Response(response=ujson.dumps({
         "images": tres
     }),
         status=200,
         mimetype="application/json")
 
-    # resp.headers.add("Access-Control-Allow-Origin", "*")
-    # resp.headers.add('Access-Control-Allow-Headers', "*")
-    # resp.headers.add('Access-Control-Allow-Methods', "*")
+
     return resp
 
-
 def np2base64(img):
-    # img.tobytes()
-    print(img.shape)
     return base64.b64encode(img)
 
 

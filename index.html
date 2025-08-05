@@ -70,9 +70,14 @@
                 <img src="assets/images/buttons/lasso.png" class="lightBorder" onclick="switchSampleSelect(this,'free')"
                      style=""/>
             </div>
+            <div>
+                <select id="pipeSelect" onchange="">
+                    <option value="split" selected>Split</option>
+                </select>
             <div class="buttonImg">
-                <img src="assets/images/buttons/magic.png" class="lightBorder" onclick="testEdge()"
+                <img src="assets/images/buttons/magic.png" class="lightBorder" onclick="forwardPipeline('split')"
                      style=""/>
+            </div>
             </div>
             <div class="buttonImg">
 
@@ -185,143 +190,6 @@
             </div>
         </div>
 
-    </div>
-
-
-    <!------------------------  Palette Stuff  ----------------------------------------------------------->
-
-    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-        <h3 style="width: 100%;text-align:center;display: inline-block">
-            <input type="file" name="img" id="paletteLoader" style="display: none;"/>
-            <img src="assets/images/buttons/export.png" class="buttonImg" style="transform: scaleX(-1);cursor: pointer"
-                 onclick="fakeFile('paletteLoader')">
-            Palette
-        </h3>
-        <div class="twelve columns " style="" id="paletteCont">
-        </div>
-    </div>
-
-    <div class="" style="display: none" id="paletteContainer">
-        <div style="height: 350px;display: inline-block">
-            <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
-            <div>
-                <p style="font-weight: 600;display: inline-block">Orientation</p>
-                <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
-                <!--              <div style="display: inline-block">
-                                    <p style="font-weight: 600;display: inline-block">Anchors</p>
-                                    <div id="anchorsContainer" style="display: inline-block"></div>
-
-                                    <div id="plusAnchor" onclick="addAnchor()">
-                                        <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
-                                    </div> -->
-            </div>
-        </div>
-
-        <div id="closePaletteContainer" style="">
-            <img style="width: inherit" onclick="hidePaletteContainer()" src="assets/images/buttons/cross.png">
-        </div>
-        <div style="display: inline-block;width: 40px;position: absolute;top:20px" id="editControl">
-
-            <div class="buttonImg">
-                <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestPrev()"
-                     style="transform: scaleX(-1)"/>
-            </div>
-            <div class="buttonImg">
-                <img src="assets/images/buttons/left.png" class="lightBorder" onclick="getClosestNext()" style=""/>
-            </div>
-            <div class="buttonImg">
-                <img src="assets/images/buttons/black.png" class="lightBorder" onclick="toBW()" style=""/>
-            </div>
-            <!--           <div class="buttonImg selectablePallete">
-                           <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
-                       </div>-->
-            <div class="buttonImg selectablePallete">
-
-                <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" class="lightBorder" style=""/>
-            </div>
-            <div id="selectedButton2" class="buttonImg selectablePallete">
-                <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" class="lightBorder" style=""/>
-            </div>
-            <div class="buttonImg ">
-                <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
-
-            </div>
-            <div class="buttonImg">
-                <input style="width: 35px;margin-top:-10px " type="color" value="#000000" id="strokecolor">
-            </div>
-            <div style="margin-top: -10px" class="buttonImg">
-                <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="savePalette()" style=""/>
-            </div>
-        </div>
-    </div>
-
-
-    <!--  DataTable Stuff------------------------------------------------------------------------>
-    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-        <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Datatable
-        </h3>
-        <div class="twelve columns">
-            <table id="datatable" style="width: 101%">
-                <tr id="tableHeader"></tr>
-            </table>
-
-
-        </div>
-
-
-    </div>
-    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-        <div class="twelve columns">
-            <div id="newDataTable"></div>
-            <div>
-                <button onclick="saveRow()"> Save</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!--  Collage Stuff------------------------------------------------------------------------>
-
-    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage
-        <div style="margin-top: 0px" class="buttonImg">
-            <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
-        </div>
-    </h3>
-
-
-    <div class="row" style="margin-top: 0;text-align: center;display:flex">
-
-        <div style=" height: 300px;display: inline-block">
-            <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px"
-                 width="300" height="300">
-
-            </svg>
-        </div>
-
-        <div id="collageData" class="four columns"
-             style="display: inline-block">
-            <div id="collageList">
-
-            </div>
-
-            <div id="collageInput" style="display: flex">
-                <select id="collageSel">
-
-                </select>
-                <input style="width: 75px" type="number" id="dataVal">
-
-                <div class="buttonImg" onclick="addCollage()">
-                    <img src="assets/images/buttons/plus.png" class="lightBorder">
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div class="row" style="margin-top: 0;text-align: center;display:flex">
-        <div class="twelve columns">
-            <div id="AllPaletteCont"></div>
-        </div>
     </div>
 
     <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
