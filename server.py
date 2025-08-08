@@ -7,7 +7,7 @@ import sys, os
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-cors = CORS(app) # allow CORS for all domains on all routes.
+cors = CORS(app)  # allow CORS for all domains on all routes.
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 import base64
@@ -20,12 +20,26 @@ from complex import *
 from simple_split import *
 
 # import complex
-pipelines = dict({"removeBG": initComplex(),
-                  "split": initSplit()})
+pipelines = dict({
+                    #"removeBG": initComplex(),
+                  "split": initSplit()
+                })
 
 
 def initPipelines():
     global pipelines
+
+
+@app.route('/pipes', methods=["GET"])
+@cross_origin()
+def pipes():
+    resp = Response(response=ujson.dumps({
+        "pipelines": list(pipelines.keys())
+    }),
+        status=200,
+        mimetype="application/json")
+
+    return resp
 
 
 @app.route('/ask', methods=["POST"])
@@ -47,8 +61,8 @@ def ask():
         status=200,
         mimetype="application/json")
 
-
     return resp
+
 
 def np2base64(img):
     return base64.b64encode(img)

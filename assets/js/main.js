@@ -56,16 +56,16 @@ const dataRef = {
 function loadExamples(week = 0, author = "giorgia") {
 
     const container = document.getElementById('selFlat');
-
-    for (let i = 0; i < examples.length; i++) {
-        const el = document.createElement("div");
-        el.style.backgroundImage = "url('" + examples[i] + "')";
-        el.setAttribute('type', "example");
-        el.setAttribute('value', i);
-        el.onclick = loadEx
-        container.appendChild(el);
-
-    }
+    //
+    // for (let i = 0; i < examples.length; i++) {
+    //     const el = document.createElement("div");
+    //     el.style.backgroundImage = "url('" + examples[i] + "')";
+    //     el.setAttribute('type', "example");
+    //     el.setAttribute('value', i);
+    //     el.onclick = loadEx
+    //     container.appendChild(el);
+    //
+    // }
 
 
     let authorRef = author === "giorgia" ? 0 : 1;
@@ -78,7 +78,7 @@ function loadExamples(week = 0, author = "giorgia") {
             el.onclick = loadEx
             container.appendChild(el);
         }*/
-    for (let i = 1; i < totalExamples; i++) {
+    for (let i = 35; i <40; i++) {
         let num = i
 
         if (num < 10) {
@@ -164,6 +164,9 @@ async function init() {
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     // document.getElementById("paletteLoader").addEventListener("change", importPalette);
+
+
+    getPipelines()
 
 
 }

@@ -69,3 +69,32 @@ function fakeCoords() {
 
     return [[xs[0], ys[0]], [xs[1], ys[0]], [xs[0], ys[1]], [xs[1], ys[1]]];
 }
+
+
+
+async function getPipelines() {
+    let pipelines = await fetch("http://localhost:5000/pipes",
+        {
+            mode: 'cors',
+            headers: {},
+            method: "GET"
+        })
+        .then(function (res) {
+            console.log(res);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(function (data) {
+            return data["pipelines"]
+        })
+
+
+    const sel = document.getElementById("pipeSelect")
+
+
+    for (let i = 0; i < pipelines.length; i++) {
+        sel.innerHTML += `<option value="${pipelines[i]}">${pipelines[i]}</option>`
+    }
+}
