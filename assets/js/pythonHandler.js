@@ -24,7 +24,7 @@ async function forwardPipeline(pipeline, img = null) {
             return data
         })
 
-    let allCorners = fakeCoords()
+    let allCorners = fakeCoords(imgs["images"].length)
 
     let tx = currImg.width
     let ty = currImg.height
@@ -61,13 +61,23 @@ async function forwardPipeline(pipeline, img = null) {
 }
 
 
-function fakeCoords() {
+function fakeCoords(n) {
+    let coords = [];
+    let cols = Math.ceil(Math.sqrt(n));
+    let rows = Math.ceil(n / cols);
+    let imgW = currImg.width;
+    let imgH = currImg.height;
+    let cellW = imgW / cols;
+    let cellH = imgH / rows;
 
-    let xs = [0, currImg.width / 2, 0, currImg.width / 2]
-    let ys = [0, currImg.height / 2, 0, currImg.height / 2]
-
-
-    return [[xs[0], ys[0]], [xs[1], ys[0]], [xs[0], ys[1]], [xs[1], ys[1]]];
+    for (let i = 0; i < n; i++) {
+        let row = Math.floor(i / cols);
+        let col = i % cols;
+        let x = col * cellW;
+        let y = row * cellH;
+        coords.push([x, y]);
+    }
+    return coords;
 }
 
 
