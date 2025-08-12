@@ -14,16 +14,14 @@ import base64
 from io import BytesIO
 import ujson as ujson
 
-sys.path.insert(1, 'pipelines')
-
-from complex import *
-from simple_split import *
+from pipelines.simple_split import *
+from pipelines.split16 import *
 
 # import complex
-pipelines = dict({
-                    #"removeBG": initComplex(),
-                  "split": initSplit()
-                })
+pipelines = {
+            "split4": initSplit(),
+            "split16": initSplit16()
+            }
 
 
 def initPipelines():
@@ -48,11 +46,12 @@ def ask():
     im = request.files['image']
     tt = np.array(Image.open(im))
 
+    print(request.form['pipeline'])
     tpip = pipelines[request.form['pipeline']]
 
     res = tpip.run({'image': tt})
     tres = []
-    for img in res[1]["Splitter"]:
+    for img in res[1][res[0]]:
         tres.append(numpy_to_b64(img))
 
     resp = Response(response=ujson.dumps({
@@ -62,10 +61,6 @@ def ask():
         mimetype="application/json")
 
     return resp
-
-
-def np2base64(img):
-    return base64.b64encode(img)
 
 
 def numpy_to_b64(array):
