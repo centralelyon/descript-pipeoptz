@@ -19,7 +19,7 @@ sys.path.insert(1, 'pipelines')
 from complex import *
 from simple_split import *
 
-# import complex
+#Fill this dict of pipelines to update the client's list
 pipelines = dict({
                     #"removeBG": initComplex(),
                   "split": initSplit()
