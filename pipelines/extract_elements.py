@@ -74,7 +74,7 @@ def generate_res(masks, image):
     for mask in masks:
         pos = get_pos(mask)
         rpos = pos[0]/image.shape[1], pos[1]/image.shape[0], pos[2]/image.shape[1], pos[3]/image.shape[0]
-        res.append([min_size(image[mask]), list(rpos)])
+        res.append([min_size(image*mask[:,:,np.newaxis]), list(rpos)])
     return res
 
 def initExtractElements():
@@ -112,7 +112,7 @@ def initExtractElements():
         predecessors={"contours": "ProcessContours", "image": "run_params:image"}
     )
     pipeline.add_node(
-        Node("SurfaceMin", surface_min, fixed_params={"treshold": 25}),
+        Node("SurfaceMin", surface_min, fixed_params={"treshold": 50}),
         predecessors={"masks": "CreateMasks"}
     )
     pipeline.add_node(
@@ -120,3 +120,18 @@ def initExtractElements():
         predecessors={"masks": "SurfaceMin", "image": "run_params:image"}
     )
     return pipeline
+
+
+if __name__ == "__main__":
+    from PIL import Image
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    pipeline = initExtractElements()
+    im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\dearDat.png"))
+    
+    i, h, _ = pipeline.run({"image": im})
+    res = h[i]
+    print(len(res))
+    plt.imshow(res[12][0])
+    plt.show()
