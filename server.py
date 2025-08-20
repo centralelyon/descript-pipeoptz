@@ -14,13 +14,11 @@ import base64
 from io import BytesIO
 import ujson as ujson
 
-from pipelines.simple_split import *
-from pipelines.split16 import *
+from pipelines.extract_elements import initExtractElements
 
 # import complex
 pipelines = {
-            "split4": initSplit(),
-            "split16": initSplit16()
+            "extract_elements": initExtractElements()
             }
 
 
@@ -51,8 +49,8 @@ def ask():
 
     res = tpip.run({'image': tt})
     tres = []
-    for img in res[1][res[0]]:
-        tres.append(numpy_to_b64(img))
+    for el in res[1][res[0]]:
+        tres.append([numpy_to_b64(el[0]), el[1]])
 
     resp = Response(response=ujson.dumps({
         "images": tres

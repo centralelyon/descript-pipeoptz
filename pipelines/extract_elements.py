@@ -71,6 +71,7 @@ def surface_min(masks, treshold):
 
 def generate_res(masks, image):
     res = []
+    print(image.shape)
     for mask in masks:
         pos = get_pos(mask)
         rpos = pos[0]/image.shape[1], pos[1]/image.shape[0], pos[2]/image.shape[1], pos[3]/image.shape[0]
@@ -112,7 +113,7 @@ def initExtractElements():
         predecessors={"contours": "ProcessContours", "image": "run_params:image"}
     )
     pipeline.add_node(
-        Node("SurfaceMin", surface_min, fixed_params={"treshold": 50}),
+        Node("SurfaceMin", surface_min, fixed_params={"treshold": 400}),
         predecessors={"masks": "CreateMasks"}
     )
     pipeline.add_node(
@@ -130,8 +131,10 @@ if __name__ == "__main__":
     pipeline = initExtractElements()
     im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\dearDat.png"))
     
-    i, h, _ = pipeline.run({"image": im})
+    i, h, t = pipeline.run({"image": im})
     res = h[i]
     print(len(res))
+    print(f"time = {round(t[0],5)}")
+    print(res[12][1])
     plt.imshow(res[12][0])
     plt.show()
