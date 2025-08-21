@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, logging, jsonify, Response
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
 import sys, os
 from flask_cors import CORS, cross_origin
@@ -13,13 +12,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 import base64
 from io import BytesIO
 import ujson as ujson
+import time
 
 from pipelines import pipelines
 
-
-def initPipelines():
-    global pipelines
-
+maxImgSize = [1000, 1000]
 
 @app.route('/pipes', methods=["GET"])
 @cross_origin()
@@ -32,18 +29,30 @@ def pipes():
 
     return resp
 
-
 @app.route('/ask', methods=["POST"])
 @cross_origin()
 def ask():
-    im = request.files['image']
-    tt = np.array(Image.open(im))
+    st = time.time()
+
+    im = Image.open(request.files['image'])
+
+    if im.size[0] > maxImgSize[0]:
+        ratio = maxImgSize[0] / im.size[0]
+        im = im.resize((maxImgSize[0], int(im.size[1] * ratio)), Image.Resampling.LANCZOS)
+
+    tt = np.array(im)
 
     print(request.form['pipeline'])
     tpip = pipelines[request.form['pipeline']]
+    setup = time.time()
+    print("setup", setup - st)
+    print("----")
 
     res = tpip.run({'image': tt})
     tres = []
+    run = time.time()
+    print("run", run - setup)
+    print("----")
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
 
@@ -53,13 +62,17 @@ def ask():
         status=200,
         mimetype="application/json")
 
+    send = time.time()
+    print("send", send - run)
+    print("----")
+
     return resp
 
 
 def numpy_to_b64(array):
     im_pil = Image.fromarray(array)
-    if im_pil.mode != 'RGB':
-        im_pil = im_pil.convert('RGB')
+    if im_pil.mode != 'RGBA':
+        im_pil = im_pil.convert('RGBA')
     buff = BytesIO()
     im_pil.save(buff, format="png")
     im_b64 = base64.b64encode(buff.getvalue()).decode("utf-8")
