@@ -78,7 +78,10 @@ def generate_res(masks, image):
         res.append([min_size(image*mask[:,:,np.newaxis]), list(rpos)])
     return res
 
-def initExtractElements():
+
+
+NAME = "ExtractElements"
+def initPipeline():
     pipeline = Pipeline("ExtractElements")
     pipeline.add_node(
         Node("Grayscale", to_grayscale),
@@ -128,7 +131,7 @@ if __name__ == "__main__":
     import numpy as np
     import matplotlib.pyplot as plt
 
-    pipeline = initExtractElements()
+    pipeline = initPipeline()
     im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\dearDat.png"))
     
     i, h, t = pipeline.run({"image": im})
