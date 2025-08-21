@@ -14,12 +14,7 @@ import base64
 from io import BytesIO
 import ujson as ujson
 
-from pipelines.extract_elements import initExtractElements
-
-# import complex
-pipelines = {
-            "extract_elements": initExtractElements()
-            }
+from pipelines import pipelines
 
 
 def initPipelines():
