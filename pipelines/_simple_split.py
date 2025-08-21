@@ -1,5 +1,6 @@
 import sys, os
 PATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, './pipeoptz')
 from pipeoptz import Pipeline, Node
 
 def split_image_in_four(image):

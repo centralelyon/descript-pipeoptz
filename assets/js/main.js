@@ -846,7 +846,7 @@ function purge() {
 
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();
-    document.getElementById("paletteCont").innerHTML = "";
+    // document.getElementById("paletteCont").innerHTML = "";
     // populateSelect()
     // fillTable()
 }

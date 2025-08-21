@@ -4,6 +4,7 @@ import numpy as np
 import sys, os
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.abspath(f"{PATH}\\..\\\\"))
+sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
 from pipeoptz import Pipeline, Node
 
