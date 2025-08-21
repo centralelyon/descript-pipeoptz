@@ -24,32 +24,23 @@ async function forwardPipeline(pipeline, img = null) {
             return data
         })
 
-    let allCorners = fakeCoords(imgs["images"].length)
-
-    let tx = currImg.width
-    let ty = currImg.height
-
-
     for (let i = 0; i < imgs["images"].length; i++) {
-        const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i])
-
-        let corners = allCorners[i]
+        const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i][0])
+        const rpos = imgs["images"][i][1]
+        
         let tw = tcan.width
         let th = tcan.height
 
         let tres = {
-            x: corners[0],
-            y: corners[1],
             width: tw,
             height: th,
             type: "rect",
             canvas: tcan,
             // categories: "default",
-            rx: corners[0] / tx,
-            ry: corners[1] / ty,
-            rWidth: tw / tx,
-            rHeight: th / ty,
-
+            rx: rpos[0],
+            ry: rpos[1],
+            rWidth: rpos[2] - rpos[0],
+            rHeight: rpos[3] - rpos[1],
         }
 
         sampleData.push(tres)
