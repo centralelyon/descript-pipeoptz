@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, logging, jsonify, Response
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
 import sys, os
 from flask_cors import CORS, cross_origin
@@ -14,6 +13,7 @@ import base64
 from io import BytesIO
 import ujson as ujson
 
+# sys.path.insert(1, 'pipelines')
 from pipelines.simple_split import *
 from pipelines.split16 import *
 
@@ -24,13 +24,14 @@ pipelines = {
             }
 
 
-def initPipelines():
-    global pipelines
+# def initPipelines():
+
 
 
 @app.route('/pipes', methods=["GET"])
 @cross_origin()
 def pipes():
+    global pipelines
     resp = Response(response=ujson.dumps({
         "pipelines": list(pipelines.keys())
     }),
