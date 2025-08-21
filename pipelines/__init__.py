@@ -1,9 +1,11 @@
 import importlib
-import os
+import os, sys
 
-files = [f for f in os.listdir(os.path.dirname(__file__)) if not f.startswith("_")]
+PATH = os.path.dirname(os.path.abspath(__file__))
+files = [f for f in os.listdir(PATH) if not f.startswith("_")]
 
 pipelines = {}
+sys.path.insert(1, os.path.abspath(f"{PATH}/../pipelines/"))
 for f in files:
     lib = importlib.import_module(f"{os.path.splitext(f)[0]}")
     pipelines[lib.NAME] = lib.initPipeline()
