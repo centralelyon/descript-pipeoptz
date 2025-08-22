@@ -45,26 +45,33 @@ def ask():
     print(request.form['pipeline'])
     tpip = pipelines[request.form['pipeline']]
     setup = time.time()
+    print("----")
     print("setup", setup - st)
     print("----")
 
     res = tpip.run({'image': tt})
     tres = []
-    run = time.time()
-    print("run", run - setup)
+
+    t = res[2]
+    print(f"run = {t[0]}")
+    for k in t[1].keys():
+        if t[1][k] > 0.01:
+            print(f"\t{k} = {round(t[1][k],2)}s")
     print("----")
+    
+    run = time.time()
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
 
-    resp = Response(response=ujson.dumps({
-        "images": tres
-    }),
+    resp = Response(
+        response=ujson.dumps({"images": tres}),
         status=200,
         mimetype="application/json")
 
     send = time.time()
     print("send", send - run)
     print("----")
+
 
     return resp
 

@@ -151,17 +151,12 @@ def get_rBB(mask, bonus=0):
     return max(x1-bonus,0)/w, max(y1-bonus,0)/h, min(x2+bonus,w)/w, min(y2+bonus,h)/h
 
 def min_size(im):
-    col_min, col_max = 0, im.shape[0]-1, 
-    ligne_min, ligne_max = 0, im.shape[1]-1
-    while not np.any(im[col_min, :]):
-        col_min += 1
-    while not np.any(im[:, ligne_min]):
-        ligne_min += 1
-    while not np.any(im[col_max, :]):
-        col_max -= 1
-    while not np.any(im[:, ligne_max]):
-        ligne_max -= 1
-    return im[col_min:col_max, ligne_min:ligne_max]
+    filter = im if im.ndim == 2 else im[..., 0] != 0
+    rows = np.any(filter, axis=1)
+    cols = np.any(filter, axis=0)
+    y1, y2 = np.where(rows)[0][[0, -1]]
+    x1, x2 = np.where(cols)[0][[0, -1]]
+    return im[y1:y2+1, x1:x2+1]
 
 def generate_res(im_colored, rBB):
     return [min_size(im_colored), rBB]

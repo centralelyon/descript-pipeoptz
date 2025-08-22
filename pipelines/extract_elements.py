@@ -14,19 +14,6 @@ def get_bb(el, bonus=0):
     y2, x2 = xy[:,0].max(), xy[:,1].max()
     return max(x1-bonus,0), max(y1-bonus,0), min(x2+bonus,el.shape[1]-1), min(y2+bonus,el.shape[0]-1)
 
-def min_size(im):
-    col_min, col_max = 0, im.shape[0]-1, 
-    ligne_min, ligne_max = 0, im.shape[1]-1
-    while not np.any(im[col_min, :]):
-        col_min += 1
-    while not np.any(im[:, ligne_min]):
-        ligne_min += 1
-    while not np.any(im[col_max, :]):
-        col_max -= 1
-    while not np.any(im[:, ligne_max]):
-        ligne_max -= 1
-    return im[col_min:col_max, ligne_min:ligne_max]
-
 def to_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_RGBA2GRAY)
 
@@ -43,8 +30,8 @@ def find_contours(image):
 def draw_contours(image, contours_hierarchy):
     contours, hierarchy = contours_hierarchy
     temp = np.zeros_like(image)
+    color = (255, 255, 255)
     for i in range(len(contours)):
-        color = (255, 255, 255)
         cv2.drawContours(temp, contours, i, color, 5, cv2.LINE_8, hierarchy, 100)
     return temp
 
@@ -75,7 +62,8 @@ def generate_res(masks, image):
     for mask in masks:
         bb = get_bb(mask)
         rbb = bb[0]/image.shape[1], bb[1]/image.shape[0], bb[2]/image.shape[1], bb[3]/image.shape[0]
-        res.append([min_size(image*mask[:,:,np.newaxis]), list(rbb)])
+        im = image[bb[1]:bb[3], bb[0]:bb[2]]*mask[bb[1]:bb[3], bb[0]:bb[2]][:,:,np.newaxis]
+        res.append([im, list(rbb)])
     return res
 
 
@@ -137,6 +125,8 @@ if __name__ == "__main__":
     res = h[i]
     print(len(res))
     print(f"time = {round(t[0],5)}")
+    for k in t[1].keys():
+        print(f"\t{k} = {round(t[1][k],2)}s")
     print(res[12][1])
-    plt.imshow(res[12][0])
-    plt.show()
+    #plt.imshow(res[12][0])
+    #plt.show()
