@@ -8,4 +8,5 @@ pipelines = {}
 sys.path.insert(1, os.path.abspath(f"{PATH}/../pipelines/"))
 for f in files:
     lib = importlib.import_module(f"{os.path.splitext(f)[0]}")
-    pipelines[lib.NAME] = lib.initPipeline()
+    p = lib.initPipeline()
+    pipelines[p.name] = p

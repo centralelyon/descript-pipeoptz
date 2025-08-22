@@ -8,7 +8,7 @@ sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
 from pipeoptz import Pipeline, Node
 
-def get_pos(el, bonus=0):
+def get_bb(el, bonus=0):
     xy = np.argwhere(el)
     y1, x1 = xy[:,0].min(), xy[:,1].min()
     y2, x2 = xy[:,0].max(), xy[:,1].max()
@@ -72,16 +72,14 @@ def surface_min(masks, treshold):
 
 def generate_res(masks, image):
     res = []
-    print(image.shape)
     for mask in masks:
-        pos = get_pos(mask)
-        rpos = pos[0]/image.shape[1], pos[1]/image.shape[0], pos[2]/image.shape[1], pos[3]/image.shape[0]
-        res.append([min_size(image*mask[:,:,np.newaxis]), list(rpos)])
+        bb = get_bb(mask)
+        rbb = bb[0]/image.shape[1], bb[1]/image.shape[0], bb[2]/image.shape[1], bb[3]/image.shape[0]
+        res.append([min_size(image*mask[:,:,np.newaxis]), list(rbb)])
     return res
 
 
 
-NAME = "ExtractElements"
 def initPipeline():
     pipeline = Pipeline("ExtractElements")
     pipeline.add_node(
