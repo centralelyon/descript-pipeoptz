@@ -1,12 +1,9 @@
 ########## IMPORT DES BIBLIOTHEQUES #########
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from math import comb
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans 
 from skimage.color import rgb2lab, lab2rgb
 import scipy as sp
-from PIL import Image
 import sys, os
 
 PATH = os.path.dirname(os.path.abspath(__file__))
@@ -45,13 +42,13 @@ def integer(n):
 def to_mask(image):
     return image[:,:,3] != 0
 
-def colore_mask(image, mask):
+def color_mask(image, mask):
     if mask is not None:
         return image*mask[:,:,np.newaxis]
     else:
         return np.zeros(shape=image.shape)
 
-def extract_palette(image, n_colors, sample_size=0, max_iter=300, use_lab=False):
+def extract_palette(image, n_colors, max_iter=100, use_lab=False, batch_size=256):
     if image.shape[2] == 4:
         opaque_mask = image[:, :, 3] != 0
         pixels = image[opaque_mask][:, :3]
@@ -61,25 +58,19 @@ def extract_palette(image, n_colors, sample_size=0, max_iter=300, use_lab=False)
         pixels = image.reshape(-1, 3)
     else:
         raise ValueError("Image must be RGB or RGBA.")
-    
+
     if use_lab:
         pixels_normalized = pixels.astype(np.float32) / 255.0
-        data_for_kmeans = rgb2lab(pixels_normalized)
+        sample = rgb2lab(pixels_normalized)
     else:
-        data_for_kmeans = pixels.astype(np.float32)
-
-    if sample_size > 0 and data_for_kmeans.shape[0] > sample_size:
-        indices = np.random.choice(data_for_kmeans.shape[0], size=sample_size, replace=False)
-        sample = data_for_kmeans[indices]
-    else:
-        sample = data_for_kmeans
+        sample = pixels.astype(np.float32)
 
     if sample.shape[0] < n_colors:
         n_colors = max(1, sample.shape[0])
         if n_colors == 0:
             return np.array([], dtype=np.uint8).reshape(0, 3)
 
-    kmeans = KMeans(n_clusters=n_colors, max_iter=max_iter, n_init='auto', random_state=0)
+    kmeans = MiniBatchKMeans(n_clusters=n_colors, max_iter=max_iter, tol=1e-1, random_state=0, batch_size=batch_size)
     kmeans.fit(sample)
     centers = kmeans.cluster_centers_
 
@@ -135,13 +126,9 @@ def isolate(binary_mask, sizemin=1):
     if not np.any(binary_mask):
         return []
     labeled_array, num_features = sp.ndimage.label(binary_mask)
-    
-    elements = []
-    for i in range(1, num_features + 1):
-        component_mask = (labeled_array == i)
-        if np.sum(component_mask) >= sizemin:
-            elements.append(component_mask)
-    return elements
+    sizes = np.bincount(labeled_array.ravel())[1:]  # skip background
+    valid_labels = np.where(sizes >= sizemin)[0] + 1
+    return [(labeled_array == label) for label in valid_labels]
 
 def get_rBB(mask, bonus=0):
     h, w = mask.shape
@@ -158,7 +145,9 @@ def min_size(im):
     x1, x2 = np.where(cols)[0][[0, -1]]
     return im[y1:y2+1, x1:x2+1]
 
-def generate_res(im_colored, rBB):
+def generate_res(image, mask, rBB):
+    h, w = image.shape[:2]
+    im_colored = color_mask(image[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)], mask[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)])
     return [min_size(im_colored), rBB]
 
 
@@ -167,9 +156,7 @@ def initPipeline():
     n_color = 8
     pipeline = Pipeline("BG & Isolate")
     pipeline.add_node(
-        Node("Palette size", integer, {"n":n_color}))
-    pipeline.add_node(
-        Node("Extract palette", extract_palette, {"n_colors":n_color, "use_lab":False}), 
+        Node("Extract palette", extract_palette, {"n_colors":n_color, "use_lab":False, "batch_size":256}), 
         {"image":"run_params:image"})
     pipeline.add_node(
         Node("Recolor", recolor), 
@@ -187,10 +174,7 @@ def initPipeline():
         Node("Get rBB", get_rBB), 
         {"[mask]":"Isolate"})
     pipeline.add_node(
-        Node("Color", colore_mask), 
-        {"image":"run_params:image", "[mask]":"Isolate"})
-    pipeline.add_node(
         Node("Results", generate_res), 
-        {"[im_colored]":"Color", "[rBB]":"Get rBB"})
+        {"image":"run_params:image", "[mask]":"Isolate", "[rBB]":"Get rBB"})
     return pipeline
 
