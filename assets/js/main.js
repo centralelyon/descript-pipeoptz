@@ -10,6 +10,7 @@ let categories = {
     }
 }
 
+let globalPipelines = {}
 
 let selectedCategory = "default";
 //use of Tableau10
@@ -78,7 +79,7 @@ function loadExamples(week = 0, author = "giorgia") {
             el.onclick = loadEx
             container.appendChild(el);
         }*/
-    for (let i = 35; i <40; i++) {
+    for (let i = 35; i < 40; i++) {
         let num = i
 
         if (num < 10) {
@@ -98,7 +99,7 @@ function loadExamples(week = 0, author = "giorgia") {
             container.appendChild(el);
 
             if (num == week && j === authorRef) {
-                el.scrollIntoView()
+                // el.scrollIntoView()
                 el.classList.add("selectedIm");
             }
         }
@@ -163,6 +164,8 @@ async function init() {
     switchMode("rect")
     document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
+    document.getElementById("pipeSelect").addEventListener("change", switchGraph);
+
     // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 

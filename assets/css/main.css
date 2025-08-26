@@ -90,7 +90,7 @@ body {
     position: absolute;
 }
 
-#selFlatLabel {
+.selFlatLabel {
     font-weight: bold;
     color: #333;
     text-decoration: underline;

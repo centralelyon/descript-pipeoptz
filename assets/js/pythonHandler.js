@@ -14,7 +14,6 @@ async function forwardPipeline(pipeline, img = null) {
             body: form
         })
         .then(function (res) {
-            console.log(res);
             if (!res.ok) {
                 throw new Error(`HTTP error! Status: ${res.status}`);
             }
@@ -27,7 +26,7 @@ async function forwardPipeline(pipeline, img = null) {
     for (let i = 0; i < imgs["images"].length; i++) {
         const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i][0])
         const rpos = imgs["images"][i][1]
-        
+
         let tw = tcan.width
         let th = tcan.height
 
@@ -48,6 +47,11 @@ async function forwardPipeline(pipeline, img = null) {
 
     }
     fillSvg(sampleData)
+
+    // for (let i = 0; i < sampleData.length; i++) {
+        drawSamples(sampleData)
+
+    // }
 
 }
 
@@ -72,7 +76,6 @@ function fakeCoords(n) {
 }
 
 
-
 async function getPipelines() {
     let pipelines = await fetch("http://localhost:5000/pipes",
         {
@@ -81,13 +84,15 @@ async function getPipelines() {
             method: "GET"
         })
         .then(function (res) {
-            console.log(res);
+            // console.log(res);
             if (!res.ok) {
                 throw new Error(`HTTP error! Status: ${res.status}`);
             }
             return res.json();
         })
         .then(function (data) {
+            globalPipelines = data
+            iniGraph(data["pipelines"][0])
             return data["pipelines"]
         })
 

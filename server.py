@@ -18,16 +18,24 @@ from pipelines import pipelines
 
 maxImgSize = [1000, 1000]
 
+
 @app.route('/pipes', methods=["GET"])
 @cross_origin()
 def pipes():
+    keys = list(pipelines.keys())
+    graphs = {}
+    for key in keys:
+        graphs[key] = pipelines[key].to_dot()
+
     resp = Response(response=ujson.dumps({
-        "pipelines": list(pipelines.keys())
+        "pipelines": keys,
+        "graphs": graphs
     }),
         status=200,
         mimetype="application/json")
 
     return resp
+
 
 @app.route('/ask', methods=["POST"])
 @cross_origin()
@@ -56,9 +64,9 @@ def ask():
     print(f"run = {t[0]}")
     for k in t[1].keys():
         if t[1][k] > 0.01:
-            print(f"\t{k} = {round(t[1][k],2)}s")
+            print(f"\t{k} = {round(t[1][k], 2)}s")
     print("----")
-    
+
     run = time.time()
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
@@ -71,7 +79,6 @@ def ask():
     send = time.time()
     print("send", send - run)
     print("----")
-
 
     return resp
 
