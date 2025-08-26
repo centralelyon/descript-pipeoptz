@@ -49,7 +49,7 @@ async function forwardPipeline(pipeline, img = null) {
     fillSvg(sampleData)
 
     // for (let i = 0; i < sampleData.length; i++) {
-        drawSamples(sampleData)
+    drawSamples(sampleData)
 
     // }
 
@@ -92,6 +92,9 @@ async function getPipelines() {
         })
         .then(function (data) {
             globalPipelines = data
+
+            globalPipelines.fixedParams = curateFixedParams(globalPipelines.fixedParams)
+
             iniGraph(data["pipelines"][0])
             return data["pipelines"]
         })
@@ -102,5 +105,29 @@ async function getPipelines() {
 
     for (let i = 0; i < pipelines.length; i++) {
         sel.innerHTML += `<option value="${pipelines[i]}">${pipelines[i]}</option>`
+
+        customPipelineParam[pipelines[i]] = {}
     }
+
+}
+
+
+function curateFixedParams(data) {
+    let res = {}
+
+    for (const [key, value] of Object.entries(data)) {
+
+        res[key] = {}
+
+        for (const [k, v] of Object.entries(value)) {
+            let name = k.split(".")
+
+            if (res[key][name[0]]) {
+                res[key][name[0]][name[1]] = v
+            } else {
+                res[key][name[0]] = {[name[1]]: v}
+            }
+        }
+    }
+    return res
 }

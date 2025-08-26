@@ -24,12 +24,15 @@ maxImgSize = [1000, 1000]
 def pipes():
     keys = list(pipelines.keys())
     graphs = {}
+    fixedParams = {}
     for key in keys:
         graphs[key] = pipelines[key].to_dot()
+        fixedParams[key] = pipelines[key].get_fixed_params()
 
     resp = Response(response=ujson.dumps({
         "pipelines": keys,
-        "graphs": graphs
+        "graphs": graphs,
+        "fixedParams": fixedParams
     }),
         status=200,
         mimetype="application/json")

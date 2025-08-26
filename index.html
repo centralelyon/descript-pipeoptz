@@ -129,7 +129,7 @@
                     </div>
                 </div>
             </div>
-            <div id="catContainer">
+            <div id="catContainer" style="display: none">
                 <div class="category" value="default" id="selectedCat">
                     <div class="lightBorder catColor">
 
@@ -264,6 +264,21 @@
         </div>
     </div>
 </div>
+
+<dialog id="graphParamNode" class="modal" style="text-align: center">
+    <div id="closeGraphMod" style="width: 20px;height: 20px;float: right;position: relative;cursor: pointer">
+        <img style="width: inherit" src="assets/images/buttons/cross.png">
+    </div>
+    <div>
+        <h2 id="modalGraphTitle"></h2>
+
+        <div id="modalGraphParamsBody">
+
+        </div>
+        <button id="modalGraphSaveParams"> save</button>
+    </div>
+
+</dialog>
 
 
 </body>
