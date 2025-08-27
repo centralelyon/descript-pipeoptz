@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, logging, jsonify, Response
-import cv2
 import numpy as np
 from PIL import Image
-import sys, os
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -40,11 +38,25 @@ def pipes():
     return resp
 
 
+@app.route('/setPipeParams', methods=["POST"])
+@cross_origin()
+def setPipeParams():
+    tpip = request.form['pipeline']
+    nodes = ujson.loads(request.form['nodes'])
+    for node in nodes:
+        for param in nodes[node]:
+            # ATM we have no clue what type a node param expect. Hence, we assume all of them should be ints or bools
+            if nodes[node][param] == "false" or nodes[node][param] == "true":
+                nodes[node][param] = bool(nodes[node][param])
+            else:
+                nodes[node][param] = int(nodes[node][param])
+            pipelines[tpip].nodes[node].set_fixed_param(param, nodes[node][param])
+    return "ok"
+
+
 @app.route('/ask', methods=["POST"])
 @cross_origin()
 def ask():
-    st = time.time()
-
     im = Image.open(request.files['image'])
 
     if im.size[0] > maxImgSize[0]:
@@ -53,37 +65,36 @@ def ask():
 
     tt = np.array(im)
 
-    print(request.form['pipeline'])
     tpip = pipelines[request.form['pipeline']]
-    setup = time.time()
-    print("----")
-    print("setup", setup - st)
-    print("----")
 
     res = tpip.run({'image': tt})
     tres = []
 
-    t = res[2]
-    print(f"run = {t[0]}")
-    for k in t[1].keys():
-        if t[1][k] > 0.01:
-            print(f"\t{k} = {round(t[1][k], 2)}s")
-    print("----")
+    # t = res[2]
+    # print(f"run = {t[0]}")
+    # for k in t[1].keys():
+    #     if t[1][k] > 0.01:
+    #         print(f"\t{k} = {round(t[1][k], 2)}s")
+    # print("----")
 
-    run = time.time()
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
 
     resp = Response(
-        response=ujson.dumps({"images": tres}),
+        response=ujson.dumps({"images": tres, "outputs": getItermediateResults(tpip)}),
         status=200,
         mimetype="application/json")
 
-    send = time.time()
-    print("send", send - run)
-    print("----")
-
     return resp
+
+
+def getItermediateResults(pipeline):
+    res = {}
+
+    for node in pipeline.nodes:
+        res[node] = numpy_to_b64(pipeline.nodes[node].output)
+
+    return res
 
 
 def numpy_to_b64(array):

@@ -76,6 +76,28 @@ function fakeCoords(n) {
 }
 
 
+async function setPipelinesParams(pipeline) {
+
+
+    let form = new FormData();
+    form.append("pipeline", pipeline);
+    form.append("nodes", JSON.stringify(customPipelineParam[pipeline]));
+    let pipelines = await fetch("http://localhost:5000/setPipeParams",
+        {
+            mode: 'cors',
+            headers: {},
+            method: "POST",
+            body: form
+        })
+        .then(function (res) {
+            // console.log(res);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res
+        })
+}
+
 async function getPipelines() {
     let pipelines = await fetch("http://localhost:5000/pipes",
         {

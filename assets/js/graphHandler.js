@@ -56,12 +56,18 @@ function handleNodeClick(node) {
 
 function getParams(node) {
     let res = []
+    const nodeName = node.__data__.key.replace("_", " ")
+    const currPipe = document.getElementById("pipeSelect").value
 
-    d3.select(node).selectAll("text[font-size=\"8.00\"]").each(function (d, i) {
-        const t = d.children[0].text.replace("(", '').replace(")", '').replace(" ", "").split(",")
-        res.push(t);
-    })
-    return {key: node.__data__.key, params: res[0]} //temp stuff might change due to graph structure and representation
+    // d3.select(node).selectAll("text[font-size=\"8.00\"]").each(function (d, i) { // Parse graph to get params
+    //     const t = d.children[0].text.replace("(", '').replace(")", '').replace(" ", "").split(",")
+    //     res.push(t.replace(" ",""));
+    // })
+
+    if (globalPipelines.fixedParams[currPipe][nodeName]) {
+        res = Object.keys(globalPipelines.fixedParams[currPipe][nodeName])
+    }
+    return {key: nodeName, params: res} //temp stuff might change due to graph structure and representation
 }
 
 
@@ -81,12 +87,15 @@ function loadGraphModal(nodeName, params) {
 
     const currPipe = document.getElementById("pipeSelect").value
 
+
     for (let i = 0; i < params.length; i++) {
 
         let tdiv = document.createElement("div");
         let paramLabel = document.createElement("p");
         let paramInput = document.createElement("input");
 
+        console.log(params[i]);
+        console.log(globalPipelines.fixedParams[currPipe][nodeName][params[i]]);
 
         paramLabel.innerHTML = params[i];
         paramLabel.setAttribute("class", "graphParamLabel");
@@ -101,7 +110,7 @@ function loadGraphModal(nodeName, params) {
         }
 
 
-        paramInput.type = "number";
+        paramInput.type = "text";
 
         tdiv.appendChild(paramLabel);
         tdiv.appendChild(paramInput);
@@ -131,6 +140,8 @@ function loadGraphModal(nodeName, params) {
 
 
         }
+
+        setPipelinesParams(currPipe).then(r => "")
 
         dialog.close();
 
