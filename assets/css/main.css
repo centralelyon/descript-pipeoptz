@@ -110,6 +110,14 @@ body {
     left: 1%;
 }
 
+.disabledButton {
+    color: #666666;
+    background-color: #666666;
+    cursor: not-allowed;
+    width: 35px !important;
+    height: 35px;
+}
+
 .selectedIm {
     border: red solid 1px !important;
     filter: none !important;

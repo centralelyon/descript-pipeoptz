@@ -165,14 +165,15 @@ async function init() {
     }
 
     switchMode("rect")
-    document.getElementById("jsonLoader").addEventListener("change", importFromJson);
-    document.getElementById("imgLoader").addEventListener("change", importImg);
+    // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
+    // document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("pipeSelect").addEventListener("change", switchGraph);
 
     // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
     getPipelines()
+
 
 
 }

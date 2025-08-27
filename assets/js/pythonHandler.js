@@ -1,58 +1,72 @@
+let nodeOuputs
+let forwardAllowed = false
+
 async function forwardPipeline(pipeline, img = null) {
-    img = getImgBase64(currImg)
-    img = dataURLtoFile(img, "temp.png")
+    if (forwardAllowed) {
+        const gif = document.getElementById("pipeLoaderGif");
+        toggleForward()
+        gif.style.display = "inline-block";
 
-    let form = new FormData();
-    form.append("pipeline", pipeline);
-    form.append("image", img);
+        img = getImgBase64(currImg)
+        img = dataURLtoFile(img, "temp.png")
 
-    let imgs = await fetch("http://localhost:5000/ask",
-        {
-            mode: 'cors',
-            headers: {},
-            method: "POST",
-            body: form
-        })
-        .then(function (res) {
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
+        let form = new FormData();
+        form.append("pipeline", pipeline);
+        form.append("image", img);
+
+
+        let imgs = await fetch("http://localhost:5000/ask",
+            {
+                mode: 'cors',
+                headers: {},
+                method: "POST",
+                body: form
+            })
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(function (data) {
+                return data
+            })
+
+        nodeOuputs = imgs["outputs"]
+        sampleData = []//todo: ATM we clear samples to spam forward and assess results
+        for (let i = 0; i < imgs["images"].length; i++) {
+            const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i][0])
+            const rpos = imgs["images"][i][1]
+
+            let tw = tcan.width
+            let th = tcan.height
+
+            let tres = {
+                width: tw,
+                height: th,
+                type: "rect",
+                canvas: tcan,
+                // categories: "default",
+                rx: rpos[0],
+                ry: rpos[1],
+                rWidth: rpos[2] - rpos[0],
+                rHeight: rpos[3] - rpos[1],
             }
-            return res.json();
-        })
-        .then(function (data) {
-            return data
-        })
 
-    for (let i = 0; i < imgs["images"].length; i++) {
-        const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i][0])
-        const rpos = imgs["images"][i][1]
+            sampleData.push(tres)
 
-        let tw = tcan.width
-        let th = tcan.height
 
-        let tres = {
-            width: tw,
-            height: th,
-            type: "rect",
-            canvas: tcan,
-            // categories: "default",
-            rx: rpos[0],
-            ry: rpos[1],
-            rWidth: rpos[2] - rpos[0],
-            rHeight: rpos[3] - rpos[1],
         }
+        fillSvg(sampleData)
 
-        sampleData.push(tres)
+        // for (let i = 0; i < sampleData.length; i++) {
+        drawSamples(sampleData)
 
+        // }
 
+        gif.style.display = "none";
+        toggleForward()
     }
-    fillSvg(sampleData)
-
-    // for (let i = 0; i < sampleData.length; i++) {
-    drawSamples(sampleData)
-
-    // }
-
 }
 
 
@@ -75,6 +89,10 @@ function fakeCoords(n) {
     return coords;
 }
 
+function toggleForward() {
+    forwardAllowed = !forwardAllowed;
+    document.getElementById("forwardButton").classList.toggle("disabledButton");
+}
 
 async function setPipelinesParams(pipeline) {
 
@@ -98,6 +116,40 @@ async function setPipelinesParams(pipeline) {
         })
 }
 
+
+async function testNode(pipeline, node, params) {
+
+
+    let form = new FormData();
+    form.append("pipeline", pipeline);
+    form.append("node", node);
+    form.append("params", JSON.stringify(params));
+
+    let img = await fetch("http://localhost:5000/testNode",
+        {
+            mode: 'cors',
+            headers: {},
+            method: "POST",
+            body: form
+        })
+        .then(function (res) {
+            // console.log(res);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+
+
+            return res.json();
+        }).then(function (data) {
+            const img = document.getElementById("nodeOutputImg")
+
+            img.style.display = "inline-block";
+            img.src = "data:image/png;base64," + data.result;
+            return data
+        })
+}
+
+
 async function getPipelines() {
     let pipelines = await fetch("http://localhost:5000/pipes",
         {
@@ -118,6 +170,8 @@ async function getPipelines() {
             globalPipelines.fixedParams = curateFixedParams(globalPipelines.fixedParams)
 
             iniGraph(data["pipelines"][0])
+
+
             return data["pipelines"]
         })
 

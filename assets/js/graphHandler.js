@@ -87,15 +87,24 @@ function loadGraphModal(nodeName, params) {
 
     const currPipe = document.getElementById("pipeSelect").value
 
+    if (nodeOuputs?.[nodeName]) {
+        const img = document.getElementById("nodeOutputImg")
+        const cont = document.getElementById("nodeOutputContainer")
+        img.style.display = "inline-block";
+        cont.style.display = "inline-block";
+        img.src = "data:image/png;base64," + nodeOuputs[nodeName];
+    } else {
+        const img = document.getElementById("nodeOutputImg")
+        const cont = document.getElementById("nodeOutputContainer")
+        img.style.display = "none";
+        cont.style.display = "none";
+    }
 
     for (let i = 0; i < params.length; i++) {
 
         let tdiv = document.createElement("div");
         let paramLabel = document.createElement("p");
         let paramInput = document.createElement("input");
-
-        console.log(params[i]);
-        console.log(globalPipelines.fixedParams[currPipe][nodeName][params[i]]);
 
         paramLabel.innerHTML = params[i];
         paramLabel.setAttribute("class", "graphParamLabel");
@@ -109,7 +118,6 @@ function loadGraphModal(nodeName, params) {
             paramInput.value = globalPipelines.fixedParams[currPipe][nodeName][params[i]]
         }
 
-
         paramInput.type = "text";
 
         tdiv.appendChild(paramLabel);
@@ -120,6 +128,7 @@ function loadGraphModal(nodeName, params) {
     }
 
     const save = document.getElementById("modalGraphSaveParams");
+    const test = document.getElementById("modalGraphTestParams");
 
     save.onclick = function () {
         let values = []
@@ -145,6 +154,18 @@ function loadGraphModal(nodeName, params) {
 
         dialog.close();
 
+    }
+
+    test.onclick = function () {
+        let values = {}
+
+        const tkeys = Object.keys(globalPipelines.fixedParams[currPipe][nodeName])
+
+        container.querySelectorAll("input").forEach(function (d, i) {
+            values[tkeys[i]] = d.value
+        })
+
+        testNode(currPipe, nodeName, values).then(r => "")
     }
 
 

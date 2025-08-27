@@ -24,6 +24,9 @@ function loadImg(src) {
         cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
         fillSvg(sampleData)
+        forwardAllowed = true
+        document.getElementById("forwardButton").classList.remove("disabledButton");
+
     };
 
     im.src = src

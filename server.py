@@ -17,6 +17,15 @@ from pipelines import pipelines
 maxImgSize = [1000, 1000]
 
 
+def castParam(param):
+    # ATM we have no clue what type a node param expect. Hence, we assume all of them should be ints or bools
+    if param == "false" or param == "true":
+        param = bool(param)
+    else:
+        param = int(param)
+    return param
+
+
 @app.route('/pipes', methods=["GET"])
 @cross_origin()
 def pipes():
@@ -45,13 +54,30 @@ def setPipeParams():
     nodes = ujson.loads(request.form['nodes'])
     for node in nodes:
         for param in nodes[node]:
-            # ATM we have no clue what type a node param expect. Hence, we assume all of them should be ints or bools
-            if nodes[node][param] == "false" or nodes[node][param] == "true":
-                nodes[node][param] = bool(nodes[node][param])
-            else:
-                nodes[node][param] = int(nodes[node][param])
+            nodes[node][param] = castParam(nodes[node][param])
             pipelines[tpip].nodes[node].set_fixed_param(param, nodes[node][param])
     return "ok"
+
+
+@app.route('/testNode', methods=["POST"])
+@cross_origin()
+def testNode():
+    tpip = request.form['pipeline']
+    params = ujson.loads(request.form['params'])
+
+    for param in params:
+        params[param] = castParam(params[param])
+
+    nodeName = request.form['node']
+
+    img = pipelines[tpip].run_single_node(nodeName, inputs=params)
+
+    resp = Response(
+        response=ujson.dumps({"result": numpy_to_b64(img)}),
+        status=200,
+        mimetype="application/json")
+
+    return resp
 
 
 @app.route('/ask', methods=["POST"])
@@ -70,12 +96,12 @@ def ask():
     res = tpip.run({'image': tt})
     tres = []
 
-    # t = res[2]
-    # print(f"run = {t[0]}")
-    # for k in t[1].keys():
-    #     if t[1][k] > 0.01:
-    #         print(f"\t{k} = {round(t[1][k], 2)}s")
-    # print("----")
+    t = res[2]
+    print(f"run = {t[0]}")
+    for k in t[1].keys():
+        if t[1][k] > 0.01:
+            print(f"\t{k} = {round(t[1][k], 2)}s")
+    print("----")
 
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
@@ -92,8 +118,8 @@ def getItermediateResults(pipeline):
     res = {}
 
     for node in pipeline.nodes:
-        res[node] = numpy_to_b64(pipeline.nodes[node].output)
-
+        if type(pipeline.nodes[node].output) == np.ndarray:
+            res[node] = numpy_to_b64(pipeline.nodes[node].output)
     return res
 
 
