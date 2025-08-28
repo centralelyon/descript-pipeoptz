@@ -10,3 +10,4 @@ scikit-image
 scipy
 scikit-image
 scikit-learn
+pytesseract
