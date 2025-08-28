@@ -115,7 +115,6 @@ def initPipeline():
 
 if __name__ == "__main__":
     from PIL import Image
-    import numpy as np
     import matplotlib.pyplot as plt
 
     pipeline = initPipeline()
@@ -128,5 +127,5 @@ if __name__ == "__main__":
     for k in t[1].keys():
         print(f"\t{k} = {round(t[1][k],2)}s")
     print(res[12][1])
-    #plt.imshow(res[12][0])
-    #plt.show()
+    plt.imshow(res[12][0])
+    plt.show()
