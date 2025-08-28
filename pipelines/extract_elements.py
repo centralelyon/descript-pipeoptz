@@ -6,7 +6,8 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.abspath(f"{PATH}\\..\\\\"))
 sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
-from pipeoptz import Pipeline, Node
+from pipeoptz import Pipeline, Node, IntParameter, FloatParameter, BoolParameter, ChoiceParameter
+
 
 def get_bb(el, bonus=0):
     xy = np.argwhere(el)
@@ -16,6 +17,9 @@ def get_bb(el, bonus=0):
 
 def to_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_RGBA2GRAY)
+
+def odd_intenger(n):
+    return 2*n-1
 
 def gaussian_blur(image, kernel_size=5):
     return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
@@ -75,12 +79,18 @@ def initPipeline():
         predecessors={"image": "run_params:image"}
     )
     pipeline.add_node(
-        Node("GaussianBlur", gaussian_blur, fixed_params={"kernel_size": 5}),
-        predecessors={"image": "Grayscale"}
+        Node("[optz]OddKernelSize", odd_intenger, {"n": 3})
     )
     pipeline.add_node(
-        Node("AdaptiveThreshold", adaptive_threshold, fixed_params={"block_size": 17, "c": 16}),
-        predecessors={"image": "GaussianBlur"}
+        Node("GaussianBlur", gaussian_blur),
+        predecessors={"image": "Grayscale", "kernel_size": "[optz]OddKernelSize"}
+    )
+    pipeline.add_node(
+        Node("[optz]OddBlockSize", odd_intenger, {"n": 9})
+    )
+    pipeline.add_node(
+        Node("AdaptiveThreshold", adaptive_threshold, fixed_params={"c": 16}),
+        predecessors={"image": "GaussianBlur", "block_size": "[optz]OddBlockSize"}
     )
     pipeline.add_node(
         Node("FindContours1", find_contours),
@@ -111,6 +121,15 @@ def initPipeline():
         predecessors={"masks": "SurfaceMin", "image": "run_params:image"}
     )
     return pipeline
+
+
+def initParameter():
+    return [
+        IntParameter("[optz]OddKernelSize", "n", 1, 5), # [1, 3, 5, 7, 9]
+        IntParameter("[optz]OddBlockSize", "n", 1, 15),
+        IntParameter("AdaptiveThreshold", "c", 0, 64),
+        IntParameter("SurfaceMin", "treshold", 1, 1000)
+    ]
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-########## IMPORT DES BIBLIOTHEQUES #########
 import numpy as np
 from math import comb
 from sklearn.cluster import MiniBatchKMeans 
@@ -9,14 +8,14 @@ import sys, os
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
-from pipeoptz import Pipeline, Node
+from pipeoptz import Pipeline, Node, IntParameter, BoolParameter
 
 
-########## FONCTIONS POUR LES NODES ##########
 def ith_subset(n, i):
     total = 2**n
-    if i < 0 or i >= total:
+    if i < 0:
         raise ValueError(f"Index i must be in [0, {total - 1}]")
+    i = min(i, total - 1)
 
     remaining = i
     for k in range(n + 1):
@@ -150,31 +149,47 @@ def generate_res(image, mask, rBB):
     im_colored = color_mask(image[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)], mask[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)])
     return [min_size(im_colored), rBB]
 
+def globalVar(x):
+    return x
 
-########## DEFINITION DE LA PIPELINE ##########
+
+
 def initPipeline():
-    n_color = 8
     pipeline = Pipeline("BG & Isolate")
     pipeline.add_node(
-        Node("Extract palette", extract_palette, {"n_colors":n_color, "use_lab":False, "batch_size":256}), 
-        {"image":"run_params:image"})
+        Node("[optz]PaletteSize", globalVar, {"x":8})
+    )
+    pipeline.add_node(
+        Node("ExtractPalette", extract_palette, {"use_lab":False, "batch_size":256}), 
+        {"image":"run_params:image", "n_colors":"[optz]PaletteSize"})
     pipeline.add_node(
         Node("Recolor", recolor), 
-        {"image":"run_params:image", "palette":"Extract palette"})
+        {"image":"run_params:image", "palette":"ExtractPalette"})
     pipeline.add_node(
-        Node("Remove palette", remove_palette, {"indices_to_remove": [0,1,2]}), 
-        {"image":"run_params:image", "recolored_image":"Recolor", "palette":"Extract palette"})
+        Node("[optz]PaletteIndices", ith_subset, {"i":37}),
+        {"n":"[optz]PaletteSize"})
     pipeline.add_node(
-        Node("To mask", to_mask), 
-        {"image":"Remove palette"})
+        Node("RemovePalette", remove_palette), 
+        {"image":"run_params:image", "recolored_image":"Recolor", "palette":"ExtractPalette", "indices_to_remove":"[optz]PaletteIndices"})
+    pipeline.add_node(
+        Node("ToMask", to_mask), 
+        {"image":"RemovePalette"})
     pipeline.add_node(
         Node("Isolate", isolate, {"sizemin":400}), 
-        {"binary_mask": "To mask"})
+        {"binary_mask": "ToMask"})
     pipeline.add_node(
-        Node("Get rBB", get_rBB), 
+        Node("rBB", get_rBB), 
         {"[mask]":"Isolate"})
     pipeline.add_node(
         Node("Results", generate_res), 
-        {"image":"run_params:image", "[mask]":"Isolate", "[rBB]":"Get rBB"})
+        {"image":"run_params:image", "[mask]":"Isolate", "[rBB]":"rBB"})
     return pipeline
 
+
+def initParameters():
+    return [
+        IntParameter("[optz]PaletteSize", "x", 6, 12),
+        BoolParameter("ExtractPalette", "use_lab"),
+        IntParameter("[optz]PaletteIndices", "i", 1, 128),
+        IntParameter("Isolate", "sizemin", 1, 1000)
+    ]
