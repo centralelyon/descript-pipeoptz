@@ -46,7 +46,7 @@ def ask():
 
     if im.size[0] > maxImgSize[0]:
         ratio = maxImgSize[0] / im.size[0]
-        im = im.resize((maxImgSize[0], int(im.size[1] * ratio)), Image.Resampling.LANCZOS)
+        im = im.resize((maxImgSize[0], int(im.size[1] * ratio)cd de), Image.Resampling.LANCZOS)
 
     tt = np.array(im)
 
