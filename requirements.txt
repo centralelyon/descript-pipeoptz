@@ -7,3 +7,7 @@ pillow
 ujson
 scikit-learn
 scikit-image
+scipy
+scikit-image
+scikit-learn
+pytesseract

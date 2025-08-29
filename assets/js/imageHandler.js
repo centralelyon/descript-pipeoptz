@@ -24,6 +24,9 @@ function loadImg(src) {
         cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
         fillSvg(sampleData)
+        forwardAllowed = true
+        document.getElementById("forwardButton").classList.remove("disabledButton");
+
     };
 
     im.src = src
@@ -77,21 +80,6 @@ function drawSamples(samples) {
     for (let i = 0; i < samples.length; i++) {
 
         const sample = samples[i];
-
-        // if (sample["data"]) {
-        //     if (sample.data["orientation"]) {
-        //         const tx = sample.rx * can.width
-        //         const ty = sample.ry * can.height;
-        //         const tw = sample.rWidth * can.width
-        //         const th = sample.rHeight * can.height
-        //
-        //         cont.save()
-        //         cont.translate(tx, ty);
-        //         cont.rotate(sample.orientation * Math.PI / 180);
-        //
-        //         cont.drawImage(sample.canvas, -tw/ 2, -th / 2, tw, th);
-        //         cont.restore();
-        //     } else {
                 cont.drawImage(
                     sample.canvas,
                     sample.rx * can.width,

@@ -1,9 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, logging, jsonify, Response
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
-import sys, os
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -15,22 +12,68 @@ from io import BytesIO
 import ujson as ujson
 import time
 
-from pipelines.extract_elements import initExtractElements
-
-# import complex
-pipelines = {
-    "extract_elements": initExtractElements()
-}
+from pipelines import pipelines
 
 maxImgSize = [1000, 1000]
+
+
+def castParam(param):
+    # ATM we have no clue what type a node param expect. Hence, we assume all of them should be ints or bools
+    if param == "false" or param == "true":
+        param = bool(param)
+    else:
+        param = int(param)
+    return param
 
 
 @app.route('/pipes', methods=["GET"])
 @cross_origin()
 def pipes():
+    keys = list(pipelines.keys())
+    graphs = {}
+    fixedParams = {}
+    for key in keys:
+        graphs[key] = pipelines[key].to_dot()
+        fixedParams[key] = pipelines[key].get_fixed_params()
+
     resp = Response(response=ujson.dumps({
-        "pipelines": list(pipelines.keys())
+        "pipelines": keys,
+        "graphs": graphs,
+        "fixedParams": fixedParams
     }),
+        status=200,
+        mimetype="application/json")
+
+    return resp
+
+
+@app.route('/setPipeParams', methods=["POST"])
+@cross_origin()
+def setPipeParams():
+    tpip = request.form['pipeline']
+    nodes = ujson.loads(request.form['nodes'])
+    for node in nodes:
+        for param in nodes[node]:
+            nodes[node][param] = castParam(nodes[node][param])
+            pipelines[tpip].nodes[node].set_fixed_param(param, nodes[node][param])
+    return "ok"
+
+
+@app.route('/testNode', methods=["POST"])
+@cross_origin()
+def testNode():
+    tpip = request.form['pipeline']
+    params = ujson.loads(request.form['params'])
+
+    for param in params:
+        params[param] = castParam(params[param])
+
+    nodeName = request.form['node']
+
+    img = pipelines[tpip].run_single_node(nodeName, inputs=params)
+
+    resp = Response(
+        response=ujson.dumps({"result": numpy_to_b64(img)}),
         status=200,
         mimetype="application/json")
 
@@ -40,8 +83,6 @@ def pipes():
 @app.route('/ask', methods=["POST"])
 @cross_origin()
 def ask():
-    st = time.time()
-
     im = Image.open(request.files['image'])
 
     if im.size[0] > maxImgSize[0]:
@@ -50,31 +91,36 @@ def ask():
 
     tt = np.array(im)
 
-    print(request.form['pipeline'])
     tpip = pipelines[request.form['pipeline']]
-    setup = time.time()
-    print("setup", setup - st)
-    print("----")
 
     res = tpip.run({'image': tt})
     tres = []
-    run = time.time()
-    print("run", run - setup)
+
+    t = res[2]
+    print(f"run = {t[0]}")
+    for k in t[1].keys():
+        if t[1][k] > 0.01:
+            print(f"\t{k} = {round(t[1][k], 2)}s")
     print("----")
+
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])
 
-    resp = Response(response=ujson.dumps({
-        "images": tres
-    }),
+    resp = Response(
+        response=ujson.dumps({"images": tres, "outputs": getItermediateResults(tpip)}),
         status=200,
         mimetype="application/json")
 
-    send = time.time()
-    print("send", send - run)
-    print("----")
-
     return resp
+
+
+def getItermediateResults(pipeline):
+    res = {}
+
+    for node in pipeline.nodes:
+        if type(pipeline.nodes[node].output) == np.ndarray:
+            res[node] = numpy_to_b64(pipeline.nodes[node].output)
+    return res
 
 
 def numpy_to_b64(array):

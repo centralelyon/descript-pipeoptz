@@ -90,7 +90,7 @@ body {
     position: absolute;
 }
 
-#selFlatLabel {
+.selFlatLabel {
     font-weight: bold;
     color: #333;
     text-decoration: underline;
@@ -100,9 +100,40 @@ body {
     left: 1%;
 }
 
+.graphParamLabel {
+    font-weight: bold;
+    color: #333;
+    text-decoration: underline;
+    margin-bottom: 0;
+    position: sticky;
+    top: 0;
+    left: 1%;
+}
+
+.disabledButton {
+    color: #666666;
+    background-color: #666666;
+    cursor: not-allowed;
+    width: 35px !important;
+    height: 35px;
+}
+
 .selectedIm {
     border: red solid 1px !important;
     filter: none !important;
+}
+
+.node {
+    cursor: pointer;
+}
+
+.node polygon {
+    cursor: pointer;
+    fill: rgba(255, 255, 255, 0.07) !important;
+}
+.node polygon:hover {
+
+    fill: rgba(189, 189, 189, 0.31) !important;
 }
 
 #selFlat {

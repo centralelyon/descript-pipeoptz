@@ -1,25 +1,21 @@
-########## IMPORT DES BIBLIOTHEQUES #########
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from math import comb
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans 
 from skimage.color import rgb2lab, lab2rgb
 import scipy as sp
-from PIL import Image
 import sys, os
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
-from pipeoptz import Pipeline, Node, PipelineOptimizer, BoolParameter, IntParameter
+from pipeoptz import Pipeline, Node, IntParameter, BoolParameter
 
 
-########## FONCTIONS POUR LES NODES ##########
 def ith_subset(n, i):
     total = 2**n
-    if i < 0 or i >= total:
+    if i < 0:
         raise ValueError(f"Index i must be in [0, {total - 1}]")
+    i = min(i, total - 1)
 
     remaining = i
     for k in range(n + 1):
@@ -45,22 +41,13 @@ def integer(n):
 def to_mask(image):
     return image[:,:,3] != 0
 
-def biggest_mask(elements):
-    size = []
-    if len(elements) != 0:
-        for el in elements:
-            size.append(el.sum())
-        return elements[size.index(max(size))]
-    else:
-        return None
-
-def colored_mask(image, mask):
+def color_mask(image, mask):
     if mask is not None:
         return image*mask[:,:,np.newaxis]
     else:
         return np.zeros(shape=image.shape)
 
-def extract_palette(image, n_colors, sample_size=0, max_iter=300, use_lab=False):
+def extract_palette(image, n_colors, max_iter=100, use_lab=False, batch_size=256):
     if image.shape[2] == 4:
         opaque_mask = image[:, :, 3] != 0
         pixels = image[opaque_mask][:, :3]
@@ -70,25 +57,19 @@ def extract_palette(image, n_colors, sample_size=0, max_iter=300, use_lab=False)
         pixels = image.reshape(-1, 3)
     else:
         raise ValueError("Image must be RGB or RGBA.")
-    
+
     if use_lab:
         pixels_normalized = pixels.astype(np.float32) / 255.0
-        data_for_kmeans = rgb2lab(pixels_normalized)
+        sample = rgb2lab(pixels_normalized)
     else:
-        data_for_kmeans = pixels.astype(np.float32)
-
-    if sample_size > 0 and data_for_kmeans.shape[0] > sample_size:
-        indices = np.random.choice(data_for_kmeans.shape[0], size=sample_size, replace=False)
-        sample = data_for_kmeans[indices]
-    else:
-        sample = data_for_kmeans
+        sample = pixels.astype(np.float32)
 
     if sample.shape[0] < n_colors:
         n_colors = max(1, sample.shape[0])
         if n_colors == 0:
             return np.array([], dtype=np.uint8).reshape(0, 3)
 
-    kmeans = KMeans(n_clusters=n_colors, max_iter=max_iter, n_init='auto', random_state=0)
+    kmeans = MiniBatchKMeans(n_clusters=n_colors, max_iter=max_iter, tol=1e-1, random_state=0, batch_size=batch_size)
     kmeans.fit(sample)
     centers = kmeans.cluster_centers_
 
@@ -144,49 +125,71 @@ def isolate(binary_mask, sizemin=1):
     if not np.any(binary_mask):
         return []
     labeled_array, num_features = sp.ndimage.label(binary_mask)
-    
-    elements = []
-    for i in range(1, num_features + 1):
-        component_mask = (labeled_array == i)
-        if np.sum(component_mask) >= sizemin:
-            elements.append(component_mask)
-    return elements
+    sizes = np.bincount(labeled_array.ravel())[1:]  # skip background
+    valid_labels = np.where(sizes >= sizemin)[0] + 1
+    return [(labeled_array == label) for label in valid_labels]
+
+def get_rBB(mask, bonus=0):
+    h, w = mask.shape
+    xy = np.argwhere(mask)
+    y1, x1 = xy[:,0].min(), xy[:,1].min()
+    y2, x2 = xy[:,0].max(), xy[:,1].max()
+    return max(x1-bonus,0)/w, max(y1-bonus,0)/h, min(x2+bonus,w)/w, min(y2+bonus,h)/h
+
+def min_size(im):
+    filter = im if im.ndim == 2 else im[..., 0] != 0
+    rows = np.any(filter, axis=1)
+    cols = np.any(filter, axis=0)
+    y1, y2 = np.where(rows)[0][[0, -1]]
+    x1, x2 = np.where(cols)[0][[0, -1]]
+    return im[y1:y2+1, x1:x2+1]
+
+def generate_res(image, mask, rBB):
+    h, w = image.shape[:2]
+    im_colored = color_mask(image[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)], mask[int(rBB[1]*h):int(rBB[3]*h), int(rBB[0]*w):int(rBB[2]*w)])
+    return [min_size(im_colored), rBB]
+
+def globalVar(x):
+    return x
 
 
-########## FONCTION DE PERTE ##########
-def IoU(im1, im2):
-    f1 = im1[:,:,3]==255
-    f2 = im2[:,:,3]==255
-    intersection = (f1 & f2).sum()
-    union = (f1 | f2).sum()
-    return intersection / union if union > 0 else 0
 
-def loss(f1, f2):
-    return 1/(IoU(f1, f2)+1e-20)**2
-
-
-def initComplex():
-
-########## DEFINITION DE LA PIPELINE ##########
-    pipeline = Pipeline("RemoveBG")
-    pipeline.add_node(Node("Palette size", integer, fixed_params={"n":8}))
-    pipeline.add_node(Node("Extract palette", extract_palette, fixed_params={"use_lab":False}), predecessors={"image":"run_params:image", "n_colors":"Palette size"})
-    pipeline.add_node(Node("Palette indices", ith_subset, fixed_params={"i": 37}), predecessors={"n":"Palette size"})
-    pipeline.add_node(Node("Recolor", recolor), predecessors={"image":"run_params:image", "palette":"Extract palette"})
-    pipeline.add_node(Node("Remove palette", remove_palette), predecessors={"image":"run_params:image", "recolored_image":"Recolor", "palette":"Extract palette", "indices_to_remove":"Palette indices"})
-    pipeline.add_node(Node("To mask", to_mask), predecessors={"image":"Remove palette"})
-    pipeline.add_node(Node("Isolate", isolate), predecessors={"binary_mask": "To mask"})
-    pipeline.add_node(Node("Main element", biggest_mask), predecessors={"elements":"Isolate"})
-    pipeline.add_node(Node("Colored element", colored_mask), predecessors={"image":"run_params:image", "mask":"Main element"})
+def initPipeline():
+    pipeline = Pipeline("BG & Isolate")
+    pipeline.add_node(
+        Node("[optz]PaletteSize", globalVar, {"x":8})
+    )
+    pipeline.add_node(
+        Node("ExtractPalette", extract_palette, {"use_lab":False, "batch_size":256}), 
+        {"image":"run_params:image", "n_colors":"[optz]PaletteSize"})
+    pipeline.add_node(
+        Node("Recolor", recolor), 
+        {"image":"run_params:image", "palette":"ExtractPalette"})
+    pipeline.add_node(
+        Node("[optz]PaletteIndices", ith_subset, {"i":37}),
+        {"n":"[optz]PaletteSize"})
+    pipeline.add_node(
+        Node("RemovePalette", remove_palette), 
+        {"image":"run_params:image", "recolored_image":"Recolor", "palette":"ExtractPalette", "indices_to_remove":"[optz]PaletteIndices"})
+    pipeline.add_node(
+        Node("ToMask", to_mask), 
+        {"image":"RemovePalette"})
+    pipeline.add_node(
+        Node("Isolate", isolate, {"sizemin":400}), 
+        {"binary_mask": "ToMask"})
+    pipeline.add_node(
+        Node("rBB", get_rBB), 
+        {"[mask]":"Isolate"})
+    pipeline.add_node(
+        Node("Results", generate_res), 
+        {"image":"run_params:image", "[mask]":"Isolate", "[rBB]":"rBB"})
     return pipeline
 
 
-def optComplex(pipeline):
-########## DEFINITION DE L'OPTIMISEUR ##########
-    optimizer = PipelineOptimizer(pipeline, loss, max_time_pipeline=0.1)
-    optimizer.add_param(IntParameter("Palette size", "n", 8, 15))
-    optimizer.add_param(IntParameter("Palette indices", "i", 1, 63))
-    optimizer.add_param(BoolParameter("Extract palette", "use_lab"))
-
-
-
+def initParameters():
+    return [
+        IntParameter("[optz]PaletteSize", "x", 6, 12),
+        BoolParameter("ExtractPalette", "use_lab"),
+        IntParameter("[optz]PaletteIndices", "i", 1, 128),
+        IntParameter("Isolate", "sizemin", 1, 1000)
+    ]

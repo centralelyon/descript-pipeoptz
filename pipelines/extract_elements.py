@@ -6,29 +6,20 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.abspath(f"{PATH}\\..\\\\"))
 sys.path.insert(1, os.path.abspath(f"{PATH}/../pipeoptz/"))
 
-from pipeoptz import Pipeline, Node
+from pipeoptz import Pipeline, Node, IntParameter, FloatParameter, BoolParameter, ChoiceParameter
 
-def get_pos(el, bonus=0):
+
+def get_bb(el, bonus=0):
     xy = np.argwhere(el)
     y1, x1 = xy[:,0].min(), xy[:,1].min()
     y2, x2 = xy[:,0].max(), xy[:,1].max()
     return max(x1-bonus,0), max(y1-bonus,0), min(x2+bonus,el.shape[1]-1), min(y2+bonus,el.shape[0]-1)
 
-def min_size(im):
-    col_min, col_max = 0, im.shape[0]-1, 
-    ligne_min, ligne_max = 0, im.shape[1]-1
-    while not np.any(im[col_min, :]):
-        col_min += 1
-    while not np.any(im[:, ligne_min]):
-        ligne_min += 1
-    while not np.any(im[col_max, :]):
-        col_max -= 1
-    while not np.any(im[:, ligne_max]):
-        ligne_max -= 1
-    return im[col_min:col_max, ligne_min:ligne_max]
-
 def to_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_RGBA2GRAY)
+
+def odd_intenger(n):
+    return 2*n-1
 
 def gaussian_blur(image, kernel_size=5):
     return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
@@ -43,8 +34,8 @@ def find_contours(image):
 def draw_contours(image, contours_hierarchy):
     contours, hierarchy = contours_hierarchy
     temp = np.zeros_like(image)
+    color = (255, 255, 255)
     for i in range(len(contours)):
-        color = (255, 255, 255)
         cv2.drawContours(temp, contours, i, color, 5, cv2.LINE_8, hierarchy, 100)
     return temp
 
@@ -72,26 +63,34 @@ def surface_min(masks, treshold):
 
 def generate_res(masks, image):
     res = []
-    print(image.shape)
     for mask in masks:
-        pos = get_pos(mask)
-        rpos = pos[0]/image.shape[1], pos[1]/image.shape[0], pos[2]/image.shape[1], pos[3]/image.shape[0]
-        res.append([min_size(image*mask[:,:,np.newaxis]), list(rpos)])
+        bb = get_bb(mask)
+        rbb = bb[0]/image.shape[1], bb[1]/image.shape[0], bb[2]/image.shape[1], bb[3]/image.shape[0]
+        im = image[bb[1]:bb[3], bb[0]:bb[2]]*mask[bb[1]:bb[3], bb[0]:bb[2]][:,:,np.newaxis]
+        res.append([im, list(rbb)])
     return res
 
-def initExtractElements():
+
+
+def initPipeline():
     pipeline = Pipeline("ExtractElements")
     pipeline.add_node(
         Node("Grayscale", to_grayscale),
         predecessors={"image": "run_params:image"}
     )
     pipeline.add_node(
-        Node("GaussianBlur", gaussian_blur, fixed_params={"kernel_size": 5}),
-        predecessors={"image": "Grayscale"}
+        Node("[optz]OddKernelSize", odd_intenger, {"n": 3})
     )
     pipeline.add_node(
-        Node("AdaptiveThreshold", adaptive_threshold, fixed_params={"block_size": 17, "c": 16}),
-        predecessors={"image": "GaussianBlur"}
+        Node("GaussianBlur", gaussian_blur),
+        predecessors={"image": "Grayscale", "kernel_size": "[optz]OddKernelSize"}
+    )
+    pipeline.add_node(
+        Node("[optz]OddBlockSize", odd_intenger, {"n": 9})
+    )
+    pipeline.add_node(
+        Node("AdaptiveThreshold", adaptive_threshold, fixed_params={"c": 16}),
+        predecessors={"image": "GaussianBlur", "block_size": "[optz]OddBlockSize"}
     )
     pipeline.add_node(
         Node("FindContours1", find_contours),
@@ -124,18 +123,28 @@ def initExtractElements():
     return pipeline
 
 
+def initParameter():
+    return [
+        IntParameter("[optz]OddKernelSize", "n", 1, 5), # [1, 3, 5, 7, 9]
+        IntParameter("[optz]OddBlockSize", "n", 1, 15),
+        IntParameter("AdaptiveThreshold", "c", 0, 64),
+        IntParameter("SurfaceMin", "treshold", 1, 1000)
+    ]
+
+
 if __name__ == "__main__":
     from PIL import Image
-    import numpy as np
     import matplotlib.pyplot as plt
 
-    pipeline = initExtractElements()
+    pipeline = initPipeline()
     im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\dearDat.png"))
     
     i, h, t = pipeline.run({"image": im})
     res = h[i]
     print(len(res))
     print(f"time = {round(t[0],5)}")
+    for k in t[1].keys():
+        print(f"\t{k} = {round(t[1][k],2)}s")
     print(res[12][1])
     plt.imshow(res[12][0])
     plt.show()
