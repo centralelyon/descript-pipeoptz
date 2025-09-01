@@ -15,4 +15,8 @@ def initPipeline():
         Node("Splitter", split_image_16), 
         predecessors={"image": "run_params:image"}
     )
-    return pipeline
+    return
+
+
+def initParameters():
+    return []

@@ -59,10 +59,16 @@
 
                     </select>
                     <div id="forwardButton" class="buttonImg disabledButton">
-                        <img src="assets/images/buttons/magic.png" class="lightBorder"
+                        <img src="assets/images/buttons/play.png" class="lightBorder"
                              onclick="forwardPipeline(document.getElementById('pipeSelect').value)"
                              style=""/>
                     </div>
+                    <div id="optiButton" class="buttonImg">
+                        <img src="assets/images/buttons/magic.png" class="lightBorder"
+                             onclick="optimizePipelineParams(document.getElementById('pipeSelect').value)"
+                             style=""/>
+                    </div>
+
                     <div class="buttonImg" id="pipeLoaderGif" style="display: none">
                         <img src="assets/images/buttons/load.gif" class=""
                              style="max-width: 25px;margin-top: 5px"/>

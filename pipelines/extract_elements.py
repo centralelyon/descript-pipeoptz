@@ -123,7 +123,7 @@ def initPipeline():
     return pipeline
 
 
-def initParameter():
+def initParameters():
     return [
         IntParameter("[optz]OddKernelSize", "n", 1, 5), # [1, 3, 5, 7, 9]
         IntParameter("[optz]OddBlockSize", "n", 1, 15),

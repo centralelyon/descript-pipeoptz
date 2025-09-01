@@ -6,13 +6,14 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 cors = CORS(app)  # allow CORS for all domains on all routes.
 app.config['CORS_HEADERS'] = 'Content-Type'
-
+import re
 import base64
 from io import BytesIO
 import ujson as ujson
 import time
-
-from pipelines import pipelines
+from pipelines import pipelines  # , loss
+from pipeoptz.optimizer import PipelineOptimizer
+from pipeoptz.parameter import IntParameter, FloatParameter, ChoiceParameter, BoolParameter, MultiChoiceParameter
 
 maxImgSize = [1000, 1000]
 
@@ -59,6 +60,44 @@ def setPipeParams():
     return "ok"
 
 
+@app.route('/optimizePipeline', methods=["POST"])
+@cross_origin()
+def optimize_pipe():
+    tpip = request.form['pipeline']
+    images = ujson.loads(request.form['images'])
+    coords = ujson.loads(request.form['coords'])
+    ins = []
+
+    for image in images:
+        print(image)
+        imgdata =  base64.b64decode(str(image))
+        ins.append(Image.open(BytesIO(imgdata)))
+
+    pipe = pipelines[tpip]
+
+    params = pipe.initParameters()
+    optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=0.1)
+    for param in params:
+        print(param)
+
+
+    # best_params, loss_log = optimizer.optimize(
+    #     X, y,
+    #     method="BO",
+    #     verbose=True,
+    #     iterations=10,
+    #     init_points=5,
+    # )
+
+    return "ok"
+
+def decode_base64(data, altchars=b'+/'):
+    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += b'='* (4 - missing_padding)
+    return base64.b64decode(data, altchars)
+
 @app.route('/testNode', methods=["POST"])
 @cross_origin()
 def testNode():
@@ -87,7 +126,7 @@ def ask():
 
     if im.size[0] > maxImgSize[0]:
         ratio = maxImgSize[0] / im.size[0]
-        im = im.resize((maxImgSize[0], int(im.size[1] * ratio)cd de), Image.Resampling.LANCZOS)
+        im = im.resize((maxImgSize[0], int(im.size[1] * ratio)), Image.Resampling.LANCZOS)
 
     tt = np.array(im)
 

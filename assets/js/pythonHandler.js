@@ -181,10 +181,54 @@ async function getPipelines() {
 
     for (let i = 0; i < pipelines.length; i++) {
         sel.innerHTML += `<option value="${pipelines[i]}">${pipelines[i]}</option>`
-
         customPipelineParam[pipelines[i]] = {}
     }
+}
 
+async function optimizePipelineParams(pipeline) {
+
+    let imgs = sampleData.filter(d => {
+        return d.type === "free"
+    })
+
+
+    let control = []
+    let coords = []
+    for (let i = 0; i < imgs.length; i++) {
+        if (imgs[i].canvas.width > 10) {
+            control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
+            coords.push([imgs[i].rx, imgs[i].ry, imgs[i].rWidth, imgs[i].rHeight]);
+        }
+    };
+
+    console.log(control);
+    let form = new FormData();
+
+    form.append("pipeline", pipeline);
+    form.append("images", JSON.stringify(control));
+    form.append("coords", JSON.stringify(coords));
+
+    let params = await fetch("http://localhost:5000/optimizePipeline",
+        {
+            mode: 'cors',
+            headers: {},
+            method: 'POST',
+            body: form
+        })
+        .then(function (res) {
+            // console.log(res);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(function (data) {
+
+            console.log(data);
+
+
+            return data["pipelines"]
+        })
 }
 
 
