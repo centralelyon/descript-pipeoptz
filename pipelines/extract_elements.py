@@ -137,14 +137,23 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     pipeline = initPipeline()
-    im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\dearDat.png"))
-    
-    i, h, t = pipeline.run({"image": im})
-    res = h[i]
-    print(len(res))
-    print(f"time = {round(t[0],5)}")
-    for k in t[1].keys():
-        print(f"\t{k} = {round(t[1][k],2)}s")
-    print(res[12][1])
-    plt.imshow(res[12][0])
-    plt.show()
+    imgs = ["dearDat", "Study2_image2", "Gallery_image5", "Gallery_image3"]
+    for i in imgs:
+        im = np.array(Image.open(f"{PATH}\\..\\assets\\images\\tempLoad\\{i}.png"))
+        ind, h, t = pipeline.run({"image": im})
+        res = h[ind]
+        """print(len(res))
+        print(f"time = {round(t[0],5)}")
+        for k in t[1].keys():
+            print(f"\t{k} = {round(t[1][k],2)}s")
+        print(res[12][1])"""
+        size = im.shape
+        ax = plt.gca()
+        ax.set_axis_off()
+        ax.imshow(im//2)
+        ax.set_xlim(0, size[1])
+        ax.set_ylim(0, size[0])
+        for j in res:
+            pos = j[1][0]*size[1], j[1][2]*size[1], size[0]-j[1][3]*size[0], size[0]-j[1][1]*size[0]
+            ax.imshow(j[0], extent=pos)
+        plt.show()
