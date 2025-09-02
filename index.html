@@ -20,12 +20,13 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/imageHandler.js"></script>
     <script src="assets/js/canvasSampleHandler.js"></script>
-    <script src="assets/js/computerVision.js"></script>
+    <!--    <script src="assets/js/computerVision.js"></script>-->
     <script src="assets/js/modalHandler.js"></script>
     <script src="assets/js/svgHandler.js"></script>
-    <script src="assets/js/paletteHandler.js"></script>
-    <script src="assets/js/collageHandler.js"></script>
-    <script src="assets/js/tableHandler.js"></script>
+    <script src="assets/js/paletteMaker.js"></script>
+    <!--    <script src="assets/js/paletteHandler.js"></script>-->
+    <!--    <script src="assets/js/collageHandler.js"></script>-->
+    <!--    <script src="assets/js/tableHandler.js"></script>-->
     <script src="assets/js/pythonHandler.js"></script>
     <script src="assets/js/graphHandler.js"></script>
     <script src="assets/js/main.js"></script>
@@ -58,10 +59,10 @@
                     <select id="pipeSelect" onchange="">
 
                     </select>
-                    <div id="forwardButton" class="buttonImg disabledButton">
+                    <div id="forwardButton" class="buttonImg disabledButton" style="margin-right:4px ">
                         <img src="assets/images/buttons/play.png" class="lightBorder"
                              onclick="forwardPipeline(document.getElementById('pipeSelect').value)"
-                             style=""/>
+                             style="width: 21px;padding: 7px;"/>
                     </div>
                     <div id="optiButton" class="buttonImg">
                         <img src="assets/images/buttons/magic.png" class="lightBorder"
@@ -160,22 +161,39 @@
 
     </div>
 
-    <div class="row" style="margin-top: 0;text-align: center;display:none">
-        <div class="three column"></div>
-        <div class="eight columns " style="margin: 0;text-align: center;height: 300px">
-
-
-            <div id="marks" style="margin-top: 0;">
-
-            </div>
-        </div>
-
-    </div>
 
     <!--–––––––––––––––––––––– SVG Stuff –––––––––––––––––––––––––––– -->
 
     <div class="row" style="margin-top: 0;text-align: center;display:flex">
-        <div class="three columns"></div>
+        <div class="three columns">
+
+            <div style="display:flex;position:relative;left:50px;margin-top: 13px;">
+                <select id="singlePipeSelect" onchange="">
+
+                </select>
+                <div id="singleForwardButton" class="buttonImg disabledButton" style="margin-right:4px ">
+                    <img src="assets/images/buttons/play.png" class="lightBorder"
+                         onclick="forwardPipeline(document.getElementById('pipeSelect').value)"
+                         style="width: 21px;padding: 7px;"/>
+                </div>
+                <!--         <div id="optiButton" class="buttonImg">
+                             <img src="assets/images/buttons/magic.png" class="lightBorder"
+                                  onclick="optimizePipelineParams(document.getElementById('pipeSelect').value)"
+                                  style=""/>
+                         </div>-->
+
+                <div class="buttonImg" id="signlePipeLoaderGif" style="display: none">
+                    <img src="assets/images/buttons/load.gif" class=""
+                         style="max-width: 25px;margin-top: 5px"/>
+                </div>
+            </div>
+
+            <div class="u-full-width lightBorder" style="height: 87%">
+                <svg id="singlePipeLineGraph" style="width: 100%; height: 100%">
+
+                </svg>
+            </div>
+        </div>
         <div class="eight columns " style="margin: 0;text-align: center;">
 
 
@@ -196,12 +214,6 @@
                              onclick="switchSvg(sampleData,'scatter')"
                              style=""/>
                     </div>
-                    <!--                <div class="buttonImg">
-                                        <img src="assets/images/buttons/cat.png" class="lightBorder"
-                                             onclick="switchSvg(sampleData,'default')"
-                                             style=""/>
-                                    </div>
-                -->
                     <div id="secondControl"
                          style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
                 </div>
@@ -215,7 +227,34 @@
 
     </div>
 
-    <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
+    <div class="row" style="margin-top: 0;text-align: center">
+        <div class="three columns" style="height: 800px">
+
+
+        </div>
+        <div class="eight columns " style="margin: 0;text-align: center">
+            <div id="paletteHeader" class="u-full-width" style="height: 100px">
+                <p class="selFlatLabel" style="display: inline-block"> Select a Palette converter: </p>
+                <select id="paletteSelect" onchange="" style="display: inline-block">
+                    <option value="index"> index</option>
+                    <option> color</option>
+
+                    <option> data</option>
+
+                </select>
+                <div id="paletteMaker" class="buttonImg disabledButton" style="margin-right:4px ">
+                    <img src="assets/images/buttons/play.png" class="lightBorder"
+                         onclick="handlePaletteSelect(document.getElementById('paletteSelect').value)"
+                         style="width: 21px;padding: 7px;"/>
+                </div>
+            </div>
+            <div id="paletteContainer"  style="">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
 
     <dialog id="markMod" class="modal">
         <div id="closeMod" style="width: 20px;height: 20px;float: right;position: relative">
@@ -273,34 +312,34 @@
             </div>
         </div>
     </div>
-</div>
-
-<dialog id="graphParamNode" class="modal" style="text-align: center">
-    <div id="closeGraphMod" style="width: 20px;height: 20px;float: right;position: relative;cursor: pointer">
-        <img style="width: inherit" src="assets/images/buttons/cross.png">
-    </div>
-    <h2 id="modalGraphTitle"></h2>
-    <div id="modalGraphbody" style="display: flex">
-        <div style="width: 30%">
 
 
-            <div id="modalGraphParamsBody">
+    <dialog id="graphParamNode" class="modal" style="text-align: center">
+        <div id="closeGraphMod" style="width: 20px;height: 20px;float: right;position: relative;cursor: pointer">
+            <img style="width: inherit" src="assets/images/buttons/cross.png">
+        </div>
+        <h2 id="modalGraphTitle"></h2>
+        <div id="modalGraphbody" style="display: flex">
+            <div style="width: 30%">
 
+
+                <div id="modalGraphParamsBody">
+
+                </div>
+                <div>
+                    <button class="button-primary" id="modalGraphSaveParams"> save</button>
+                    <button id="modalGraphTestParams"> test</button>
+                </div>
             </div>
-            <div>
-                <button class="button-primary" id="modalGraphSaveParams"> save</button>
-                <button id="modalGraphTestParams"> test</button>
+
+            <div style="width: 70%" id="nodeOutputContainer">
+                <h4 style="text-decoration: underline">Output</h4>
+                <img style="max-width: 100%" id="nodeOutputImg" src="">
             </div>
+
         </div>
 
-        <div style="width: 70%" id="nodeOutputContainer">
-            <h4 style="text-decoration: underline">Output</h4>
-            <img style="max-width: 100%" id="nodeOutputImg" src="">
-        </div>
-
-    </div>
-
-</dialog>
+    </dialog>
 
 
 </body>

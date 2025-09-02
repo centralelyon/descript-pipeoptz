@@ -26,7 +26,7 @@ let strokePoint = [];
 let stroke = [];
 const urlParams = new URLSearchParams(window.location.search);
 let opencv = null
-
+let marks = []
 let selectedMark = null
 let dragMod = false
 let rotateMod = false
@@ -333,9 +333,11 @@ docReady(function () {
         resetImg()
     });
 
+/*
     document.getElementById("marks").addEventListener('mouseout', (e) => {
         resetImg()
     });
+*/
 
     document.getElementById("svgControl").addEventListener('click', (e) => {
 

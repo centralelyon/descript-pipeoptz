@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, session, redirect, logging, jsonify, Response
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 from flask_cors import CORS, cross_origin
+
+from pipelines.rmv_bg_isolate import initPipeline
 
 app = Flask(__name__)
 cors = CORS(app)  # allow CORS for all domains on all routes.
@@ -11,7 +13,8 @@ import base64
 from io import BytesIO
 import ujson as ujson
 import time
-from pipelines import pipelines  # , loss
+from pipelines import pipelines, parameters, loss
+from pipelines.extract_elements import initPipeline
 from pipeoptz.optimizer import PipelineOptimizer
 from pipeoptz.parameter import IntParameter, FloatParameter, ChoiceParameter, BoolParameter, MultiChoiceParameter
 
@@ -64,39 +67,53 @@ def setPipeParams():
 @cross_origin()
 def optimize_pipe():
     tpip = request.form['pipeline']
+    inputImg = Image.open(request.files['input'])
     images = ujson.loads(request.form['images'])
     coords = ujson.loads(request.form['coords'])
-    ins = []
+    tshape = []
 
-    for image in images:
-        print(image)
-        imgdata =  base64.b64decode(str(image))
-        ins.append(Image.open(BytesIO(imgdata)))
+    if inputImg.size[0] > maxImgSize[0]:
+        ratio = maxImgSize[0] / inputImg.size[0]
+        inputImg = inputImg.resize((maxImgSize[0], int(inputImg.size[1] * ratio)), Image.Resampling.LANCZOS)
+
+    # inputImg = ImageOps.grayscale(inputImg)
+    temp = {"image": np.array(inputImg, dtype=np.uint8)}
+    width, height = inputImg.size
+    for i in range(len(images)):
+        image = images[i]
+        coord = coords[i]
+
+        imgdata = base64.b64decode(str(image).replace("data:image/png;base64,", ""))
+        tim = Image.open(BytesIO(imgdata))
+        # tim = ImageOps.grayscale(tim)
+        tshape.append((np.array(tim, dtype=np.float64), (int(coord[0] * width), int(coord[1] * height))))
+        # y.append((,))
 
     pipe = pipelines[tpip]
 
-    params = pipe.initParameters()
+    params = parameters[tpip]
     optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=0.1)
+
     for param in params:
-        print(param)
+        optimizer.add_param(param)
+
+    best_params, loss_log = optimizer.optimize(
+        # [temp], [(yims, ycoords)],
+        [temp], [tshape],
+        method="BO",
+        verbose=True,
+        iterations=10,
+        init_points=5,
+    )
+
+    resp = Response(
+        response=ujson.dumps({"best_params": best_params, "loss": loss_log}),
+        status=200,
+        mimetype="application/json")
+
+    return resp
 
 
-    # best_params, loss_log = optimizer.optimize(
-    #     X, y,
-    #     method="BO",
-    #     verbose=True,
-    #     iterations=10,
-    #     init_points=5,
-    # )
-
-    return "ok"
-
-def decode_base64(data, altchars=b'+/'):
-    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
-    missing_padding = len(data) % 4
-    if missing_padding:
-        data += b'='* (4 - missing_padding)
-    return base64.b64decode(data, altchars)
 
 @app.route('/testNode', methods=["POST"])
 @cross_origin()
@@ -140,7 +157,6 @@ def ask():
     for k in t[1].keys():
         if t[1][k] > 0.01:
             print(f"\t{k} = {round(t[1][k], 2)}s")
-    print("----")
 
     for el in res[1][res[0]]:
         tres.append([numpy_to_b64(el[0]), el[1]])

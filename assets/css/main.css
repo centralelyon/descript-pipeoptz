@@ -435,11 +435,9 @@ canvas {
 
 
 #paletteContainer {
-    padding: 20px;
     border: solid #555 thin;
     position: relative;
-    width: min-content;
-    padding-right: 70px;
+
 
 }
 

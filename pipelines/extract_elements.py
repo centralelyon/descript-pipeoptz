@@ -126,8 +126,8 @@ def initPipeline():
 def initParameters():
     return [
         IntParameter("[optz]OddKernelSize", "n", 1, 5), # [1, 3, 5, 7, 9]
-        IntParameter("[optz]OddBlockSize", "n", 1, 15),
-        IntParameter("AdaptiveThreshold", "c", 0, 64),
+        IntParameter("[optz]OddBlockSize", "n", 3, 15),
+        IntParameter("AdaptiveThreshold", "c", 0, 64), # this needs to be odd only
         IntParameter("SurfaceMin", "treshold", 1, 1000)
     ]
 

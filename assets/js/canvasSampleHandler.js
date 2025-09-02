@@ -120,7 +120,7 @@ async function addRectSample(x, y, width, height) {
         y: coords[1],
         width: coords[2],
         height: coords[3],
-        type: "rect",
+        type: "manual",
         canvas: tcan,
         // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
         rx: coords[0] / tx,
@@ -136,9 +136,9 @@ async function addRectSample(x, y, width, height) {
 
     sampleData.push(tres)
 
-    let marks = document.getElementById("marks")
+    // let marks = document.getElementById("marks")
 
-    marks.append(tcan)
+    // marks.append(tcan)
 
     tcont.drawImage(currImg,
         Math.round(dp.rx * currImg.width),
@@ -256,7 +256,7 @@ async function addFreeSample(points) {
         y: corners[0][1],
         width: tw,
         height: th,
-        type: "free",
+        type: "manual",
         canvas: tcan,
         perimeter: [...points],
         // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
@@ -295,9 +295,9 @@ async function addFreeSample(points) {
     )
 
 
-    let marks = document.getElementById("marks")
+    // let marks = document.getElementById("marks")
 
-    marks.append(tcan)
+    // marks.append(tcan)
     sampleData.push(tres)
     fillSvg(sampleData)
 }

@@ -1,5 +1,12 @@
 let nodeOuputs
 let forwardAllowed = false
+let debug = false
+let base_url = "http://localhost:5000"
+
+if (debug) {
+    base_url = "http://156.18.36.227:5000/"
+}
+
 
 async function forwardPipeline(pipeline, img = null) {
     if (forwardAllowed) {
@@ -15,7 +22,7 @@ async function forwardPipeline(pipeline, img = null) {
         form.append("image", img);
 
 
-        let imgs = await fetch("http://localhost:5000/ask",
+        let imgs = await fetch(base_url + "/ask",
             {
                 mode: 'cors',
                 headers: {},
@@ -100,7 +107,7 @@ async function setPipelinesParams(pipeline) {
     let form = new FormData();
     form.append("pipeline", pipeline);
     form.append("nodes", JSON.stringify(customPipelineParam[pipeline]));
-    let pipelines = await fetch("http://localhost:5000/setPipeParams",
+    let pipelines = await fetch(base_url + "/setPipeParams",
         {
             mode: 'cors',
             headers: {},
@@ -125,7 +132,7 @@ async function testNode(pipeline, node, params) {
     form.append("node", node);
     form.append("params", JSON.stringify(params));
 
-    let img = await fetch("http://localhost:5000/testNode",
+    let img = await fetch(base_url + "/testNode",
         {
             mode: 'cors',
             headers: {},
@@ -151,7 +158,7 @@ async function testNode(pipeline, node, params) {
 
 
 async function getPipelines() {
-    let pipelines = await fetch("http://localhost:5000/pipes",
+    let pipelines = await fetch(base_url + "/pipes",
         {
             mode: 'cors',
             headers: {},
@@ -188,47 +195,58 @@ async function getPipelines() {
 async function optimizePipelineParams(pipeline) {
 
     let imgs = sampleData.filter(d => {
-        return d.type === "free"
+        return d.type === "manual"
     })
 
 
-    let control = []
-    let coords = []
-    for (let i = 0; i < imgs.length; i++) {
-        if (imgs[i].canvas.width > 10) {
-            control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
-            coords.push([imgs[i].rx, imgs[i].ry, imgs[i].rWidth, imgs[i].rHeight]);
-        }
-    };
+    let img = getImgBase64(currImg)
+    img = dataURLtoFile(img, "temp.png")
 
-    console.log(control);
-    let form = new FormData();
 
-    form.append("pipeline", pipeline);
-    form.append("images", JSON.stringify(control));
-    form.append("coords", JSON.stringify(coords));
+    if (imgs.length > 0) {
 
-    let params = await fetch("http://localhost:5000/optimizePipeline",
-        {
-            mode: 'cors',
-            headers: {},
-            method: 'POST',
-            body: form
-        })
-        .then(function (res) {
-            // console.log(res);
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
+        let control = []
+        let coords = []
+        for (let i = 0; i < imgs.length; i++) {
+            if (imgs[i].canvas.width > 10) {
+                control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
+                coords.push([imgs[i].rx, imgs[i].ry, imgs[i].rWidth, imgs[i].rHeight]);
             }
-            return res.json();
-        })
-        .then(function (data) {
+        }
+        ;
 
-            console.log(data);
+        let form = new FormData();
 
+        form.append("pipeline", pipeline);
+        form.append("images", JSON.stringify(control));
+        form.append("coords", JSON.stringify(coords));
+        form.append("input", img);
 
-            return data["pipelines"]
-        })
+        let params = await fetch(base_url + "/optimizePipeline",
+            {
+                mode: 'cors',
+                headers: {},
+                method: 'POST',
+                body: form
+            })
+            .then(function (res) {
+                // console.log(res);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(function (data) {
+
+                console.log(data);
+
+                let tparams = curateFixedParams(data["best_params"])
+
+                console.log(tparams);
+
+                return tparams
+            })
+    }
 }
 
 
@@ -236,18 +254,21 @@ function curateFixedParams(data) {
     let res = {}
 
     for (const [key, value] of Object.entries(data)) {
+        if (! key.startsWith("[optz]")) {
 
-        res[key] = {}
+            res[key] = {}
 
-        for (const [k, v] of Object.entries(value)) {
-            let name = k.split(".")
+            for (const [k, v] of Object.entries(value)) {
+                let name = k.split(".")
 
-            if (res[key][name[0]]) {
-                res[key][name[0]][name[1]] = v
-            } else {
-                res[key][name[0]] = {[name[1]]: v}
+                if (res[key][name[0]]) {
+                    res[key][name[0]][name[1]] = v
+                } else {
+                    res[key][name[0]] = {[name[1]]: v}
+                }
             }
         }
     }
+
     return res
 }
