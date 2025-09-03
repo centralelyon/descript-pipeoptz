@@ -324,7 +324,7 @@ canvas {
 }
 
 .lightBorder {
-    border: solid rgba(65, 65, 65, 0.5) thin;
+    /*border: solid rgba(65, 65, 65, 0.5) thin;*/
 }
 
 .buttonImg {
@@ -435,7 +435,7 @@ canvas {
 
 
 #paletteContainer {
-    border: solid #555 thin;
+    /*border: solid #555 thin;*/
     position: relative;
 
 
@@ -507,4 +507,83 @@ table th {
 
 #newDataTable div input[type="text"]{
    width: 75px;
+}
+
+
+/* -------------  NEW STUFF ------------------------*/
+
+.paletteRow {
+    position: relative;
+    width: 100%;
+    height: 65px;
+    margin-bottom: 7px;
+    display: flex;
+    overflow-x: auto ;
+    overflow-y: hidden ;
+
+    border-bottom: 1px solid #555;
+    border-left: 1px solid #555555;
+    border-radius: 11px;
+    padding-top: 11px;
+    padding-left: 13px;
+    padding-bottom: 5px;
+    margin-top: 18px;
+}
+
+
+.paletteRow::after {
+    right: 0;
+    bottom: 0;
+    /*width: 99.5%;*/
+    height: 75px;
+    /*border-left: 1px solid #555555;*/
+    /*border-bottom: 1px solid #555;*/
+    /*display: table;*/
+    /*content: "";*/
+    /*clear: both;*/
+}
+
+.paletteRow::before {
+    left: 0;
+    top: 0;
+    height: 50px;
+    width: 100%;
+    border-right: 1px solid #555555;
+}
+
+.paletteElement {
+    height: inherit;
+}
+
+.paletteElement canvas, .paletteGroup canvas {
+    max-height: 78%;
+    margin-right: 5px;
+}
+
+.paletteElement .paletteElemLabel {
+    margin-top: -11px;
+}
+
+.paletteLabel {
+    position: absolute;
+    font-weight: bold;
+    color: #333;
+    top: -16px;
+    left: 15px;
+}
+
+.paletteGroup  {
+    max-height: 78%;
+    max-width: 30%;
+    min-width: 80px;
+    display: flex;
+    justify-items: start;
+}
+
+.paletteGroup  canvas {
+    /*float: left;*/
+    bottom: 0px;
+    /*left: 5px;*/
+    max-width: 35px;
+    position: absolute;
 }

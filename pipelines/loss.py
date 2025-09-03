@@ -22,11 +22,6 @@ def loss(res, expected):
     Each element in `res` and `expected` is a tuple (image, (pos_x, pos_y)).
     """
     res_wanted = []
-    print("using loss")
-
-    # tt = expected[0]
-    # print(tt)
-    # pos_xpctd = expected[1]
 
     for _, pos_xpctd in expected:
         delta = np.inf
@@ -70,7 +65,7 @@ def loss(res, expected):
         x_dst_start, y_dst_start = max(0, -delta_pos[0]), max(0, -delta_pos[1])
         x_dst_end, y_dst_end = x_dst_start + im_res.shape[0], y_dst_start + im_res.shape[1]
 
-        x_src_start, y_src_start, _ = 0, 0 , 0
+        x_src_start, y_src_start, _ = 0, 0, 0
         # x_src_end, y_src_end = im_res.shape
 
         # Ensure destination indices are within bounds

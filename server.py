@@ -92,7 +92,7 @@ def optimize_pipe():
     pipe = pipelines[tpip]
 
     params = parameters[tpip]
-    optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=0.1)
+    optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=0.5)
 
     for param in params:
         optimizer.add_param(param)

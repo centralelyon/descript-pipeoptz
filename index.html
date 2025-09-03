@@ -20,7 +20,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/imageHandler.js"></script>
     <script src="assets/js/canvasSampleHandler.js"></script>
-    <!--    <script src="assets/js/computerVision.js"></script>-->
+    <script src="assets/js/computerVision.js"></script>
     <script src="assets/js/modalHandler.js"></script>
     <script src="assets/js/svgHandler.js"></script>
     <script src="assets/js/paletteMaker.js"></script>
@@ -48,13 +48,13 @@
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<div class="container" style="max-width: 1600px;width:98vw;margin-bottom: 5%" id="testContainer">
+<div class="container" style="max-width: 98vw;width:98vw;margin-bottom: 5%" id="testContainer">
 
     <div class="row" style="margin-top: 3%;text-align: center;display:flex">
 
         <div class="three columns">
             <div style="margin-top:auto;">
-                <p class="selFlatLabel"> Select a pipeline</p>
+                <p class="selFlatLabel"> Select a global pipeline</p>
                 <div style="display:flex;position:relative;left:50px;margin-top: 13px;">
                     <select id="pipeSelect" onchange="">
 
@@ -81,7 +81,23 @@
             <p class="selFlatLabel"> Load one of Dear data's example:</p>
 
         </div>
-        <div class="one column"></div>
+        <div class="two columns">
+            <p class="selFlatLabel"> Select a local pipeline</p>
+            <div style="display:flex;position:relative;left:50px;margin-top: 13px;">
+                <select id="singlePipeSelect" onchange="">
+
+                </select>
+                <div id="singleForwardButton" class="buttonImg disabledButton" style="margin-right:4px ">
+                    <img src="assets/images/buttons/play.png" class="lightBorder"
+                         onclick="forwardPipeline(document.getElementById('pipeSelect').value)"
+                         style="width: 21px;padding: 7px;"/>
+                </div>
+                <div class="buttonImg" id="singlePipeLoaderGif" style="display: none">
+                    <img src="assets/images/buttons/load.gif" class=""
+                         style="max-width: 25px;margin-top: 5px"/>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="row" style="margin-top: 0.5%;text-align: center;display:flex">
         <div class="three columns" style="min-width: 60px;margin-left: 0.5%">
@@ -110,55 +126,28 @@
         </div>
         <div class="two columns" style="height: 100%;margin-left: 10px">
             <div style="width: 35px">
-                <div class="buttonImg">
-                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'rect')" style=""/>
-                </div>
-                <div class="buttonImg">
-                    <img src="assets/images/buttons/lasso.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'free')"
-                         style=""/>
-                </div>
 
-                <div class="buttonImg">
 
-                </div>
-                <div>
-                    <!--                    <div class="buttonImg" style="padding: 0;border: none">-->
-                    <!--                        <input type="file" name="jsonLoader" id="jsonLoader" style="display: none;"/>-->
-                    <!--                        <img src="assets/images/buttons/export.png" class="lightBorder"-->
-                    <!--                             style="" onclick="fakeFile('jsonLoader')"/>-->
-                    <!--                    </div>-->
-                    <!--                    <div class="buttonImg">-->
-                    <!--                        <img src="assets/images/buttons/export.png" class="lightBorder" onclick="export2json(this)"-->
-                    <!--                             style="transform: scaleX(-1)"/>-->
-                    <!--                    </div>-->
-                    <div class="buttonImg" style="padding: 0;border: none">
-                        <input type="file" name="img" id="imgLoader" style="display: none;"/>
-                        <img src="assets/images/buttons/addimg.png" class="lightBorder"
-                             style="" onclick="fakeFile('imgLoader')"/>
+                <div id="catContainer" style="display: none">
+                    <div class="category" value="default" id="selectedCat">
+                        <div class="lightBorder catColor">
+
+                        </div>
+                        <p>Default</p>
+                        <img src="assets/images/buttons/edit.png" class="editCat">
+
+                    </div>
+
+                    <div id="addCat" style="display: inline-block;margin-left: 2px">
+
+                        <input class="" type="text" placeholder="Name..." id="textCat" style="width:100%">
+                        <img id="plusCat" style="width: 15px;margin-right: 3px ;cursor: pointer"
+                             src="assets/images/buttons/plus.png" onclick="addCategory()"/>
                     </div>
                 </div>
             </div>
-            <div id="catContainer" style="display: none">
-                <div class="category" value="default" id="selectedCat">
-                    <div class="lightBorder catColor">
 
-                    </div>
-                    <p>Default</p>
-                    <img src="assets/images/buttons/edit.png" class="editCat">
-
-                </div>
-
-                <div id="addCat" style="display: inline-block;margin-left: 2px">
-
-                    <input class="" type="text" placeholder="Name..." id="textCat" style="width:100%">
-                    <img id="plusCat" style="width: 15px;margin-right: 3px ;cursor: pointer"
-                         src="assets/images/buttons/plus.png" onclick="addCategory()"/>
-                </div>
-            </div>
         </div>
-
     </div>
 
 
@@ -166,56 +155,55 @@
 
     <div class="row" style="margin-top: 0;text-align: center;display:flex">
         <div class="three columns">
-
-            <div style="display:flex;position:relative;left:50px;margin-top: 13px;">
-                <select id="singlePipeSelect" onchange="">
-
-                </select>
-                <div id="singleForwardButton" class="buttonImg disabledButton" style="margin-right:4px ">
-                    <img src="assets/images/buttons/play.png" class="lightBorder"
-                         onclick="forwardPipeline(document.getElementById('pipeSelect').value)"
-                         style="width: 21px;padding: 7px;"/>
-                </div>
-                <!--         <div id="optiButton" class="buttonImg">
-                             <img src="assets/images/buttons/magic.png" class="lightBorder"
-                                  onclick="optimizePipelineParams(document.getElementById('pipeSelect').value)"
-                                  style=""/>
-                         </div>-->
-
-                <div class="buttonImg" id="signlePipeLoaderGif" style="display: none">
-                    <img src="assets/images/buttons/load.gif" class=""
-                         style="max-width: 25px;margin-top: 5px"/>
-                </div>
-            </div>
-
             <div class="u-full-width lightBorder" style="height: 87%">
                 <svg id="singlePipeLineGraph" style="width: 100%; height: 100%">
 
                 </svg>
             </div>
+
         </div>
+
+
         <div class="eight columns " style="margin: 0;text-align: center;">
 
 
             <div id="marksDisplay" style="margin-top: 0;width: 100%">
-                <div id="svgControl">
-                    <div class="buttonImg" id="selectedButton3">
-                        <img src="assets/images/buttons/default.png" class="lightBorder"
-                             onclick="switchSvg(sampleData,'default')"
-                             style=""/>
+                <div style="display: flex; align-items: center; justify-content: space-evenly;">
+                    <div>
+                    <div class="buttonImg">
+                        <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'rect')" style=""/>
                     </div>
                     <div class="buttonImg">
-                        <img src="assets/images/buttons/grid.png" class="lightBorder"
-                             onclick="switchSvg(sampleData,'grid')"
+                        <img src="assets/images/buttons/lasso.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'free')"
                              style=""/>
                     </div>
-                    <div class="buttonImg">
-                        <img src="assets/images/buttons/chart.png" class="lightBorder"
-                             onclick="switchSvg(sampleData,'scatter')"
-                             style=""/>
+                    <div class="buttonImg" style="padding: 0;border: none">
+                        <input type="file" name="img" id="imgLoader" style="display: none;"/>
+                        <img src="assets/images/buttons/addimg.png" class="lightBorder"
+                             style="" onclick="fakeFile('imgLoader')"/>
                     </div>
-                    <div id="secondControl"
-                         style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
+                    </div>
+                    <div id="svgControl">
+                        <div class="buttonImg" id="selectedButton3">
+                            <img src="assets/images/buttons/default.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'default')"
+                                 style=""/>
+                        </div>
+                        <div class="buttonImg">
+                            <img src="assets/images/buttons/grid.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'grid')"
+                                 style=""/>
+                        </div>
+                        <div class="buttonImg">
+                            <img src="assets/images/buttons/chart.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'scatter')"
+                                 style=""/>
+                        </div>
+                        <div id="secondControl"
+                             style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
+                    </div>
                 </div>
                 <svg style="width: 100%; height: 98%" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
                      id="svgDisplay">
@@ -233,8 +221,10 @@
 
         </div>
         <div class="eight columns " style="margin: 0;text-align: center">
-            <div id="paletteHeader" class="u-full-width" style="height: 100px">
-                <p class="selFlatLabel" style="display: inline-block"> Select a Palette converter: </p>
+            <div id="paletteHeader" class="u-full-width"
+                 style="margin-top:5px;height: 55px;display:flex;align-items: stretch;justify-content: center">
+                <p class="selFlatLabel" style="display: inline-block;margin-right: 7px"> Select a Palette
+                    converter: </p>
                 <select id="paletteSelect" onchange="" style="display: inline-block">
                     <option value="index"> index</option>
                     <option> color</option>
@@ -242,13 +232,13 @@
                     <option> data</option>
 
                 </select>
-                <div id="paletteMaker" class="buttonImg disabledButton" style="margin-right:4px ">
+                <div id="paletteMaker" class="buttonImg" style="margin-right:4px ">
                     <img src="assets/images/buttons/play.png" class="lightBorder"
                          onclick="handlePaletteSelect(document.getElementById('paletteSelect').value)"
                          style="width: 21px;padding: 7px;"/>
                 </div>
             </div>
-            <div id="paletteContainer"  style="">
+            <div id="paletteContainer" style="">
             </div>
         </div>
 
