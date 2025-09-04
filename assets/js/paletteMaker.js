@@ -1,13 +1,14 @@
+const palettes = {}
+
 function handlePaletteSelect(value) {
-    console.log(value);
     if (value === "index") {
         const data = makeIndex()
-        console.log(data);
+        palettes[value] = data
         addPalette("index", data)
     } else if (value === "color") {
         const data = makeColor()
+        palettes[value] = data
         addPalette("color", data, true)
-
     }
 }
 
@@ -47,7 +48,6 @@ function makeColor() {
             ids[i][j] = sampleData[ids[i][j]]
         }
     }
-
     return ids
 }
 
@@ -102,6 +102,19 @@ function addPalette(name, data, grouped = false) {
     } else {
         fillGrouped(divList, data)
     }
+
+    let expor = document.createElement("img")
+    expor.src = "/assets/images/buttons/export.png"
+    expor.classList.add('exportPalette')
+    expor.classList.add('buttonImg')
+    expor.setAttribute('alt', 'Export')
+    expor.setAttribute('name', name)
+
+    expor.onclick = function () {
+        exportPalette(name)
+    }
+
+    container.appendChild(expor)
     container.appendChild(divList)
 
 }
@@ -156,4 +169,22 @@ function fillGrouped(divList, data) {
     }
 
     return divList
+}
+
+function exportPalette(name) {
+
+    const tdat = palettes[name]
+    let res = {}
+    if (Array.isArray(tdat)) {
+        for (let i = 0; i < tdat.length; i++) {
+            res[`${name}_${i}`] = tdat[i]
+        }
+
+    } else {
+        for (const [k, v] of Object.entries(tdat)) {
+            res[k] = v.canvas.toDataURL("image/png")
+        }
+    }
+
+    download(JSON.stringify(res), `palette_${name}.json`, "text/json")
 }

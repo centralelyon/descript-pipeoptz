@@ -34,10 +34,6 @@ let dataEncoding = {}
 let examples = [
     "assets/images/tempExamples/cholera.png",
     "assets/images/tempExamples/xrousse.png",
-    // "assets/images/tempExamples/goodbye.png",
-    // "assets/images/tempExamples/buy.png",
-    // "assets/images/tempExamples/laugh.png",
-    // "assets/images/tempExamples/doors.jpg",
 ]
 const url_templates = [["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_", "_Front.jpg"],
     ["https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_", "+front.jpg"]]
@@ -82,13 +78,16 @@ function loadExamples(week = 0, author = "giorgia") {
             el.onclick = loadEx
             container.appendChild(el);
         }*/
-    for (let i = 35; i < 40; i++) {
+    for (let i = 35; i < 45; i++) {
         let num = i
 
         if (num < 10) {
             num = "0" + num
         }
 
+        if (num ==43) {
+            continue
+        }
         for (let j = 0; j < url_templates.length; j++) {
             const t = encodeURI(url_templates[j][0] + num + url_templates[j][1]);
             // (url_templates[j][0] , num , url_templates[j][1])
@@ -503,7 +502,7 @@ function sortMarks(marks, type) {
 
 }
 
-function updateMarks(type) {
+/*function updateMarks(type) {
 
     let container = document.getElementById("marks");
     let marks = sortMarks([...sampleData], type)
@@ -513,7 +512,7 @@ function updateMarks(type) {
         // marks[i].canvas.style.border = "solid " + marks[i].categories.color + " 2px"
         container.appendChild(marks[i].canvas);
     }
-}
+}*/
 
 
 function updateCategories() {
@@ -733,8 +732,8 @@ async function importData(data) {
     // im.src = tempData.background
     console.log(sampleData);
 
-    updateCategories()
-    updateMarks("size")
+    // updateCategories()
+    // updateMarks("size")
     // fillPalette()
     // populateSelect()
     // fillTable()
@@ -844,14 +843,14 @@ function purge() {
     strokePoint = [];
     stroke = [];
 
-    selectedMark = null
-    updateMarks("size")
-    document.querySelectorAll(".category").forEach((item) => {
+    // selectedMark = null
+    // updateMarks("size")
+/*    document.querySelectorAll(".category").forEach((item) => {
         // if (item.getAttribute("value") !== "default") {
         item.remove()
         // }
-    })
-    updateCategories()
+    })*/
+    // updateCategories()
 
     const svg = d3.select('#svgDisplay');
     svg.selectAll("image").remove();

@@ -138,7 +138,7 @@ body {
 
 #selFlat {
     height: 100%;
-    width: 81%;
+    /*width: 67%;*/
     display: block;
     /*overflow-x: scroll;*/
     overflow-y: hidden;
@@ -585,5 +585,14 @@ table th {
     bottom: 0px;
     /*left: 5px;*/
     max-width: 35px;
+
+}
+.exportPalette {
+    width: 32px;
+    display: inline-block;
+    padding: 1px;
     position: absolute;
+    right: -57px;
+    margin-top: 36px;
+    cursor: pointer;
 }
