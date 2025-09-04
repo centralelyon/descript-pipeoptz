@@ -16,7 +16,7 @@ def d2(p1, p2):
     return (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2
 
 
-def loss(res, expected):
+def loss(res, expected, non_expected=None):
     """
     Calculate a loss score based on the IoU of matched image segments.
     Each element in `res` and `expected` is a one element list of a list of a tuple (image, (pos_x, pos_y)).
@@ -83,4 +83,7 @@ def loss(res, expected):
         im_res_padded[x_dst_start:x_dst_end, y_dst_start:y_dst_end] = im_res[:x_src_end, :y_src_end]
 
         score += 1 - IoU(im_xpctd_padded, im_res_padded)
+
+    if non_expected is not None:
+        return (score - loss(res, non_expected)*len(non_expected))/(len(expected) + len(non_expected))
     return score / len(expected)
