@@ -124,7 +124,6 @@ function loadGraphModal(nodeName, params) {
         tdiv.appendChild(paramInput);
 
         container.appendChild(tdiv);
-
     }
 
     const save = document.getElementById("modalGraphSaveParams");

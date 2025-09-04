@@ -66,6 +66,60 @@ function rotate_point(src, pt, angle) {
 
 }
 
+
+function getAverageRGB(imgEl, taboo) {
+    let threshold = 10
+    let blockSize = 3, // only visit every n pixels
+        defaultRGB = {r: 0, g: 0, b: 0}, // for non-supporting envs
+        canvas = document.createElement('canvas'),
+        context = canvas.getContext && canvas.getContext('2d'),
+        data, width, height,
+        i = -4,
+        length,
+        rgb = {r: 0, g: 0, b: 0},
+        count = 0;
+
+    if (!context) {
+        return defaultRGB;
+    }
+
+    height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+    width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+    context.drawImage(imgEl, 0, 0);
+
+    try {
+        data = context.getImageData(0, 0, width, height);
+    } catch (e) {
+        /* security error, img on diff domain */
+        return defaultRGB;
+    }
+
+    length = data.data.length;
+
+    while ((i += blockSize * 4) < length) {
+
+        if (data.data[i + 3] > 100) {
+            // if (Math.abs(data.data[i] - taboo[0]) >threshold && Math.abs(data.data[i+1] - taboo[1]) >threshold &&Math.abs(data.data[i+2] - taboo[2]) >threshold) {
+            if (deltaE([data.data[i], data.data[i + 1], data.data[i + 2]], taboo) > threshold) {
+                ++count;
+                rgb.r += data.data[i];
+                rgb.g += data.data[i + 1];
+                rgb.b += data.data[i + 2];
+            }
+
+        }
+    }
+
+    // ~~ used to floor values
+    rgb.r = ~~(rgb.r / count);
+    rgb.g = ~~(rgb.g / count);
+    rgb.b = ~~(rgb.b / count);
+
+    return rgb;
+
+}
+
 // ----------------------------- DATA MANIPULATION STUFF ----------------------------------------------
 function tempEdit() {
 
@@ -151,7 +205,7 @@ function getFirstIndexOfMinValue(array) {
 async function tempRemoveProtoCan() {
 
     let t = await getData("assets/tempData/full.json")
-;
+    ;
     for (const [name, value] of Object.entries(t.marks)) {
         if (value.data?.anxiety?.proto) {
             delete value.data.anxiety.proto.canvas
@@ -169,14 +223,14 @@ async function tempRemoveProtoCan() {
 function dataURLtoFile(dataurl, filename) {
     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while(n--){
+    while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename, {type:mime});
+    return new File([u8arr], filename, {type: mime});
 }
 
 
-function getImgBase64(img){
+function getImgBase64(img) {
 
     let canvas = document.createElement("canvas");
     canvas.width = img.naturalWidth;
