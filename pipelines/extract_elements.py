@@ -31,12 +31,12 @@ def find_contours(image):
     contours, hierarchy =  cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     return contours, hierarchy
 
-def draw_contours(image, contours_hierarchy):
+def draw_contours(image, contours_hierarchy, thickness):
     contours, hierarchy = contours_hierarchy
     temp = np.zeros_like(image)
     color = (255, 255, 255)
     for i in range(len(contours)):
-        cv2.drawContours(temp, contours, i, color, 5, cv2.LINE_8, hierarchy, 100)
+        cv2.drawContours(temp, contours, i, color, thickness, cv2.LINE_8, hierarchy, 100)
     return temp
 
 def process_contours(contours_hierarchy):
@@ -97,7 +97,7 @@ def initPipeline():
         predecessors={"image": "AdaptiveThreshold"}
     )
     pipeline.add_node(
-        Node("DrawContours", draw_contours),
+        Node("DrawContours", draw_contours, {"thickness": 5}),
         predecessors={"image": "AdaptiveThreshold", "contours_hierarchy": "FindContours1"}
     )
     pipeline.add_node(
@@ -125,10 +125,11 @@ def initPipeline():
 
 def initParameters():
     return [
-        IntParameter("[optz]OddKernelSize", "n", 1, 5), # [1, 3, 5, 7, 9]
-        IntParameter("[optz]OddBlockSize", "n", 3, 15),
-        IntParameter("AdaptiveThreshold", "c", 0, 64), # this needs to be odd only
-        IntParameter("SurfaceMin", "treshold", 1, 1000)
+        IntParameter("[optz]OddKernelSize", "n", 2, 5), # [1, 3, 5, 7, 9]
+        IntParameter("[optz]OddBlockSize", "n", 5, 14),
+        IntParameter("AdaptiveThreshold", "c", -16, 16),
+        IntParameter("SurfaceMin", "treshold", 1, 1000),
+        IntParameter("DrawContours", "thickness", 1, 8)
     ]
 
 

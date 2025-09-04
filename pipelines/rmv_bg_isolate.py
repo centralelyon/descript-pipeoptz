@@ -140,6 +140,8 @@ def min_size(im):
     filter = im if im.ndim == 2 else im[..., 0] != 0
     rows = np.any(filter, axis=1)
     cols = np.any(filter, axis=0)
+    if not rows.shape[0] or not cols.shape[0]:
+        return np.array([[]])
     y1, y2 = np.where(rows)[0][[0, -1]]
     x1, x2 = np.where(cols)[0][[0, -1]]
     return im[y1:y2+1, x1:x2+1]

@@ -78,7 +78,6 @@ def optimize_pipe():
 
     # inputImg = ImageOps.grayscale(inputImg)
     temp = {"image": np.array(inputImg, dtype=np.uint8)}
-    width, height = inputImg.size
     for i in range(len(images)):
         image = images[i]
         coord = coords[i]
@@ -86,13 +85,13 @@ def optimize_pipe():
         imgdata = base64.b64decode(str(image).replace("data:image/png;base64,", ""))
         tim = Image.open(BytesIO(imgdata))
         # tim = ImageOps.grayscale(tim)
-        tshape.append((np.array(tim, dtype=np.float64), (int(coord[0] * width), int(coord[1] * height))))
+        tshape.append((np.array(tim, dtype=np.float64), (coord[0], coord[1])))
         # y.append((,))
 
     pipe = pipelines[tpip]
 
     params = parameters[tpip]
-    optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=0.1)
+    optimizer = PipelineOptimizer(pipe, loss, max_time_pipeline=5)
 
     for param in params:
         optimizer.add_param(param)
@@ -103,7 +102,7 @@ def optimize_pipe():
         method="BO",
         verbose=True,
         iterations=10,
-        init_points=5,
+        init_points=4,
     )
 
     resp = Response(
