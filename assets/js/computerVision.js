@@ -599,3 +599,60 @@ function toColor(canvas, r, g, b, threshold) {
     return res
 
 }
+
+
+function grabCut(can, rect) {
+
+    let src = opencv.imread(can);
+    opencv.cvtColor(src, src, opencv.ColorConversionCodes.COLOR_RGBA2RGB.value, 0);
+
+    var result = new opencv.Mat();
+    var bgdModel = new opencv.Mat();
+    var fgdModel = new opencv.Mat();
+    var roiRect = new opencv.Rect(rect.x, rect.y, rect.w, rect.h);
+    console.log("before")
+    opencv.grabCut(src, result, roiRect, bgdModel, fgdModel, 1, opencv.GrabCutModes.GC_INIT_WITH_RECT.value);
+    console.log("after")
+    var fg = src.clone();
+    var view = fg.data();
+    let step = 3 * result.cols;
+    // could be improved ....
+    for (var x = 0; x < result.rows; x++) {
+        for (var y = 0; y < result.cols; y++) {
+            var category = result.get_uchar_at(x, y);
+            if (category == opencv.GrabCutClasses.GC_BGD.value || category == opencv.GrabCutClasses.GC_PR_BGD.value) {
+                view[x * step + 3 * y] = 255;
+                view[x * step + 3 * y + 1] = 255;
+                view[x * step + 3 * y + 2] = 255;
+            }
+        }
+    }
+
+}
+
+function otherGrab(can,coords) {
+
+    let src = opencv.imread(can);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 0);
+    let mask = new opencv.Mat();
+    let bgdModel = new opencv.Mat();
+    let fgdModel = new opencv.Mat();
+    let rect = new opencv.Rect(coords.x, coords.y, coords.w, coords.h);
+    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 1, opencv.GC_INIT_WITH_RECT);
+// draw foreground
+    for (let i = 0; i < src.rows; i++) {
+        for (let j = 0; j < src.cols; j++) {
+            if (mask.ucharPtr(i, j)[0] == 0 || mask.ucharPtr(i, j)[0] == 2) {
+                src.ucharPtr(i, j)[0] = 0;
+                src.ucharPtr(i, j)[1] = 0;
+                src.ucharPtr(i, j)[2] = 0;
+            }
+        }
+    }
+    opencv.cvtColor(src, src, opencv.COLOR_RGB2RGBA, 0);
+    opencv.imshow('inVis', src);
+    src.delete();
+    mask.delete();
+    bgdModel.delete();
+    fgdModel.delete();
+}

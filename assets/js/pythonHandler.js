@@ -8,6 +8,14 @@ if (debug) {
 }
 
 
+function saveManualAnnotated() {
+
+    manualAnnotated = sampleData.filter(d => {
+        return d.type === "manual"
+    })
+
+}
+
 async function forwardPipeline(pipeline, img = null) {
     if (forwardAllowed) {
         const gif = document.getElementById("pipeLoaderGif");
@@ -40,7 +48,7 @@ async function forwardPipeline(pipeline, img = null) {
             })
 
         nodeOuputs = imgs["outputs"]
-        sampleData = []//todo: ATM we clear samples to spam forward and assess results
+        sampleData = [...manualAnnotated]
         for (let i = 0; i < imgs["images"].length; i++) {
             const tcan = await convertToCanvas("data:image/png;base64," + imgs["images"][i][0])
             const rpos = imgs["images"][i][1]
@@ -207,6 +215,7 @@ async function optimizePipelineParams(pipeline) {
 
         let control = []
         let coords = []
+        let counter = []
         for (let i = 0; i < imgs.length; i++) {
             if (imgs[i].canvas.width > 10) {
                 control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
@@ -215,10 +224,15 @@ async function optimizePipelineParams(pipeline) {
         }
         ;
 
+        for (let i = 0; i < counterExamples.length; i++) {
+            counter.push(counterExamples[i].canvas.toDataURL());
+        }
+
         let form = new FormData();
 
         form.append("pipeline", pipeline);
         form.append("images", JSON.stringify(control));
+        form.append("counter", JSON.stringify(counter));
         form.append("coords", JSON.stringify(coords));
         form.append("input", img);
 
@@ -254,7 +268,7 @@ function curateFixedParams(data) {
     let res = {}
 
     for (const [key, value] of Object.entries(data)) {
-        if (! key.startsWith("[optz]")) {
+        if (!key.startsWith("[optz]")) {
 
             res[key] = {}
 
