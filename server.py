@@ -69,8 +69,11 @@ def optimize_pipe():
     tpip = request.form['pipeline']
     inputImg = Image.open(request.files['input'])
     images = ujson.loads(request.form['images'])
+    counter = ujson.loads(request.form['counter'])
+    counterCoords = ujson.loads(request.form['counterCoords'])
     coords = ujson.loads(request.form['coords'])
     tshape = []
+    counterShape = []
 
     if inputImg.size[0] > maxImgSize[0]:
         ratio = maxImgSize[0] / inputImg.size[0]
@@ -88,6 +91,12 @@ def optimize_pipe():
         tshape.append((np.array(tim, dtype=np.float64), (coord[0], coord[1])))
         # y.append((,))
 
+    for i in range(len(counter)):
+        imgdata = base64.b64decode(str(counter[i]).replace("data:image/png;base64,", ""))
+        tim = Image.open(BytesIO(imgdata))
+        counterCoord = counterCoords[i]
+        counterShape.append((np.array(tim, dtype=np.float64), (counterCoord[0], counterCoord[1])))
+
     pipe = pipelines[tpip]
 
     params = parameters[tpip]
@@ -98,7 +107,7 @@ def optimize_pipe():
 
     best_params, loss_log = optimizer.optimize(
         # [temp], [(yims, ycoords)],
-        [temp], [tshape],
+        [temp], [tshape], [counterShape],
         method="BO",
         verbose=True,
         iterations=10,
@@ -111,7 +120,6 @@ def optimize_pipe():
         mimetype="application/json")
 
     return resp
-
 
 
 @app.route('/testNode', methods=["POST"])
