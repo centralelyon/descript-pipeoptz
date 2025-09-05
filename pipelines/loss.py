@@ -85,5 +85,5 @@ def loss(res, expected, non_expected=None):
         score += 1 - IoU(im_xpctd_padded, im_res_padded)
 
     if non_expected is not None:
-        return (score - loss(res, non_expected)*len(non_expected))/(len(expected) + len(non_expected))
+        return score/len(expected) - loss(res, non_expected) + 1
     return score / len(expected)
