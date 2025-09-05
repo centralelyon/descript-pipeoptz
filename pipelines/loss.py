@@ -21,6 +21,10 @@ def loss(res, expected, non_expected=None):
     Calculate a loss score based on the IoU of matched image segments.
     Each element in `res` and `expected` is a one element list of a list of a tuple (image, (pos_x, pos_y)).
     """
+
+    if non_expected == []:
+        non_expected = None
+
     if not len(res) or not len(expected):
         return np.inf
 
