@@ -216,6 +216,7 @@ async function optimizePipelineParams(pipeline) {
         let control = []
         let coords = []
         let counter = []
+        let counterCoords = []
         for (let i = 0; i < imgs.length; i++) {
             if (imgs[i].canvas.width > 10) {
                 control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
@@ -226,6 +227,8 @@ async function optimizePipelineParams(pipeline) {
 
         for (let i = 0; i < counterExamples.length; i++) {
             counter.push(counterExamples[i].canvas.toDataURL());
+
+            counterCoords.push([counterExamples[i].rx, counterExamples[i].ry, counterExamples[i].rWidth, counterExamples[i].rHeight]);
         }
 
         let form = new FormData();
@@ -234,6 +237,7 @@ async function optimizePipelineParams(pipeline) {
         form.append("images", JSON.stringify(control));
         form.append("counter", JSON.stringify(counter));
         form.append("coords", JSON.stringify(coords));
+        form.append("counterCoords", JSON.stringify(counterCoords));
         form.append("input", img);
 
         let params = await fetch(base_url + "/optimizePipeline",
