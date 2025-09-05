@@ -45,6 +45,9 @@ const fakePalettesBase = "assets/tempData/"
 const fakePalettes = []
 
 
+let manualAnnotated = []
+let counterExamples = []
+
 docReady(init)
 
 

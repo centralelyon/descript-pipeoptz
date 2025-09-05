@@ -22,7 +22,7 @@ function switchSelectMod(el, type) {
     nbClik = 0
     let can = document.getElementById("modalCanvas");
 
-    if (type == "rule") {
+    if (type == "rule" || type == "rect") {
         can.style.cursor = "crosshair";
     } else {
         can.style.cursor = "resize";
@@ -245,6 +245,9 @@ function mouseDownModal(e) {
         xy = toWorld(xy, modalOrigin, modalScale)
         strokePoint = [xy.x, xy.y];
         mouseDown = 1;
+    } else if (clickMod === 'rect') {
+        clickOrigin = {x: xy.x, y: xy.y};
+        nbClik += 1
     }
 }
 
@@ -334,6 +337,24 @@ function mouseMoveModal(e) {
             stroke.push([...strokePoint])
             strokePoint = [xy.x, xy.y];
         }
+    } else if (clickMod === 'rect') {
+        if (nbClik === 1) {
+            let can = document.getElementById("modalCanvas")
+            let cont = can.getContext('2d');
+
+            e.preventDefault()
+            let xy = getMousePos(e);
+
+            xy = toWorld(xy, modalOrigin, modalScale)
+            cont.strokeStyle = "#000"
+            cont.clearRect(0, 0, can.width, can.height);
+            cont.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+            cont.beginPath();
+            // cont.rect(clickOrigin.x, clickOrigin.y, xy.x, xy.y);
+            cont.rect(clickOrigin.x, clickOrigin.y, xy.x - clickOrigin.x, xy.y - clickOrigin.y)
+            cont.stroke();
+        }
+
     }
 }
 
@@ -508,6 +529,26 @@ function mouseUpModal(e) {
         tempDat = ""
         clickMod = "rule"
         fillPalette()
+    } else if (clickMod === 'rect') {
+        xy = toWorld(xy, modalOrigin, modalScale)
+        const rect = {
+            x: Math.round(clickOrigin.x),
+            y: Math.round(clickOrigin.y),
+            w: Math.round(xy.x - clickOrigin.x),
+            h: Math.round(xy.y - clickOrigin.y)
+        }
+
+        console.log(rect);
+        console.log(selectedMark.canvas.width);
+
+        let tcan = document.getElementById('modalCanvas')
+        let tcon = tcan.getContext('2d');
+
+        tcon.clearRect(0, 0, tcan.width, tcan.height);
+        tcon.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
+        otherGrab(tcan, rect)
+
+
     }
 
 
@@ -531,12 +572,13 @@ function resetCan() {
 
 function deleteMark() {
     const i = sampleData.findIndex(d => d === selectedMark);
+    counterExamples.push(sampleData[i])
     sampleData.splice(i, 1);
     fillSvg(sampleData)
 
     const dialog = document.getElementById("markMod");
     dialog.close()
-    updateMarks("size") //TODO: keep same order
+
 
 }
 
