@@ -107,7 +107,7 @@ def optimize_pipe():
 
     best_params, loss_log = optimizer.optimize(
         # [temp], [(yims, ycoords)],
-        [temp], [tshape], [counterCoords],
+        [temp], [tshape], [counterShape],
         method="BO",
         verbose=True,
         iterations=10,
