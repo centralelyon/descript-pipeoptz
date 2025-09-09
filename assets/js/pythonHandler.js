@@ -107,6 +107,7 @@ function fakeCoords(n) {
 function toggleForward() {
     forwardAllowed = !forwardAllowed;
     document.getElementById("forwardButton").classList.toggle("disabledButton");
+    document.getElementById("optiButton").classList.toggle("disabledButton");
 }
 
 async function setPipelinesParams(pipeline) {
@@ -206,64 +207,86 @@ async function optimizePipelineParams(pipeline) {
         return d.type === "manual"
     })
 
+    if (forwardAllowed && imgs.length > 0) {
 
-    let img = getImgBase64(currImg)
-    img = dataURLtoFile(img, "temp.png")
+        toggleForward()
+        const gif = document.getElementById("pipeLoaderGif");
+        gif.style.display = "inline-block";
 
 
-    if (imgs.length > 0) {
+        let img = getImgBase64(currImg)
+        img = dataURLtoFile(img, "temp.png")
 
-        let control = []
-        let coords = []
-        let counter = []
-        let counterCoords = []
-        for (let i = 0; i < imgs.length; i++) {
-            if (imgs[i].canvas.width > 10) {
-                control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
-                coords.push([imgs[i].rx, imgs[i].ry, imgs[i].rWidth, imgs[i].rHeight]);
-            }
-        }
-        ;
 
-        for (let i = 0; i < counterExamples.length; i++) {
-            counter.push(counterExamples[i].canvas.toDataURL());
+        if (imgs.length > 0) {
 
-            counterCoords.push([counterExamples[i].rx, counterExamples[i].ry, counterExamples[i].rWidth, counterExamples[i].rHeight]);
-        }
-
-        let form = new FormData();
-
-        form.append("pipeline", pipeline);
-        form.append("images", JSON.stringify(control));
-        form.append("counter", JSON.stringify(counter));
-        form.append("coords", JSON.stringify(coords));
-        form.append("counterCoords", JSON.stringify(counterCoords));
-        form.append("input", img);
-
-        let params = await fetch(base_url + "/optimizePipeline",
-            {
-                mode: 'cors',
-                headers: {},
-                method: 'POST',
-                body: form
-            })
-            .then(function (res) {
-                // console.log(res);
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
+            let control = []
+            let coords = []
+            let counter = []
+            let counterCoords = []
+            for (let i = 0; i < imgs.length; i++) {
+                if (imgs[i].canvas.width > 10) {
+                    control.push(imgs[i].canvas.toDataURL()); // we can't send multiple files in a single request without multi-parts.. Hence, we use b64
+                    coords.push([imgs[i].rx, imgs[i].ry, imgs[i].rWidth, imgs[i].rHeight]);
                 }
-                return res.json();
-            })
-            .then(function (data) {
+            }
+            ;
 
-                console.log(data);
+            for (let i = 0; i < counterExamples.length; i++) {
+                counter.push(counterExamples[i].canvas.toDataURL());
 
-                let tparams = curateFixedParams(data["best_params"])
+                counterCoords.push([counterExamples[i].rx, counterExamples[i].ry, counterExamples[i].rWidth, counterExamples[i].rHeight]);
+            }
 
-                console.log(tparams);
+            let form = new FormData();
 
-                return tparams
-            })
+            form.append("pipeline", pipeline);
+            form.append("images", JSON.stringify(control));
+            form.append("counter", JSON.stringify(counter));
+            form.append("coords", JSON.stringify(coords));
+            form.append("counterCoords", JSON.stringify(counterCoords));
+            form.append("input", img);
+
+            let params = await fetch(base_url + "/optimizePipeline",
+                {
+                    mode: 'cors',
+                    headers: {},
+                    method: 'POST',
+                    body: form
+                })
+                .then(function (res) {
+                    // console.log(res);
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(function (data) {
+
+                    console.log(data);
+
+                    let tparams = curateFixedParams(data["best_params"])
+
+                    for (const [k, v] of Object.entries(tparams)) {
+                        const t = k.split(".")
+
+                        const node = t[0];
+                        const param = t[1];
+
+                        // globalPipelines.fixedParams[pipeline][node][param] = v
+
+                        const diff = Math.abs(globalPipelines.fixedParams[pipeline][node][param] - v)
+
+
+
+                    }
+
+
+                    toggleForward()
+                    gif.style.display = "none";
+                    return tparams
+                })
+        }
     }
 }
 

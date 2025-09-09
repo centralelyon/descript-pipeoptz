@@ -175,7 +175,7 @@ async function init() {
 
 
     getPipelines()
-
+    fillOperations()
 
 
 }

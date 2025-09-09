@@ -370,9 +370,11 @@ function mouseUpModal(e) {
         if (selectedMark["data"]) {
 
             selectedMark.data[selectedInfo].value = Math.round(val)
+            addNode(selectedInfo,"Adding data")
 
         } else {
             selectedMark.data = {data0: {value: Math.round(val)}}
+            addNode("data0","Adding data")
         }
     } else if (clickMod === 'rotation') {
         let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
@@ -572,14 +574,22 @@ function resetCan() {
 
 function deleteMark() {
     const i = sampleData.findIndex(d => d === selectedMark);
+    sampleData.splice(i, 1);
+    fillSvg(sampleData)
+
+    const dialog = document.getElementById("markMod");
+    dialog.close()
+}
+
+
+function counterFactual() {
+    const i = sampleData.findIndex(d => d === selectedMark);
     counterExamples.push(sampleData[i])
     sampleData.splice(i, 1);
     fillSvg(sampleData)
 
     const dialog = document.getElementById("markMod");
     dialog.close()
-
-
 }
 
 function fillInfos(mark) {

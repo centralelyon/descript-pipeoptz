@@ -26,6 +26,7 @@ function loadImg(src) {
         fillSvg(sampleData)
         forwardAllowed = true
         document.getElementById("forwardButton").classList.remove("disabledButton");
+        document.getElementById("optiButton").classList.remove("disabledButton");
 
     };
 
