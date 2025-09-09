@@ -8,7 +8,8 @@ function iniGraph(pipeline) {
     const svg = document.getElementById("pipelineGraph");
     const vbox = svg.getBoundingClientRect()
 
-    d3.select("#pipelineGraph")
+
+    d3.select(svg)
         .graphviz()
         .width(vbox.width)
         .height(vbox.height)
@@ -17,7 +18,7 @@ function iniGraph(pipeline) {
         .dot(dot)
         .render();
 
-    d3.select("#pipelineGraph").on("click", function (e) {
+    d3.select(svg).on("click", function (e) {
 
         const el = e.target.parentElement;
 
@@ -166,6 +167,16 @@ function loadGraphModal(nodeName, params) {
 
         testNode(currPipe, nodeName, values).then(r => "")
     }
+}
 
+
+function getNodePolygon(nodeName) {
+
+    const svg = d3.select("#pipelineGraph")
+
+
+    svg.selectAll("title").filter(function (d, i) {
+        d.innerHTML = nodeName
+    })
 
 }
