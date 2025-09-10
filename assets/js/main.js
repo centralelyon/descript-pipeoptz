@@ -88,7 +88,7 @@ function loadExamples(week = 0, author = "giorgia") {
             num = "0" + num
         }
 
-        if (num ==43) {
+        if (num == 43) {
             continue
         }
         for (let j = 0; j < url_templates.length; j++) {
@@ -335,11 +335,11 @@ docReady(function () {
         resetImg()
     });
 
-/*
-    document.getElementById("marks").addEventListener('mouseout', (e) => {
-        resetImg()
-    });
-*/
+    /*
+        document.getElementById("marks").addEventListener('mouseout', (e) => {
+            resetImg()
+        });
+    */
 
     document.getElementById("svgControl").addEventListener('click', (e) => {
 
@@ -395,12 +395,33 @@ onkeydown = function (e) {
             const tval = selectedMark.data[tsel]
 
 
-            delete selectedMark.data[tsel]
-            selectedMark.data[tkey] = tval
+            // delete selectedMark.data[tsel]
+            selectedMark.data[tsel] = tval
 
             if (selectedInfo === tsel)
                 selectedInfo = tkey
 
+            for (let i = 0; i < sampleData.length; i++) {
+                if (sampleData[i]?.data) {
+                    if (sampleData[i]?.data[tsel]) {
+                        const tt = sampleData[i].data[tsel]
+                        delete sampleData[i].data[tsel]
+
+                        sampleData[i].data[tkey] = tt
+                    } else {
+                        sampleData[i].data[tkey] = 0
+                    }
+                } else {
+                    sampleData[i].data = {}
+                    sampleData[i].data[tkey] = 0
+                }
+
+            }
+
+            delete metaOperations[tsel]
+
+            //TODO; check if data still exists in another mark
+            addNode(tkey, "adding data")
             fillInfos(selectedMark)
             // fillPalette()
         }
@@ -848,11 +869,11 @@ function purge() {
 
     // selectedMark = null
     // updateMarks("size")
-/*    document.querySelectorAll(".category").forEach((item) => {
-        // if (item.getAttribute("value") !== "default") {
-        item.remove()
-        // }
-    })*/
+    /*    document.querySelectorAll(".category").forEach((item) => {
+            // if (item.getAttribute("value") !== "default") {
+            item.remove()
+            // }
+        })*/
     // updateCategories()
 
     const svg = d3.select('#svgDisplay');
