@@ -51,6 +51,8 @@ let counterExamples = []
 docReady(init)
 
 
+let megalog = []
+
 const dataRef = {
     // giorgia_36: "assets/images/tempLoad/full.json"
 }
@@ -88,7 +90,7 @@ function loadExamples(week = 0, author = "giorgia") {
             num = "0" + num
         }
 
-        if (num ==43) {
+        if (num == 43) {
             continue
         }
         for (let j = 0; j < url_templates.length; j++) {
@@ -175,7 +177,6 @@ async function init() {
 
 
     getPipelines()
-
 
 
 }
@@ -335,11 +336,11 @@ docReady(function () {
         resetImg()
     });
 
-/*
-    document.getElementById("marks").addEventListener('mouseout', (e) => {
-        resetImg()
-    });
-*/
+    /*
+        document.getElementById("marks").addEventListener('mouseout', (e) => {
+            resetImg()
+        });
+    */
 
     document.getElementById("svgControl").addEventListener('click', (e) => {
 
@@ -848,11 +849,11 @@ function purge() {
 
     // selectedMark = null
     // updateMarks("size")
-/*    document.querySelectorAll(".category").forEach((item) => {
-        // if (item.getAttribute("value") !== "default") {
-        item.remove()
-        // }
-    })*/
+    /*    document.querySelectorAll(".category").forEach((item) => {
+            // if (item.getAttribute("value") !== "default") {
+            item.remove()
+            // }
+        })*/
     // updateCategories()
 
     const svg = d3.select('#svgDisplay');
@@ -927,5 +928,28 @@ async function fillAllPalette() {
 
 
     }
+
+}
+
+
+function updateLog() {
+
+    let cont = document.getElementById("logContainer");
+
+
+    cont.innerHTML = ""
+
+
+    for (let i = 0; i < megalog.length; i++) {
+
+
+        let tp = document.createElement("p");
+
+
+        tp.innerHTML = Object.keys(megalog[i])[0];
+
+        cont.appendChild(tp);
+    }
+
 
 }

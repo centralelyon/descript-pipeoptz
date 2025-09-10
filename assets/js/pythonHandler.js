@@ -29,7 +29,6 @@ async function forwardPipeline(pipeline, img = null) {
         form.append("pipeline", pipeline);
         form.append("image", img);
 
-
         let imgs = await fetch(base_url + "/ask",
             {
                 mode: 'cors',
@@ -44,6 +43,9 @@ async function forwardPipeline(pipeline, img = null) {
                 return res.json();
             })
             .then(function (data) {
+                let key = `Forward pipeline (${pipeline}) to yield ${data.images.length} elements`;
+                megalog.push({[key]: data})
+                updateLog()
                 return data
             })
 
@@ -109,7 +111,7 @@ function toggleForward() {
     document.getElementById("forwardButton").classList.toggle("disabledButton");
 }
 
-async function setPipelinesParams(pipeline) {
+async function setPipelinesParams(pipeline, node) {
 
 
     let form = new FormData();
@@ -127,6 +129,10 @@ async function setPipelinesParams(pipeline) {
             if (!res.ok) {
                 throw new Error(`HTTP error! Status: ${res.status}`);
             }
+
+            let key = `Edited node (${node})  of (${pipeline})`;
+            megalog.push({[key]: res})
+            updateLog()
             return res
         })
 }
@@ -206,7 +212,6 @@ async function optimizePipelineParams(pipeline) {
         return d.type === "manual"
     })
 
-
     let img = getImgBase64(currImg)
     img = dataURLtoFile(img, "temp.png")
 
@@ -260,6 +265,9 @@ async function optimizePipelineParams(pipeline) {
 
                 let tparams = curateFixedParams(data["best_params"])
 
+                let key = `Optimize pipeline (${pipeline}) to yield new parameters`;
+                megalog.push({[key]: data["best_params"]})
+                updateLog()
                 console.log(tparams);
 
                 return tparams

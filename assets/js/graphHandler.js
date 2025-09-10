@@ -145,11 +145,9 @@ function loadGraphModal(nodeName, params) {
                 } else {
                     customPipelineParam[currPipe][nodeName][params[i]] = values[i]
                 }
-
-
         }
 
-        setPipelinesParams(currPipe).then(r => "")
+        setPipelinesParams(currPipe, nodeName).then(r => "")
 
         dialog.close();
 

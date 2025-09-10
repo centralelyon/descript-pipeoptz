@@ -576,6 +576,11 @@ function deleteMark() {
     sampleData.splice(i, 1);
     fillSvg(sampleData)
 
+
+    let key = `Deleted a mark and added to counter-factual examples`;
+    megalog.push({[key]: selectedMark})
+    updateLog()
+
     const dialog = document.getElementById("markMod");
     dialog.close()
 
