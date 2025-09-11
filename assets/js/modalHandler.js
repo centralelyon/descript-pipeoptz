@@ -370,9 +370,29 @@ function mouseUpModal(e) {
         if (selectedMark["data"]) {
 
             selectedMark.data[selectedInfo].value = Math.round(val)
+            addNode(selectedInfo, "Adding data")
+            if (!checkExist("Data")) {
+
+                globalMeta.push({
+                    name: 'Data',
+                    parent: ['clean'],
+                    children: [""]
+                })
+                fakeSideGraph()
+            }
 
         } else {
             selectedMark.data = {data0: {value: Math.round(val)}}
+            addNode("data0", "Adding data")
+            if (!checkExist("Data")) {
+
+                globalMeta.push({
+                    name: 'Data',
+                    parent: ['clean'],
+                    children: [""]
+                })
+                fakeSideGraph()
+            }
         }
     } else if (clickMod === 'rotation') {
         let angle = get_orr([clickOrigin.x, clickOrigin.y], [xy.x, xy.y]);
@@ -530,25 +550,6 @@ function mouseUpModal(e) {
         clickMod = "rule"
         fillPalette()
     } else if (clickMod === 'rect') {
-        xy = toWorld(xy, modalOrigin, modalScale)
-        const rect = {
-            x: Math.round(clickOrigin.x),
-            y: Math.round(clickOrigin.y),
-            w: Math.round(xy.x - clickOrigin.x),
-            h: Math.round(xy.y - clickOrigin.y)
-        }
-
-        console.log(rect);
-        console.log(selectedMark.canvas.width);
-
-        let tcan = document.getElementById('modalCanvas')
-        let tcon = tcan.getContext('2d');
-
-        tcon.clearRect(0, 0, tcan.width, tcan.height);
-        tcon.drawImage(selectedMark.canvas, initCoords.x, initCoords.y);
-        otherGrab(tcan, rect)
-
-
     }
 
 
@@ -572,6 +573,26 @@ function resetCan() {
 
 function deleteMark() {
     const i = sampleData.findIndex(d => d === selectedMark);
+    sampleData.splice(i, 1);
+    fillSvg(sampleData)
+
+    const dialog = document.getElementById("markMod");
+    dialog.close()
+
+    if (!checkExist("clean")) {
+
+
+        globalMeta.push({
+            name: 'clean',
+            parent: ['Samples'],
+            children: [""]
+        })
+        fakeSideGraph()
+    }
+}
+
+function counterFactual() {
+    const i = sampleData.findIndex(d => d === selectedMark);
     counterExamples.push(sampleData[i])
     sampleData.splice(i, 1);
     fillSvg(sampleData)
@@ -584,6 +605,14 @@ function deleteMark() {
     const dialog = document.getElementById("markMod");
     dialog.close()
 
+    if (!checkExist("clean")) {
+        globalMeta.push({
+            name: 'clean',
+            parent: ['Samples'],
+            children: [""]
+        })
+        fakeSideGraph()
+    }
 
 }
 

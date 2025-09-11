@@ -596,3 +596,22 @@ table th {
     margin-top: 36px;
     cursor: pointer;
 }
+
+.operation {
+    position: relative;
+    width: 100%;
+    height: 55px;
+    margin-bottom: 7px;
+    border: 1px solid #555;
+    border-radius: 11px;
+    cursor: pointer;
+    font-weight: 660
+}
+
+.operation:hover {
+    background: #F1F1F1;
+}
+
+.operation p {
+    margin-top: 13px
+}

@@ -656,3 +656,96 @@ function otherGrab(can,coords) {
     bgdModel.delete();
     fgdModel.delete();
 }
+
+function testSplit() {
+    let src = opencv.imread('modalCanvas');
+
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
+    let ksize = new opencv.Size(5, 5);
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+//17, 16
+    opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
+
+    let contours = new opencv.MatVector();
+    let hierarchy = new opencv.Mat();
+
+    let contours2 = new opencv.MatVector();
+    let hierarchy2 = new opencv.Mat();
+
+// You can try more different parameters
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+
+    for (let i = 0; i < contours.size(); ++i) {
+
+        // let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+        //     Math.round(Math.random() * 255));
+
+        let color = new opencv.Scalar(255, 255, 255);
+
+        opencv.drawContours(temp, contours, i, color, 5, opencv.LINE_8, hierarchy, 100);
+    }
+    opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
+    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    const points = []
+    for (let i = 0; i < contours2.size(); ++i) {
+
+        if ((hierarchy2.intPtr(0, i)[0] !== -1 || hierarchy2.intPtr(0, i)[1] !== -1) && hierarchy2.intPtr(0, i)[3] == 1) {
+            // if (hierarchy2.intPtr(0, i)[3] == 1) {
+            // console.log(hierarchy2.intPtr(0, i));
+            let tt = opencv.contourArea(contours.get(i), false)
+            // console.log(tt)
+            if (tt > 1) {
+                const ci = contours2.get(i)
+                let temp = []
+
+                for (let j = 0; j < ci.data32S.length; j += 2) {
+                    let p = {}
+                    p.x = ci.data32S[j]
+                    p.y = ci.data32S[j + 1]
+                    temp.push(p)
+                }
+                points.push([...temp])
+
+
+                // let color = new opencv.Scalar(255, 255, 255);
+                let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+                    Math.round(Math.random() * 255));
+                // opencv.drawContours(dst, contours2, i, color, 1, opencv.LINE_8, hierarchy2, 100);
+            }
+
+        }
+
+    }
+    // contours2Marks(points)
+
+
+    /*    let square_point_data = new Int32Array(contours.get(0));
+        let npts = x_arr.length
+        let square_points = opencv.matFromArray(npts, 1, opencv.CV_32SC2, square_point_data);
+        let pts = new opencv.MatVector()
+        pts.push_back (square_points);
+        let color = [160, 32, 240, 0.7]
+        opencv.fillPoly(tmp_mat, pts, color)
+
+        const markersVector = new opencv.MatVector();
+        markersVector.push_back(contours.get(0));
+
+        for (let i = 0; i < contours.size(); ++i) {
+            opencv.fillPoly(dst, pts=markersVector, color=0)
+        }*/
+    opencv.imshow('modalCanvas', dst);
+    src.delete();
+    dst.delete();
+    temp.delete();
+
+    contours.delete();
+    hierarchy.delete();
+    contours2.delete();
+    hierarchy2.delete();
+
+}

@@ -131,6 +131,31 @@ async function addRectSample(x, y, width, height) {
         data: {}
     }
 
+
+    if (!checkExist("annotation")) {
+        globalMeta.push({
+            name: 'annotation',
+            parent: ['image'],
+            children: []
+        })
+
+
+        if (!checkExist("Samples")) {
+            globalMeta.push({
+                name: 'Samples',
+                parent: ['annotation'],
+                children: []
+            })
+        } else {
+            let t = globalMeta.filter(d => d.name === "Samples")[0]
+            t.parent.push("annotation")
+        }
+
+        globalMeta[0].children.push('annotation')
+        fakeSideGraph()
+    }
+
+
     let dp = tres
 
 
@@ -269,6 +294,29 @@ async function addFreeSample(points) {
             // orientation: Math.round(angle * 100) / 100
         }
     }
+
+    if (!checkExist("annotation")) {
+
+        globalMeta[0].children.push('annotation')
+        globalMeta.push({
+            name: 'annotation',
+            parent: ['image'],
+            children: ["Samples"]
+        })
+
+        if (!checkExist("samples")) {
+            globalMeta.push({
+                name: 'Samples',
+                parent: ['annotation'],
+                children: []
+            })
+        } else {
+            let t = globalMeta.filter(d => d.name === "Samples")[0]
+            t.parent.push("annotation")
+        }
+        fakeSideGraph()
+    }
+
 
     // console.log(points[0][0] - corners[0][0], points[0][1] - corners[0][1]
     // console.log(points[1][0] - corners[0][0], points[1][1] - corners[0][1])
