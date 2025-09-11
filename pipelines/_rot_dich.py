@@ -46,7 +46,6 @@ def get_orientation(points, initial_angle=0., step=np.pi/8, precision=0.01, heur
             new_angle = (current_angle + direction * current_step) % np.pi
             ratio = heuristic(points, new_angle)
             if ratio > best_ratio:
-                print(ratio)
                 current_angle = new_angle
                 best_ratio = ratio
                 improved = True
@@ -56,8 +55,15 @@ def get_orientation(points, initial_angle=0., step=np.pi/8, precision=0.01, heur
     return current_angle
 
 def rotate(image, angle_rad, order=0, reshape=True):
-    return sp.ndimage.rotate(image, -angle_rad * 180 / np.pi, reshape=reshape, order=order)
+    return sp.ndimage.rotate(image, -angle_rad*180/np.pi, reshape=reshape, order=order)
 
+def do180(image):
+    height = image[:,:,3].shape[0]
+    mid = np.mean(np.where(image[:,:,3])[0])
+    if mid/height > 1/2:
+        return rotate(image, np.pi)
+    return image
+    
 
 def initPipeline():
     pipeline = Pipeline("RotDich")
@@ -77,6 +83,10 @@ def initPipeline():
         Node("Rotate", rotate, {"order": 0, "reshape": True}),
         predecessors={"image": "run_params:image", "angle_rad": "GetOrientation"}
     )
+    pipeline.add_node(
+        Node("Do180", do180),
+        predecessors={"image": "Rotate"}
+    )  
     return pipeline
 
 def initParameters():
