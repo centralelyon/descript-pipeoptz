@@ -170,7 +170,7 @@ async function init() {
 
     switchMode("rect")
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
-    // document.getElementById("imgLoader").addEventListener("change", importImg);
+    document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("pipeSelect").addEventListener("change", switchGraph);
 
     // document.getElementById("paletteLoader").addEventListener("change", importPalette);
@@ -206,7 +206,15 @@ function getSamplesFromCategory(category) {
 
 
 function switchSampleSelect(e, type) {
-    document.getElementById("selectedButton").removeAttribute("id")
+
+    const bt = document.getElementById("selectedButton3")
+    const bt2 = document.getElementById("selectedButton")
+    if (bt)
+        bt.removeAttribute("id")
+    if (bt2)
+        bt2.removeAttribute("id")
+
+    document.getElementById("svgDisplay").style.display = "none"
 
     e.setAttribute("id", "selectedButton")
     switchMode(type)
@@ -274,42 +282,42 @@ function fillCatMod(category) {
 
 
 docReady(function () {
-/*    document.getElementById("catContainer").addEventListener('click', (e) => {
+    /*    document.getElementById("catContainer").addEventListener('click', (e) => {
 
-        const el = e.target;
-        let parent = null;
+            const el = e.target;
+            let parent = null;
 
-        if (el.matches(".category")) {
-            parent = el
-        } else if (el.matches(".category p, .category div")) {
-            parent = el.parentNode;
-        } else if (el.matches(".category img")) {
-            parent = el.parentNode;
-            displayCat(parent.getAttribute("value"))
-
-        }
-
-        if (parent !== null) {
-
-            document.getElementById("selectedCat").removeAttribute("id")
-            parent.setAttribute("id", "selectedCat");
-            selectedCategory = parent.getAttribute("value");
-
-
-            if (seldots !== undefined) {
-                for (let i = 0; i < seldots.length; i++) {
-                    seldots[i].categories[selectedCategory] = categories[selectedCategory]
-                }
-
-                seldots = undefined;
-                over_on = true
-                d3.select("#lasso").remove();
-                drawImage()
+            if (el.matches(".category")) {
+                parent = el
+            } else if (el.matches(".category p, .category div")) {
+                parent = el.parentNode;
+            } else if (el.matches(".category img")) {
+                parent = el.parentNode;
+                displayCat(parent.getAttribute("value"))
 
             }
-        }
 
-    });*/
+            if (parent !== null) {
+
+                document.getElementById("selectedCat").removeAttribute("id")
+                parent.setAttribute("id", "selectedCat");
+                selectedCategory = parent.getAttribute("value");
+
+
+                if (seldots !== undefined) {
+                    for (let i = 0; i < seldots.length; i++) {
+                        seldots[i].categories[selectedCategory] = categories[selectedCategory]
+                    }
+
+                    seldots = undefined;
+                    over_on = true
+                    d3.select("#lasso").remove();
+                    drawImage()
+
+                }
+            }
+
+        });*/
 
 
     /*document.getElementById("catContainer").addEventListener('mouseover', (e) => {
@@ -348,8 +356,25 @@ docReady(function () {
 
         if (el.matches('img')) {
             el = el.parentNode
-            document.getElementById("selectedButton3").removeAttribute("id")
-            el.setAttribute("id", "selectedButton3")
+            const bt = document.getElementById("selectedButton3")
+            const bt2 = document.getElementById("selectedButton")
+            if (bt) {
+
+                bt.removeAttribute("id")
+                if (bt === el) {
+                    document.getElementById("svgDisplay").style.display = "none"
+
+                } else {
+                    el.setAttribute("id", "selectedButton3")
+                    document.getElementById("svgDisplay").style.display = "block"
+                }
+            } else {
+                el.setAttribute("id", "selectedButton3")
+                document.getElementById("svgDisplay").style.display = "block"
+            }
+            if (bt2)
+                bt2.removeAttribute("id")
+
 
         }
     });

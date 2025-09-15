@@ -5,7 +5,15 @@ from flask_cors import CORS, cross_origin
 
 from pipelines.rmv_bg_isolate import initPipeline
 
+
+MEGABYTE = (2 ** 10) ** 2
+
+
 app = Flask(__name__)
+
+app.config['MAX_CONTENT_LENGTH'] = None
+app.config['MAX_FORM_MEMORY_SIZE'] = 50 * MEGABYTE
+
 cors = CORS(app)  # allow CORS for all domains on all routes.
 app.config['CORS_HEADERS'] = 'Content-Type'
 import re
