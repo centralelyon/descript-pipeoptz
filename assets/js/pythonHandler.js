@@ -89,7 +89,7 @@ async function forwardPipeline(pipeline, img = null) {
                     parent: ['Extraction'],
                     children: []
                 })
-            }  else {
+            } else {
                 let t = globalMeta.filter(d => d.name === "Samples")[0]
                 console.log(t);
                 t.parent.push("Extraction")
@@ -213,7 +213,7 @@ async function getPipelines() {
         })
         .then(function (data) {
             globalPipelines = data
-
+            // console.log(data);
             globalPipelines.fixedParams = curateFixedParams(globalPipelines.fixedParams)
 
             iniGraph(data["pipelines"][0])
@@ -298,18 +298,32 @@ async function optimizePipelineParams(pipeline) {
 
                     let tparams = curateFixedParams(data["best_params"])
 
+                    let groupped = {}
+
                     for (const [k, v] of Object.entries(tparams)) {
                         const t = k.split(".")
 
                         const node = t[0];
                         const param = t[1];
 
+                        if (node.includes("[optz]"))
+                            continue;
+                        if (groupped[node]) {
+                            groupped[node][param] = v;
+
+                        } else {
+                            groupped[node] = {};
+                            groupped[node][param] = v;
+                        }
+
+
                         // globalPipelines.fixedParams[pipeline][node][param] = v
 
-                        const diff = Math.abs(globalPipelines.fixedParams[pipeline][node][param] - v)
 
+                    }
 
-
+                    for (const [k, v] of Object.entries(groupped)) {
+                        changeNodeColor(k, globalPipelines.fixedParams[pipeline][k], v)
                     }
 
 

@@ -129,11 +129,11 @@ body {
 
 .node polygon {
     cursor: pointer;
-    fill: rgba(255, 255, 255, 0.07) !important;
+    fill: rgba(255, 255, 255, 0.07);
 }
 .node polygon:hover {
 
-    fill: rgba(189, 189, 189, 0.31) !important;
+    fill: rgba(189, 189, 189, 0.31) ;
 }
 
 #selFlat {

@@ -274,7 +274,7 @@ function fillCatMod(category) {
 
 
 docReady(function () {
-    document.getElementById("catContainer").addEventListener('click', (e) => {
+/*    document.getElementById("catContainer").addEventListener('click', (e) => {
 
         const el = e.target;
         let parent = null;
@@ -309,10 +309,10 @@ docReady(function () {
             }
         }
 
-    });
+    });*/
 
 
-    document.getElementById("catContainer").addEventListener('mouseover', (e) => {
+    /*document.getElementById("catContainer").addEventListener('mouseover', (e) => {
 
         const el = e.target;
         let parent = null;
@@ -335,7 +335,7 @@ docReady(function () {
 
         resetImg()
     });
-
+*/
     /*
         document.getElementById("marks").addEventListener('mouseout', (e) => {
             resetImg()

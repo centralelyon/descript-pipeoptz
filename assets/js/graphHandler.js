@@ -8,11 +8,12 @@ function iniGraph(pipeline) {
     const svg = document.getElementById("pipelineGraph");
     const vbox = svg.getBoundingClientRect()
 
+    const th = document.getElementById("inVis").height
 
     d3.select(svg)
-        .graphviz()
+        .graphviz(false)
         .width(vbox.width)
-        .height(vbox.height)
+        .height(th)
         .transition(t)
         .fit(true)
         .dot(dot)
@@ -168,13 +169,40 @@ function loadGraphModal(nodeName, params) {
 }
 
 
-function getNodePolygon(nodeName) {
+function getNodeGroup(nodeName) {
 
     const svg = d3.select("#pipelineGraph")
 
 
-    svg.selectAll("title").filter(function (d, i) {
-        d.innerHTML = nodeName
+    let t = svg.selectAll("g").filter(function (d, i) {
+        let id = d.id.split(".");
+        id = id[id.length - 1];
+        return id === nodeName
+
     })
 
+    return t._groups[0][0]
+}
+
+
+function changeNodeColor(nodeName, params, newParams) {
+
+    let changed = false
+    for (const [k, v] of Object.entries(newParams)) {
+        if (params[k] !== v) {
+            changed = true
+        }
+    }
+    let g = getNodeGroup(nodeName)
+    if (g !== undefined) {
+        g = d3.select(g)
+    }
+    const poly = g.select("polygon")
+    console.log(poly);
+    if (changed) {
+        poly.style("fill", "red");
+
+    } else {
+        poly.style("fill", "green");
+    }
 }
