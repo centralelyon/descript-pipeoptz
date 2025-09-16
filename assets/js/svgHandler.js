@@ -382,18 +382,25 @@ function drawPath() {
 
 }
 
-function dragStart() {
-    if (!dragMod) {
-        coords = [];
-        offset = undefined
-        const svg = d3.select('#svgDisplay');
-        over_on = false
-        // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
-        // svg.selectAll("images").attr("fill", "steelblue");
-        // svg.style("background-color", "rgba(0,0,0,0.65)");
-        d3.select("#lasso").remove();
-        svg.append("path")
-            .attr("id", "lasso");
+function dragStart(e) {
+
+    const el = e.sourceEvent.target
+    if (el.matches(".svgButton") || el.matches("circle")) {
+
+    } else {
+        if (!dragMod) {
+            coords = [];
+            offset = undefined
+            const svg = d3.select('#svgDisplay');
+            over_on = false
+            // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
+            // svg.selectAll("images").attr("fill", "steelblue");
+            // svg.style("background-color", "rgba(0,0,0,0.65)");
+            d3.select("#lasso").remove();
+            d3.selectAll(".LassoControls").remove();
+            svg.append("path")
+                .attr("id", "lasso");
+        }
     }
 }
 
@@ -453,62 +460,139 @@ function dragMove(event) {
     }
 }
 
-function dragEnd() {
+function showControls(svg, coords) {
 
-    if (!dragMod) {
-        let selectedDots = [];
-        const svg = d3.select('#svgDisplay');
+    let offX = 12
+    let offY = 8
 
-        const tsvg = document.getElementById("marksDisplay")
+    let marg = 10
+    let g = svg.append("g")
+        .attr("class", "LassoControls")
 
-        const w = tsvg.offsetWidth
-        const h = tsvg.offsetHeight
+    let rad = 13
+    let size = 19
 
-        svg.selectAll("image").each((d, i, e) => {
-            // console.log(d);
+    g.append("circle")
+        .attr("cx", coords[0] + size / 2 + offX)
+        .attr("cy", coords[1] + size / 2 + offY)
+        .attr("r", rad)
 
-            const elem = d3.select(e[i])
-
-            /*        let point = [
-                        d.rx * w + (d.rWidth * w) / 2,
-                        d.ry * h + (d.rHeight * h) / 2,
-                    ];*/
-
-            let point = [
-                parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
-                parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
-            ];
+    g.append("svg:image")
+        .attr("href", "assets/images/buttons/magic.png")
+        .attr("x", coords[0] + offX)
+        .attr("y", coords[1] + offY)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("id", "mergeSvg")
+        .attr("class", "svgButton")
+        .style("clip-path", `circle(${rad}px)`)
 
 
-            // let rect = [
-            //     d.rx * w,
-            //     d.ry * h,
-            //     d.rWidth * w + d.rx * w,
-            //     d.ry * h +
-            //     d.rHeight * h,
-            // ];
-            if (pointInPolygon(point, coords)) {
-                // d3.select("image[num='" + i + "'").transition().duration(250).style("opacity", 0.5);
-                selectedDots.push(d);
-                // this.style("opacity", 0);
-                // console.log(e[i]);
-                // d3.select(e[i]).style("opacity", 0)
-                // e[i]
+    g.append("circle")
+        .attr("cx", marg + size + coords[0] + size / 2 + offX)
+        .attr("cy", coords[1] + size / 2 + offY)
+        .attr("r", rad)
+
+    g.append("svg:image")
+        .attr("href", "assets/images/buttons/del.png")
+        .attr("x", marg + size + coords[0] + offX)
+        .attr("y", coords[1] + offY)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("id", "deleteSvg")
+        .attr("class", "svgButton")
+        .style("clip-path", `circle(${rad}px)`)
+}
+
+function dragEnd(e) {
+    const el = e.sourceEvent.target
+    if (el.matches(".svgButton") || el.matches("circle")) {
+        //todo: handle button events
+        const id = el.getAttribute("id")
+        if (id === "mergeSvg") {
+            console.log(el);
+
+            addMergeSample(coords)
+            for (let i = 0; i < seldots.length; i++) {
+
+                let id = sampleData.indexOf(seldots[i])
+                sampleData.splice(id, 1)
             }
+            updateChart(curr_mod, seldots)
+            seldots = undefined;
+            d3.selectAll(".LassoControls").remove();
+        } else if (id === "deleteSvg") {
+            for (let i = 0; i < seldots.length; i++) {
+
+                let id = sampleData.indexOf(seldots[i])
+                sampleData.splice(id, 1)
+            }
+            updateChart(curr_mod, seldots)
+            seldots = undefined;
+            d3.selectAll(".LassoControls").remove();
+        }
+    } else {
 
 
-            // if (rectInPolygon(rect, coords))
-            //     selectedDots.push(d);
+        if (!dragMod && coords !== undefined) {
+            if(coords.length > 5 ) {
+            let selectedDots = [];
+            const svg = d3.select('#svgDisplay');
+
+            const tsvg = document.getElementById("marksDisplay")
+
+            const w = tsvg.offsetWidth
+            const h = tsvg.offsetHeight
+
+            showControls(svg, coords[0])
+
+            svg.selectAll("image").each((d, i, e) => {
+                // console.log(d);
+
+                const elem = d3.select(e[i])
+
+                /*        let point = [
+                            d.rx * w + (d.rWidth * w) / 2,
+                            d.ry * h + (d.rHeight * h) / 2,
+                        ];*/
+
+                let point = [
+                    parseFloat(elem.attr('x')) + parseFloat(elem.attr('width')) / 2,
+                    parseFloat(elem.attr('y')) + parseFloat(elem.attr('height')) / 2,
+                ];
 
 
-        });
-        seldots = [...selectedDots]
-        svg.selectAll("image").style("opacity", 1);
-        // over_on = true
+                // let rect = [
+                //     d.rx * w,
+                //     d.ry * h,
+                //     d.rWidth * w + d.rx * w,
+                //     d.ry * h +
+                //     d.rHeight * h,
+                // ];
+                if (pointInPolygon(point, coords)) {
+                    // d3.select("image[num='" + i + "'").transition().duration(250).style("opacity", 0.5);
+                    selectedDots.push(d);
+                    // this.style("opacity", 0);
+                    // console.log(e[i]);
+                    // d3.select(e[i]).style("opacity", 0)
+                    // e[i]
+                }
 
-        drawSamples(selectedDots);
+
+                // if (rectInPolygon(rect, coords))
+                //     selectedDots.push(d);
 
 
+            });
+            seldots = [...selectedDots]
+            svg.selectAll("image").style("opacity", 1);
+            // over_on = true
+
+            // drawSamples(selectedDots);
+
+
+        }
+        }
     }
 }
 

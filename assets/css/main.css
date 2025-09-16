@@ -195,6 +195,20 @@ canvas {
 }
 
 
+.LassoControls {
+    cursor: pointer;
+}
+
+.LassoControls circle {
+    fill: rgba(244, 244, 244, 0.9);
+    stroke-width: 2px;
+    stroke:#222
+}
+
+.LassoControls:hover {
+    fill: rgba(244, 244, 244, 0.5);
+}
+
 #marks canvas {
     border: solid rgba(65, 65, 65, 0.5) 2px;
     margin: 1px;

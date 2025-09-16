@@ -1,3 +1,70 @@
+function isolateElement(can) {
+    let src = opencv.imread(can);
+    let dst = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    let temp = opencv.Mat.zeros(src.rows, src.cols, opencv.CV_8UC3);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2GRAY, 0);
+    let ksize = new opencv.Size(3, 3)
+
+    opencv.GaussianBlur(src, src, ksize, 0, 0, opencv.BORDER_DEFAULT);
+    opencv.adaptiveThreshold(src, src, 200, opencv.ADAPTIVE_THRESH_GAUSSIAN_C, opencv.THRESH_BINARY, 17, 16);
+
+    let contours = new opencv.MatVector();
+    let hierarchy = new opencv.Mat();
+
+    let contours2 = new opencv.MatVector();
+    let hierarchy2 = new opencv.Mat();
+
+
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    for (let i = 0; i < contours.size(); ++i) {
+        let color = new opencv.Scalar(255, 255, 255);
+        opencv.drawContours(temp, contours, i, color, 8, opencv.LINE_8, hierarchy, 100);
+    }
+    opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
+    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+
+    const points = []
+    for (let i = 0; i < contours2.size(); ++i) {
+
+        if ((hierarchy2.intPtr(0, i)[0] !== -1 || hierarchy2.intPtr(0, i)[1] !== -1) && hierarchy2.intPtr(0, i)[3] == 1) {
+            let tt = opencv.contourArea(contours.get(i), false)
+            if (tt > 1) {
+                const ci = contours2.get(i)
+                let temp = []
+
+                for (let j = 0; j < ci.data32S.length; j += 2) {
+                    let p = {}
+                    p.x = ci.data32S[j]
+                    p.y = ci.data32S[j + 1]
+                    temp.push(p)
+                }
+                points.push([...temp])
+            }
+
+        }
+
+        // let color = new opencv.Scalar(255, 255, 255);
+        let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+            Math.round(Math.random() * 255));
+        opencv.drawContours(dst, contours2, i, color, 1, opencv.LINE_8, hierarchy2, 100);
+
+    }
+
+    opencv.imshow(can, dst);
+
+    src.delete();
+    dst.delete();
+    temp.delete();
+
+    contours.delete();
+    hierarchy.delete();
+    contours2.delete();
+    hierarchy2.delete();
+    return can
+}
+
+
 function testEdge() {
     let src = opencv.imread('inVis');
 
@@ -16,17 +83,11 @@ function testEdge() {
     let contours2 = new opencv.MatVector();
     let hierarchy2 = new opencv.Mat();
 
-// You can try more different parameters
+
     opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
 
-
     for (let i = 0; i < contours.size(); ++i) {
-
-        // let color = new opencv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-        //     Math.round(Math.random() * 255));
-
         let color = new opencv.Scalar(255, 255, 255);
-
         opencv.drawContours(temp, contours, i, color, 5, opencv.LINE_8, hierarchy, 100);
     }
     opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
@@ -238,7 +299,7 @@ function testClean() {
 
 }
 
-function removeColor(r, g, b, can, range = 15) {
+function removeColor(r, g, b, can, range = 35) {
     let lower = [inBound(b - range), inBound(g - range), inBound(r - range), 0];
     let higher = [inBound(b + range), inBound(g + range), inBound(r + range), 255];
     let src = opencv.imread(can);
@@ -260,6 +321,7 @@ function removeColor(r, g, b, can, range = 15) {
     low.delete();
     temp.delete();
     high.delete();
+    return can
 }
 
 function inBound(pixel) {
@@ -630,7 +692,7 @@ function grabCut(can, rect) {
 
 }
 
-function otherGrab(can,coords) {
+function otherGrab(can, coords) {
 
     let src = opencv.imread(can);
     opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 0);
@@ -638,7 +700,7 @@ function otherGrab(can,coords) {
     let bgdModel = new opencv.Mat();
     let fgdModel = new opencv.Mat();
     let rect = new opencv.Rect(coords.x, coords.y, coords.w, coords.h);
-    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 1, opencv.GC_INIT_WITH_RECT);
+    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 10, opencv.GC_INIT_WITH_RECT);
 // draw foreground
     for (let i = 0; i < src.rows; i++) {
         for (let j = 0; j < src.cols; j++) {
@@ -650,11 +712,13 @@ function otherGrab(can,coords) {
         }
     }
     opencv.cvtColor(src, src, opencv.COLOR_RGB2RGBA, 0);
-    opencv.imshow('inVis', src);
+    opencv.imshow(can, src);
     src.delete();
     mask.delete();
     bgdModel.delete();
     fgdModel.delete();
+
+    return can
 }
 
 function testSplit() {
@@ -748,4 +812,18 @@ function testSplit() {
     contours2.delete();
     hierarchy2.delete();
 
+}
+
+
+function get_average_rgb(img) {
+    var context = document.createElement('canvas').getContext('2d');
+    if (typeof img == 'string') {
+        var src = img;
+        img = new Image;
+        img.setAttribute('crossOrigin', '');
+        img.src = src;
+    }
+    context.imageSmoothingEnabled = true;
+    context.drawImage(img, 0, 0, 1, 1);
+    return context.getImageData(0, 0, 1, 1).data.slice(0, 3);
 }

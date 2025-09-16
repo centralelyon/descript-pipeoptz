@@ -360,6 +360,111 @@ function getRect(points) {
     ]
 }
 
+function addMergeSample(points) {
+
+    let corners = getRect(points)
+
+    let can = document.getElementById("inVis")
+    let trec = can.getBoundingClientRect()
+    let tx = trec.width
+    let ty = trec.height
+
+
+    let tcan = document.createElement('canvas');
+    let tcont = tcan.getContext('2d');
+
+
+    tcan.width = corners[1][0] - corners[0][0]
+    tcan.height = corners[1][1] - corners[0][1]
+
+    let tw = corners[1][0] - corners[0][0]
+    let th = corners[1][1] - corners[0][1]
+
+    let tcat = {}
+    tcat[selectedCategory] = categories[selectedCategory]
+    let tres = {
+        x: corners[0][0],
+        y: corners[0][1],
+        width: tw,
+        height: th,
+        type: "manual",
+        canvas: tcan,
+        perimeter: [...points],
+        // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
+        rx: corners[0][0] / tx,
+        ry: corners[0][1] / ty,
+        rWidth: tw / tx,
+        rHeight: th / ty,
+        categories: tcat,
+        data: {
+            // orientation: Math.round(angle * 100) / 100
+        }
+    }
+    tcont.save()
+    tcont.beginPath();
+    tcont.moveTo(points[0][0] - corners[0][0], points[0][1] - corners[0][1]);
+    for (let i = 1; i < points.length; i++) {
+        tcont.lineTo(points[i][0] - corners[0][0], points[i][1] - corners[0][1]);
+    }
+    // tcont.stroke()
+    tcont.closePath();
+    tcont.clip()
+
+
+    tcont.drawImage(currImg,
+        tres.rx * currImg.width,
+        tres.ry * currImg.height,
+        tres.rWidth * currImg.width,
+        tres.rHeight * currImg.height,
+        0,
+        0,
+        tw,
+        th
+    )
+    tcont.restore()
+    let tt = get_average_rgb(tres.canvas)
+    console.log(tt);
+
+    // tcont.fillStyle = `rgb(${tt[0]},${tt[1]},${tt[2]}`;
+
+    // tcan = removeColor(tt[0], tt[1], tt[2], tcan)
+    tcan = removeColor(220, 220, 220, tcan)
+    /*    tcont.fillRect(0, 0, tcan.width, tcan.height);
+
+        tcont.beginPath();
+        tcont.moveTo(points[0][0] - corners[0][0], points[0][1] - corners[0][1]);
+        for (let i = 1; i < points.length; i++) {
+            tcont.lineTo(points[i][0] - corners[0][0], points[i][1] - corners[0][1]);
+        }
+        // tcont.stroke()
+        tcont.closePath();
+        tcont.clip()
+
+
+        tcont.drawImage(currImg,
+            tres.rx * currImg.width,
+            tres.ry * currImg.height,
+            tres.rWidth * currImg.width,
+            tres.rHeight * currImg.height,
+            0,
+            0,
+            tw,
+            th
+        )*/
+
+    // tcan = isolateElement(tcan)
+    tcan = otherGrab(tcan, {x: 2, y: 2, w: tw - 2, h: th - 2})
+
+    tcan = removeColor(0, 0, 0, tcan,3)
+
+    tres.canvas = tcan
+    console.log("done");
+    sampleData.push(tres)
+    fillSvg(sampleData)
+
+}
+
+
 function tempTest() {
 
 

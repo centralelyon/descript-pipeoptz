@@ -213,8 +213,8 @@ async function getPipelines() {
         })
         .then(function (data) {
             globalPipelines = data
-            // console.log(data);
-            globalPipelines.fixedParams = curateFixedParams(globalPipelines.fixedParams)
+            console.log(data["fixedParams"]);
+            // globalPipelines.fixedParams = curateFixedParams(globalPipelines.fixedParams)
 
             iniGraph(data["pipelines"][0])
 
