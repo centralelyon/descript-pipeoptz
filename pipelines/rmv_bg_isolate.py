@@ -159,20 +159,20 @@ def globalVar(x):
 def initPipeline():
     pipeline = Pipeline("BG & Isolate")
     pipeline.add_node(
-        Node("[optz]PaletteSize", globalVar, {"x":8})
+        Node("PaletteSize", globalVar, {"x":8})
     )
     pipeline.add_node(
         Node("ExtractPalette", extract_palette, {"use_lab":False, "batch_size":256}), 
-        {"image":"run_params:image", "n_colors":"[optz]PaletteSize"})
+        {"image":"run_params:image", "n_colors":"PaletteSize"})
     pipeline.add_node(
         Node("Recolor", recolor), 
         {"image":"run_params:image", "palette":"ExtractPalette"})
     pipeline.add_node(
-        Node("[optz]PaletteIndices", ith_subset, {"i":37}),
-        {"n":"[optz]PaletteSize"})
+        Node("PaletteIndices", ith_subset, {"i":37}),
+        {"n":"PaletteSize"})
     pipeline.add_node(
         Node("RemovePalette", remove_palette), 
-        {"image":"run_params:image", "recolored_image":"Recolor", "palette":"ExtractPalette", "indices_to_remove":"[optz]PaletteIndices"})
+        {"image":"run_params:image", "recolored_image":"Recolor", "palette":"ExtractPalette", "indices_to_remove":"PaletteIndices"})
     pipeline.add_node(
         Node("ToMask", to_mask), 
         {"image":"RemovePalette"})
@@ -190,8 +190,8 @@ def initPipeline():
 
 def initParameters():
     return [
-        IntParameter("[optz]PaletteSize", "x", 6, 12),
+        IntParameter("PaletteSize", "x", 6, 12),
         BoolParameter("ExtractPalette", "use_lab"),
-        IntParameter("[optz]PaletteIndices", "i", 1, 128),
+        IntParameter("PaletteIndices", "i", 1, 128),
         IntParameter("Isolate", "sizemin", 1, 1000)
     ]
