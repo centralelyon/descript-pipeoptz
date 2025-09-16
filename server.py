@@ -20,11 +20,9 @@ import re
 import base64
 from io import BytesIO
 import ujson as ujson
-import time
 from pipelines import pipelines, parameters, loss
 from pipelines.extract_elements import initPipeline
 from pipeoptz.optimizer import PipelineOptimizer
-from pipeoptz.parameter import IntParameter, FloatParameter, ChoiceParameter, BoolParameter, MultiChoiceParameter
 
 maxImgSize = [1000, 1000]
 
@@ -47,6 +45,12 @@ def pipes():
     for key in keys:
         graphs[key] = pipelines[key].to_dot()
         fixedParams[key] = pipelines[key].get_fixed_params()
+        print(fixedParams[key])
+        for fixedParam in list(fixedParams[key]):
+            if fixedParam.startswith("[optz]"):
+                for node_id in pipelines[key].nodes:
+                    if fixedParam.split(".")[0] in pipelines[key].node_dependencies[node_id].values():
+                        fixedParams[key][f"{node_id}.{fixedParam}"] = fixedParams[key].pop(fixedParam)
 
     resp = Response(response=ujson.dumps({
         "pipelines": keys,
