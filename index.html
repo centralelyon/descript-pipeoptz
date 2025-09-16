@@ -51,7 +51,7 @@
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container" style="max-width: 98vw;width:98vw;margin-bottom: 5%" id="testContainer">
 
-    <div class="row" style="margin-top: 3%;text-align: center;display:flex">
+    <div class="row" style="margin-top: 2%;text-align: center;display:flex">
 
         <div class="three columns">
             <div style="margin-top:auto;">
@@ -70,20 +70,28 @@
                              onclick="optimizePipelineParams(document.getElementById('pipeSelect').value)"
                              style=""/>
                     </div>
-
                     <div class="buttonImg" id="pipeLoaderGif" style="display: none">
                         <img src="assets/images/buttons/load.gif" class=""
                              style="max-width: 25px;margin-top: 5px"/>
                     </div>
+
+
                 </div>
             </div>
         </div>
-        <div class="eight columns" id="selFlat">
-            <p class="selFlatLabel"> Load one of Dear data's example:</p>
+        <div class="eight columns" >
+            <p class="selFlatLabel" style="display: inline-block"> Load one of Dear data's example (v) or your own </p>
+            <div class="buttonImg" style="border: none;;display: inline-block">
+                <input type="file" name="img" id="imgLoader" style="display: none;"/>
+                <img src="assets/images/buttons/addimg.png" class="lightBorder"
+                     style="" onclick="fakeFile('imgLoader')"/>
+            </div>
+            <div id="selFlat" style="width: 100%"> </div>
 
         </div>
+
         <div class="two columns">
-            <p class="selFlatLabel"> Select a local pipeline</p>
+            <p class="selFlatLabel"> Manipulation Graph</p>
             <!--            <div style="display:flex;position:relative;left:50px;margin-top: 13px;">
                             <select id="singlePipeSelect" onchange="">
 
@@ -103,16 +111,23 @@
     <div class="row" style="margin-top: 0.5%;text-align: center;display:flex">
         <div class="three columns" style="min-width: 60px;margin-left: 0.5%">
 
-            <div class="u-full-width lightBorder" style="height: 100%">
-                <svg id="pipelineGraph" style="width: 100%; height: 100%">
+            <div id="pipelineGraph" class="u-full-width lightBorder" style="height: 100%">
+                <!--                <svg id="pipelineGraph" style="width: 100%; height: 100%">-->
 
-                </svg>
+                <!--                </svg>-->
             </div>
         </div>
-        <div class="eight columns " style="margin-left:1%">
+        <div class="eight columns " style="margin-left:1%;position: relative">
 
             <canvas class="lightBorder" id="inVis"
                     style="z-index: 99;display: inline-block"></canvas>
+
+            <svg class="lightBorder"
+                 style="display: none;z-index: 999; width: 100%; height: 98%;position: absolute;left: 0;top:0;background:rgba(10,10,10,0.4)"
+                 preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
+                 id="svgDisplay">
+
+            </svg>
             <div style="width: 60%;display: none">
 
                 <input id="imgUrl" style="width: 80%" placeholder="enter image url..." type="text" value="">
@@ -126,30 +141,7 @@
             </div>
         </div>
         <div class="two columns" style="height: 100%;margin-left: 10px">
-            <!--            <div style="width: 35px">
-
-
-                            <div id="catContainer" style="display: none">
-                                <div class="category" value="default" id="selectedCat">
-                                    <div class="lightBorder catColor">
-
-                                    </div>
-                                    <p>Default</p>
-                                    <img src="assets/images/buttons/edit.png" class="editCat">
-
-                                </div>
-
-                                <div id="addCat" style="display: inline-block;margin-left: 2px">
-
-                                    <input class="" type="text" placeholder="Name..." id="textCat" style="width:100%">
-                                    <img id="plusCat" style="width: 15px;margin-right: 3px ;cursor: pointer"
-                                         src="assets/images/buttons/plus.png" onclick="addCategory()"/>
-                                </div>
-                            </div>
-                        </div>-->
-
             <div id="logContainer" style="display: none"></div>
-
 
             <div class="u-full-width lightBorder" style="height: 100%">
                 <svg id="sideGraph" style="width: 100%; height: 100%">
@@ -178,9 +170,10 @@
 
 
             <div id="marksDisplay" style="margin-top: 0;width: 100%">
-                <div style="display: flex; align-items: center; justify-content: space-evenly;">
+                <div style="display: flex; align-items: center; justify-content: center;">
                     <div>
                         <div class="buttonImg">
+                            <!--                            -->
                             <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
                                  onclick="switchSampleSelect(this,'rect')" style=""/>
                         </div>
@@ -189,14 +182,10 @@
                                  onclick="switchSampleSelect(this,'free')"
                                  style=""/>
                         </div>
-                        <div class="buttonImg" style="padding: 0;border: none">
-                            <input type="file" name="img" id="imgLoader" style="display: none;"/>
-                            <img src="assets/images/buttons/addimg.png" class="lightBorder"
-                                 style="" onclick="fakeFile('imgLoader')"/>
-                        </div>
+
                     </div>
                     <div id="svgControl">
-                        <div class="buttonImg" id="selectedButton3">
+                        <div class="buttonImg" style="margin-left: 120px">
                             <img src="assets/images/buttons/default.png" class="lightBorder"
                                  onclick="switchSvg(sampleData,'default')"
                                  style=""/>
@@ -215,22 +204,41 @@
                              style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
                     </div>
                 </div>
-                <svg style="width: 100%; height: 98%" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
-                     id="svgDisplay">
+                <div>
+                    <div id="paletteHeader" class="u-full-width"
+                         style="margin-top:5px;height: 55px;display:flex;align-items: stretch;justify-content: center">
+                        <p class="selFlatLabel" style="display: inline-block;margin-right: 7px;margin-top: 5px"> Select
+                            a
+                            Palette
+                            converter: </p>
+                        <select id="paletteSelect" onchange="" style="display: inline-block">
+                            <option value="index"> index</option>
+                            <option> color</option>
 
-                </svg>
+                            <option> data</option>
+
+                        </select>
+                        <div id="paletteMaker" class="buttonImg" style="margin-right:4px ">
+                            <img src="assets/images/buttons/play.png" class="lightBorder"
+                                 onclick="handlePaletteSelect(document.getElementById('paletteSelect').value)"
+                                 style="width: 21px;padding: 7px;"/>
+                        </div>
+                    </div>
+                    <div id="paletteContainer" style="">
+                    </div>
+                </div>
+
 
             </div>
         </div>
         <div class="two columns" style="margin-top: 0;text-align: center">
             <div id="OperationList">
 
-
             </div>
         </div>
     </div>
 
-    <div class="row" style="margin-top: 0;text-align: center">
+<!--    <div class="row" style="margin-top: 0;text-align: center">
         <div class="three columns" style="height: 800px">
 
             <div id="fakeOpList">
@@ -240,27 +248,27 @@
 
         </div>
         <div class="eight columns " style="margin: 0;text-align: center">
-            <div id="paletteHeader" class="u-full-width"
-                 style="margin-top:5px;height: 55px;display:flex;align-items: stretch;justify-content: center">
-                <p class="selFlatLabel" style="display: inline-block;margin-right: 7px;margin-top: 5px"> Select a
-                    Palette
-                    converter: </p>
-                <select id="paletteSelect" onchange="" style="display: inline-block">
-                    <option value="index"> index</option>
-                    <option> color</option>
+            &lt;!&ndash;            <div id="paletteHeader" class="u-full-width"
+                             style="margin-top:5px;height: 55px;display:flex;align-items: stretch;justify-content: center">
+                            <p class="selFlatLabel" style="display: inline-block;margin-right: 7px;margin-top: 5px"> Select a
+                                Palette
+                                converter: </p>
+                            <select id="paletteSelect" onchange="" style="display: inline-block">
+                                <option value="index"> index</option>
+                                <option> color</option>
 
-                    <option> data</option>
+                                <option> data</option>
 
-                </select>
-                <div id="paletteMaker" class="buttonImg" style="margin-right:4px ">
-                    <img src="assets/images/buttons/play.png" class="lightBorder"
-                         onclick="handlePaletteSelect(document.getElementById('paletteSelect').value)"
-                         style="width: 21px;padding: 7px;"/>
-                </div>
-            </div>
-            <div id="paletteContainer" style="">
-            </div>
-        </div>
+                            </select>
+                            <div id="paletteMaker" class="buttonImg" style="margin-right:4px ">
+                                <img src="assets/images/buttons/play.png" class="lightBorder"
+                                     onclick="handlePaletteSelect(document.getElementById('paletteSelect').value)"
+                                     style="width: 21px;padding: 7px;"/>
+                            </div>
+                        </div>
+                        <div id="paletteContainer" style="">
+                        </div>&ndash;&gt;
+        </div>-->
     </div>
 
     <!-- ––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->

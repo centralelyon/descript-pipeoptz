@@ -129,7 +129,7 @@ function fakeSideGraph() {
         .ease(d3.easeLinear);
 
     d3.select(svg)
-        .graphviz()
+        .graphviz(false)
         .width(vbox.width)
         .height(vbox.height)
         .transition(t)

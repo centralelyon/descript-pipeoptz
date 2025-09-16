@@ -27,6 +27,7 @@ function loadImg(src) {
         forwardAllowed = true
         document.getElementById("forwardButton").classList.remove("disabledButton");
         document.getElementById("optiButton").classList.remove("disabledButton");
+        switchGraph()
 
     };
 
