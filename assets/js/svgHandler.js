@@ -393,9 +393,7 @@ function dragStart(e) {
             offset = undefined
             const svg = d3.select('#svgDisplay');
             over_on = false
-            // svg.selectAll("image").transition().duration(250).style("opacity", 0.2);
-            // svg.selectAll("images").attr("fill", "steelblue");
-            // svg.style("background-color", "rgba(0,0,0,0.65)");
+
             d3.select("#lasso").remove();
             d3.selectAll(".LassoControls").remove();
             svg.append("path")
@@ -510,9 +508,9 @@ function dragEnd(e) {
         //todo: handle button events
         const id = el.getAttribute("id")
         if (id === "mergeSvg") {
-            console.log(el);
 
             addMergeSample(coords)
+            console.log(seldots);
             for (let i = 0; i < seldots.length; i++) {
 
                 let id = sampleData.indexOf(seldots[i])
@@ -546,7 +544,7 @@ function dragEnd(e) {
 
             showControls(svg, coords[0])
 
-            svg.selectAll("image").each((d, i, e) => {
+            svg.selectAll(".rotate").each((d, i, e) => {
                 // console.log(d);
 
                 const elem = d3.select(e[i])

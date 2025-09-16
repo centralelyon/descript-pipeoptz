@@ -14,15 +14,14 @@ function isolateElement(can) {
     let contours2 = new opencv.MatVector();
     let hierarchy2 = new opencv.Mat();
 
-
-    opencv.findContours(src, contours, hierarchy, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+    opencv.findContours(src, contours, hierarchy, opencv.RETR_CCOMP, opencv.CHAIN_APPROX_TC89_L1);
 
     for (let i = 0; i < contours.size(); ++i) {
         let color = new opencv.Scalar(255, 255, 255);
-        opencv.drawContours(temp, contours, i, color, 8, opencv.LINE_8, hierarchy, 100);
+        opencv.drawContours(temp, contours, i, color, 4, opencv.LINE_8, hierarchy, 100);
     }
     opencv.cvtColor(temp, temp, opencv.COLOR_RGBA2GRAY, 0);
-    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_TREE, opencv.CHAIN_APPROX_SIMPLE);
+    opencv.findContours(temp, contours2, hierarchy2, opencv.RETR_CCOMP, opencv.CHAIN_APPROX_TC89_L1);
 
     const points = []
     for (let i = 0; i < contours2.size(); ++i) {

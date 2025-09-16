@@ -422,8 +422,7 @@ function addMergeSample(points) {
         th
     )
     tcont.restore()
-    let tt = get_average_rgb(tres.canvas)
-    console.log(tt);
+    // let tt = get_average_rgb(tres.canvas)
 
     // tcont.fillStyle = `rgb(${tt[0]},${tt[1]},${tt[2]}`;
 
@@ -453,9 +452,9 @@ function addMergeSample(points) {
         )*/
 
     // tcan = isolateElement(tcan)
-    tcan = otherGrab(tcan, {x: 2, y: 2, w: tw - 2, h: th - 2})
+    // tcan = otherGrab(tcan, {x: 2, y: 2, w: tw - 2, h: th - 2})
 
-    tcan = removeColor(0, 0, 0, tcan,3)
+    // tcan = removeColor(0, 0, 0, tcan,3)
 
     tres.canvas = tcan
     console.log("done");

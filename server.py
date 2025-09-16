@@ -21,14 +21,14 @@ import base64
 from io import BytesIO
 import ujson as ujson
 from pipelines import pipelines, parameters, loss
-from pipelines.extract_elements import initPipeline
+# from pipelines.extract_elements import initPipeline
 from pipeoptz.optimizer import PipelineOptimizer
 
 maxImgSize = [1000, 1000]
 
 
 def castParam(param):
-    # ATM we have no clue what type a node param expect. Hence, we assume all of them should be ints or bools
+    # ATM we have no clue what type is expected for a node param. Hence, we assume all of them should be ints or bools
     if param == "false" or param == "true":
         param = bool(param)
     else:
@@ -45,7 +45,7 @@ def pipes():
     for key in keys:
         graphs[key] = pipelines[key].to_dot()
         fixedParams[key] = pipelines[key].get_fixed_params()
-        print(fixedParams[key])
+        # print(fixedParams[key])
         for fixedParam in list(fixedParams[key]):
             if fixedParam.startswith("[optz]"):
                 for node_id in pipelines[key].nodes:
