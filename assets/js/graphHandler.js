@@ -89,6 +89,8 @@ function loadGraphModal(nodeName, params) {
 
     const currPipe = document.getElementById("pipeSelect").value
 
+    const desc = []
+
     if (nodeOuputs?.[nodeName]) {
         const img = document.getElementById("nodeOutputImg")
         const cont = document.getElementById("nodeOutputContainer")
@@ -103,6 +105,7 @@ function loadGraphModal(nodeName, params) {
     }
 
     for (let i = 0; i < params.length; i++) {
+        const desc = getDescription(currPipe, nodeName, params[i])
 
         let tdiv = document.createElement("div");
         let paramLabel = document.createElement("p");
@@ -120,10 +123,10 @@ function loadGraphModal(nodeName, params) {
             paramInput.value = globalPipelines.fixedParams[currPipe][nodeName][params[i]]
         }
 
-        paramInput.type = "text";
-
         tdiv.appendChild(paramLabel);
-        tdiv.appendChild(paramInput);
+
+        let input = makeSlider(nodeName, params[i], desc, globalPipelines.fixedParams[currPipe][nodeName][params[i]])
+        tdiv.appendChild(input);
 
         container.appendChild(tdiv);
     }
@@ -205,4 +208,63 @@ function changeNodeColor(nodeName, params, newParams) {
     } else {
         poly.style("fill", "green");
     }
+}
+
+
+function getDescription(pipeline, nodeName, param) {
+
+    if (!param.startsWith("[optz]")) {
+        return globalPipelines.description[pipeline][nodeName + "." + param];
+    } else {
+        return globalPipelines.description[pipeline][param + ".n"];
+    }
+}
+
+
+function makeSlider(nodeName, param, desc, value) {
+
+
+    let container = document.createElement("div");
+
+    container.classList.add("sliderContainer");
+
+    let output = document.createElement("output");
+    output.classList.add("sliderTooltip");
+    output.innerText = value;
+
+    let ratio = (180 * (value - desc["min"])) / (desc["max"] - desc["min"])
+
+    output.style.left = ratio + "px";
+
+    let sliderInput = document.createElement("input");
+    sliderInput.setAttribute("type", "range");
+    sliderInput.setAttribute("min", desc["min"]);
+    sliderInput.setAttribute("max", desc["max"]);
+    sliderInput.setAttribute("step", desc["step"]);
+    sliderInput.setAttribute("value", value);
+
+    sliderInput.classList.add("paramValueSlider");
+    let min = document.createElement("p");
+    let max = document.createElement("p");
+
+    min.innerHTML = desc["min"];
+    max.innerHTML = desc["max"];
+    container.appendChild(output)
+    container.appendChild(min)
+    container.appendChild(sliderInput)
+    container.appendChild(max)
+
+    sliderInput.oninput = function () {
+
+        const tval = this.value
+
+        let ratio = (180 * (tval - desc["min"])) / (desc["max"] - desc["min"]+1)
+
+        output.style.left = ratio + "px";
+        output.innerHTML = tval
+
+    }
+
+    return container
+
 }

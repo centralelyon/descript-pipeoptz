@@ -104,10 +104,20 @@ body {
     font-weight: bold;
     color: #333;
     text-decoration: underline;
-    margin-bottom: 0;
+    margin-bottom:25px ;
     position: sticky;
     top: 0;
     left: 1%;
+    width: 180px;
+}
+
+.paramInput {
+    display: inline-block;
+}
+
+.paramValueSlider {
+    display: inline-block;
+    cursor: pointer;
 }
 
 .disabledButton {
@@ -131,9 +141,10 @@ body {
     cursor: pointer;
     fill: rgba(255, 255, 255, 0.07);
 }
+
 .node polygon:hover {
 
-    fill: rgba(189, 189, 189, 0.31) ;
+    fill: rgba(189, 189, 189, 0.31);
 }
 
 #selFlat {
@@ -202,7 +213,7 @@ canvas {
 .LassoControls circle {
     fill: rgba(244, 244, 244, 0.9);
     stroke-width: 2px;
-    stroke:#222
+    stroke: #222
 }
 
 .LassoControls:hover {
@@ -514,14 +525,14 @@ table th {
 }
 
 
-#newDataTable div p{
+#newDataTable div p {
     font-weight: 700;
     margin-bottom: 0;
     margin-right: 23px;
 }
 
-#newDataTable div input[type="text"]{
-   width: 75px;
+#newDataTable div input[type="text"] {
+    width: 75px;
 }
 
 
@@ -533,8 +544,8 @@ table th {
     height: 65px;
     margin-bottom: 7px;
     display: flex;
-    overflow-x: auto ;
-    overflow-y: hidden ;
+    overflow-x: auto;
+    overflow-y: hidden;
 
     border-bottom: 1px solid #555;
     border-left: 1px solid #555555;
@@ -587,7 +598,7 @@ table th {
     left: 15px;
 }
 
-.paletteGroup  {
+.paletteGroup {
     max-height: 78%;
     max-width: 30%;
     min-width: 80px;
@@ -595,13 +606,14 @@ table th {
     justify-items: start;
 }
 
-.paletteGroup  canvas {
+.paletteGroup canvas {
     /*float: left;*/
     bottom: 0px;
     /*left: 5px;*/
     max-width: 35px;
 
 }
+
 .exportPalette {
     width: 32px;
     display: inline-block;
@@ -629,4 +641,30 @@ table th {
 
 .operation p {
     margin-top: 13px
+}
+
+.sliderContainer {
+    position: relative;
+    display: flex;
+}
+
+.sliderContainer p {
+    margin: 3px;
+    font-weight: 660;
+}
+
+.sliderTooltip {
+    position: absolute;
+    top: -24px;
+    width: 40px;
+    height: 18px;
+    border: 1px solid rgba(226, 226, 226, 0.5);
+    background-color: #fff;
+    border-radius: 3px;
+    color: #777;
+    font-size: .8em;
+    line-height: 24px;
+    text-align: center;
+    overflow-y: visible;
+    z-index: 999;
 }

@@ -5,9 +5,7 @@ from flask_cors import CORS, cross_origin
 
 from pipelines.rmv_bg_isolate import initPipeline
 
-
 MEGABYTE = (2 ** 10) ** 2
-
 
 app = Flask(__name__)
 
@@ -42,20 +40,31 @@ def pipes():
     keys = list(pipelines.keys())
     graphs = {}
     fixedParams = {}
+    descParams = {}
     for key in keys:
         graphs[key] = pipelines[key].to_dot()
         fixedParams[key] = pipelines[key].get_fixed_params()
-        # print(fixedParams[key])
+        descParams[key] = {}
+
         for fixedParam in list(fixedParams[key]):
+            descParams[key][fixedParam] = {}
+
             if fixedParam.startswith("[optz]"):
                 for node_id in pipelines[key].nodes:
                     if fixedParam.split(".")[0] in pipelines[key].node_dependencies[node_id].values():
                         fixedParams[key][f"{node_id}.{fixedParam}"] = fixedParams[key].pop(fixedParam)
 
+            for param in parameters[key]:
+                fullName = param.node_id + "." + param.param_name
+                if fullName == fixedParam:
+                    descParams[key][fixedParam] = param.get_description()
+                    break
+
     resp = Response(response=ujson.dumps({
         "pipelines": keys,
         "graphs": graphs,
-        "fixedParams": fixedParams
+        "fixedParams": fixedParams,
+        "description": descParams
     }),
         status=200,
         mimetype="application/json")
@@ -69,9 +78,12 @@ def setPipeParams():
     tpip = request.form['pipeline']
     nodes = ujson.loads(request.form['nodes'])
     for node in nodes:
-        for param in nodes[node]:
+        for param in nodes[node]:  # TODO: get type from client
             nodes[node][param] = castParam(nodes[node][param])
-            pipelines[tpip].nodes[node].set_fixed_param(param, nodes[node][param])
+            if param.startswith("[optz]"):
+                pipelines[tpip].nodes[param].set_fixed_param("n", nodes[node][param])
+            else:
+                pipelines[tpip].nodes[node].set_fixed_param(param, nodes[node][param])
     return "ok"
 
 
@@ -139,13 +151,29 @@ def optimize_pipe():
 def testNode():
     tpip = request.form['pipeline']
     params = ujson.loads(request.form['params'])
-
+    nodelist = request.form['node']
+    oldParams = {}
+    used = {}
     for param in params:
-        params[param] = castParam(params[param])
+        if param.startswith("[optz]"):  # todo: custom exec for optz (list and for)
+            oldParams[param] = pipelines[tpip].get_node(param).get_fixed_params()["n"]
+            pipelines[tpip].get_node(param).set_fixed_param("n", castParam(params[param]))
+            # paramList.append(){"n": castParam(params[param])}
 
-    nodeName = request.form['node']
+        else:
+            used[param] = castParam(params[param])
 
-    img = pipelines[tpip].run_single_node(nodeName, inputs=params)
+    print(params)
+    print(used)
+
+
+    # todo: test if run node relies on saved params if true then we gotta forward the pipeline or previous nodes ?
+
+    img = pipelines[tpip].run_single_node(nodelist, inputs=params)
+
+    for k, v in oldParams:
+        if k.startswith("[optz]"):  # todo: custom exec for optz (list and for)
+            pipelines[tpip].get_node(k).set_fixed_param("n", v)
 
     resp = Response(
         response=ujson.dumps({"result": numpy_to_b64(img)}),
